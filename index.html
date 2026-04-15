@@ -1,1343 +1,762 @@
-<!doctype html>
-<html lang="id" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tarqiyah Master Control Center</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Amiri:wght@400;700&amp;display=swap" rel="stylesheet">
-  <script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        warm: { 50:'#FAF9F6',100:'#F5F3EE',200:'#E8E4DD',300:'#D4CFC5',400:'#B8B0A2',500:'#9C9283',600:'#7A7164',700:'#5C5448',800:'#3E382F',900:'#231F1A' },
-        teal: { 50:'#F0FDFA',100:'#CCFBF1',200:'#99F6E4',300:'#5EEAD4',400:'#2DD4BF',500:'#14B8A6',600:'#0D9488',700:'#0F766E',800:'#115E59',900:'#134E4A' },
-        amber: { 50:'#FFFBEB',100:'#FEF3C7',200:'#FDE68A',300:'#FCD34D',400:'#FBBF24',500:'#F59E0B',600:'#D97706',700:'#B45309',800:'#92400E',900:'#78350F' }
-      },
-      fontFamily: {
-        jakarta: ['Plus Jakarta Sans','sans-serif'],
-        amiri: ['Amiri','serif']
-      }
-    }
-  }
-}
-</script>
-  <style>
-html, body { height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-* { box-sizing: border-box; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D4CFC5; border-radius: 3px; }
-body.dark-mode ::-webkit-scrollbar-thumb { background: #555; }
-.nav-item { transition: all 0.3s ease; position: relative; }
-.nav-item.active { color: #0D9488; }
-.nav-item.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:2px; background:#0D9488; border-radius:1px; }
-.card-hover { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
-.slide-in { animation: slideIn 0.3s ease-out; }
-.milestone-btn { transition: all 0.25s ease; }
-.milestone-btn.done { text-decoration: line-through; opacity: 0.5; background: #E8E4DD !important; color: #9C9283 !important; }
-.book-cover { transition: all 0.4s cubic-bezier(0.4,0,0.2,1); cursor:pointer; }
-.book-cover:hover { transform: perspective(800px) rotateY(-8deg) scale(1.03); box-shadow: 12px 8px 30px rgba(0,0,0,0.15); }
-.modal-overlay { background: rgba(35,31,26,0.6); backdrop-filter: blur(4px); }
-.page-flip { perspective: 1200px; }
-.page-left, .page-right { min-height: 400px; }
-.toast { animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards; }
-@keyframes toastIn { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
-@keyframes toastOut { from{opacity:1} to{opacity:0} }
-.tag { display:inline-block; padding:2px 8px; border-radius:9999px; font-size:0.7rem; font-weight:600; }
-input:focus, select:focus, textarea:focus { outline:none; box-shadow: 0 0 0 2px rgba(13,148,136,0.3); border-color: #0D9488; }
-.stat-card { border-left: 3px solid; }
-.inline-confirm { animation: fadeIn 0.2s ease-out; }
-.dark-mode { background-color: #1a1714; color: #e8e4dd; }
-.dark-mode header { background-color: #2d2520; border-color: #3e382f; }
-.dark-mode nav { background-color: #2d2520; border-color: #3e382f; }
-.dark-mode .bg-white { background-color: #3e382f; }
-.dark-mode .bg-warm-50 { background-color: #2d2520; }
-.dark-mode input, .dark-mode select, .dark-mode textarea { background-color: #2d2520 !important; color: #e8e4dd; border-color: #555; }
-.dark-mode .border-warm-200 { border-color: #555; }
-.dark-mode .text-warm-800 { color: #e8e4dd; }
-.dark-mode .text-warm-700 { color: #d4cfc5; }
-.dark-mode .text-warm-600 { color: #b8b0a2; }
-.dark-mode .text-warm-500 { color: #9c9283; }
-.dark-mode .text-warm-400 { color: #7a7164; }
-.dark-mode .text-warm-300 { color: #5c5448; }
-.dark-mode .text-warm-100 { color: #3e382f; }
-.dark-mode .bg-warm-100 { background-color: #3e382f; }
-.dark-mode .bg-warm-200 { background-color: #555; }
-.dark-mode .hover\:bg-warm-100:hover { background-color: #3e382f; }
-.dark-mode .divide-warm-100 { border-color: #3e382f; }
-.theme-toggle { cursor: pointer; transition: all 0.3s ease; }
-</style>
-  <style>body { box-sizing: border-box; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
- </head>
- <body class="h-full bg-warm-50 text-warm-800">
-  <div id="app" class="h-full flex flex-col overflow-auto"><!-- Header -->
-   <header class="bg-white border-b border-warm-200 px-4 py-3 flex-shrink-0">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-     <div>
-      <h1 id="appTitle" class="text-xl font-bold text-warm-900 tracking-tight">Tarqiyah Master Control Center</h1>
-      <p id="appSubtitle" class="text-xs text-warm-500 font-medium">Pusat Kendali Redaksi Terpadu</p>
-     </div>
-     <div class="flex items-center gap-4">
-      <div class="text-right">
-       <div id="hijriDate" class="font-amiri text-lg text-teal-700 font-bold"></div>
-       <div id="masehiDate" class="text-xs text-warm-400"></div>
-      </div><button id="themeToggle" class="theme-toggle p-2 rounded-lg hover:bg-warm-100 transition-colors" title="Ubah tema"> <i id="themeIcon" data-lucide="moon" style="width:18px;height:18px" class="text-warm-600"></i> </button>
-     </div>
-    </div>
-   </header><!-- Navigation -->
-   <nav class="bg-white border-b border-warm-100 flex-shrink-0 overflow-x-auto">
-    <div class="max-w-7xl mx-auto flex gap-1 px-4 py-2"><button onclick="switchTab('dashboard')" class="nav-item active px-3 py-2 text-sm font-semibold rounded-lg hover:bg-warm-100" data-tab="dashboard"> <span class="flex items-center gap-1.5"><i data-lucide="layout-dashboard" style="width:15px;height:15px"></i> Dashboard</span> </button> <button onclick="switchTab('bank')" class="nav-item px-3 py-2 text-sm font-semibold rounded-lg hover:bg-warm-100 text-warm-500" data-tab="bank"> <span class="flex items-center gap-1.5"><i data-lucide="archive" style="width:15px;height:15px"></i> Bank Tulisan</span> </button> <button onclick="switchTab('ebuletin')" class="nav-item px-3 py-2 text-sm font-semibold rounded-lg hover:bg-warm-100 text-warm-500" data-tab="ebuletin"> <span class="flex items-center gap-1.5"><i data-lucide="book-open" style="width:15px;height:15px"></i> E-Buletin</span> </button> <button onclick="switchTab('buku')" class="nav-item px-3 py-2 text-sm font-semibold rounded-lg hover:bg-warm-100 text-warm-500" data-tab="buku"> <span class="flex items-center gap-1.5"><i data-lucide="library" style="width:15px;height:15px"></i> Buku Tahunan</span> </button> <button onclick="switchTab('penulis')" class="nav-item px-3 py-2 text-sm font-semibold rounded-lg hover:bg-warm-100 text-warm-500" data-tab="penulis"> <span class="flex items-center gap-1.5"><i data-lucide="users" style="width:15px;height:15px"></i> Database Penulis</span> </button>
-    </div>
-   </nav><!-- Content Area -->
-   <main class="flex-1 overflow-auto">
-    <div class="max-w-7xl mx-auto p-4"><!-- ===================== DASHBOARD ===================== -->
-     <section id="sec-dashboard" class="fade-in space-y-5"><!-- Edisi Aktif Header -->
-      <div class="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl p-5 text-white">
-       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="zap" style="width:18px;height:18px"></i> Edisi Sedang Disusun</h2><span id="currentEdisiInfo" class="text-sm opacity-80">Belum ada edisi aktif</span>
-       </div>
-       <div id="currentEdisiDetails" class="mt-3 text-sm opacity-90">
-        <p>Pilih atau buat edisi baru di formulir status sampul untuk memulai</p>
-       </div>
-      </div><!-- Progres Buku & Tema Buletin -->
-      <div class="grid md:grid-cols-2 gap-4">
-       <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
-        <h3 class="font-bold text-amber-900 text-sm mb-2 flex items-center gap-2"><i data-lucide="book" style="width:16px;height:16px"></i> Progres Buku Tahunan</h3>
-        <div id="progresInfo" class="space-y-2"></div>
-        <p id="progresInfoEmpty" class="text-xs text-amber-700 italic">Belum ada buku dalam progres</p>
-       </div>
-       <div class="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
-        <h3 class="font-bold text-teal-900 text-sm mb-2 flex items-center gap-2"><i data-lucide="sparkles" style="width:16px;height:16px"></i> Tema Edisi Buletin Aktif</h3>
-        <div id="temaInfo" class="text-sm text-teal-900 font-semibold">
-         <p class="italic text-teal-700">Pilih edisi untuk melihat tema</p>
-        </div>
-       </div>
-      </div><!-- Progress Row -->
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-       <div class="stat-card border-teal-500 bg-white rounded-xl p-3 card-hover">
-        <p class="text-xs text-warm-400 font-semibold uppercase tracking-wider">Drafting</p>
-        <p id="statDrafting" class="text-2xl font-bold text-teal-700 mt-1">0%</p>
-       </div>
-       <div class="stat-card border-amber-500 bg-white rounded-xl p-3 card-hover">
-        <p class="text-xs text-warm-400 font-semibold uppercase tracking-wider">Typing</p>
-        <p id="statTyping" class="text-2xl font-bold text-amber-700 mt-1">0%</p>
-       </div>
-       <div class="stat-card border-emerald-500 bg-white rounded-xl p-3 card-hover">
-        <p class="text-xs text-warm-400 font-semibold uppercase tracking-wider">Editing</p>
-        <p id="statEditing" class="text-2xl font-bold text-emerald-700 mt-1">0%</p>
-       </div>
-       <div class="stat-card border-blue-500 bg-white rounded-xl p-3 card-hover">
-        <p class="text-xs text-warm-400 font-semibold uppercase tracking-wider">Layouting</p>
-        <p id="statLayouting" class="text-2xl font-bold text-blue-700 mt-1">0%</p>
-       </div>
-       <div class="stat-card border-purple-500 bg-white rounded-xl p-3 card-hover">
-        <p class="text-xs text-warm-400 font-semibold uppercase tracking-wider">Finishing</p>
-        <p id="statFinishing" class="text-2xl font-bold text-purple-700 mt-1">0%</p>
-       </div>
-      </div>
-      <div class="grid md:grid-cols-3 gap-4"><!-- Ban Berjalan / 4 Tulisan per Rubrik -->
-       <div class="md:col-span-2 bg-white rounded-xl p-4 border border-warm-100 card-hover">
-        <div class="flex items-center justify-between mb-3">
-         <h2 class="font-bold text-warm-800 flex items-center gap-2"><i data-lucide="target" style="width:18px;height:18px" class="text-teal-600"></i> 4 Tulisan per Rubrik</h2>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-         <div class="bg-teal-50 rounded-lg p-3">
-          <p class="text-xs font-bold text-teal-700 mb-2">📖 Inspirasi Qur'ani</p>
-          <div id="rubrik1List" class="space-y-1"></div>
-         </div>
-         <div class="bg-amber-50 rounded-lg p-3">
-          <p class="text-xs font-bold text-amber-700 mb-2">💡 Petuah Qur'ani</p>
-          <div id="rubrik2List" class="space-y-1"></div>
-         </div>
-         <div class="bg-purple-50 rounded-lg p-3">
-          <p class="text-xs font-bold text-purple-700 mb-2">✨ Story Qur'ani</p>
-          <div id="rubrik3List" class="space-y-1"></div>
-         </div>
-         <div class="bg-blue-50 rounded-lg p-3">
-          <p class="text-xs font-bold text-blue-700 mb-2">📝 Artikel Qur'ani</p>
-          <div id="rubrik4List" class="space-y-1"></div>
-         </div>
-        </div>
-       </div><!-- Chart -->
-       <div class="bg-white rounded-xl p-4 border border-warm-100 card-hover">
-        <h2 class="font-bold text-warm-800 mb-3 text-sm flex items-center gap-2"><i data-lucide="pie-chart" style="width:16px;height:16px" class="text-amber-600"></i> Distribusi per Kamar</h2>
-        <canvas id="kamarChart" height="180"></canvas>
-       </div>
-       <div class="bg-white rounded-xl p-4 border border-warm-100">
-        <h2 class="font-bold text-warm-800 mb-3 flex items-center gap-2"><i data-lucide="pen-tool" style="width:16px;height:16px" class="text-teal-600"></i> Pendaftaran Tulisan</h2>
-        <form id="formTulisan" onsubmit="submitTulisan(event)" class="space-y-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Judul Tulisan</label> <input type="text" id="inputJudul" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all" placeholder="Masukkan judul...">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Penulis</label> <input type="text" id="inputPenulis" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all" placeholder="Nama penulis...">
-         </div>
-         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold text-warm-500 mb-1">Kamar</label> <select id="inputKamar" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all"> <option value="">Pilih Kamar</option> </select>
-          </div>
-          <div><label class="block text-xs font-semibold text-warm-500 mb-1">Rubrik</label> <select id="inputRubrik" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all"> <option value="">Pilih Rubrik</option> <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option> <option value="Petuah Qur'ani">Petuah Qur'ani</option> <option value="Story Qur'ani">Story Qur'ani</option> <option value="Artikel Qur'ani">Artikel Qur'ani</option> </select>
-          </div>
-         </div><button type="submit" class="w-full bg-teal-600 text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"> <i data-lucide="plus-circle" style="width:16px;height:16px"></i> Daftarkan Tulisan </button>
-        </form>
-       </div><!-- Status Sampul Buletin -->
-       <div class="bg-white rounded-xl p-4 border border-warm-100">
-        <h2 class="font-bold text-warm-800 mb-3 flex items-center gap-2"><i data-lucide="image" style="width:16px;height:16px" class="text-amber-600"></i> Status Edisi Buletin</h2>
-        <form id="formSampul" onsubmit="submitSampul(event)" class="space-y-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Nomor Edisi</label> <input type="number" id="sampulEdisi" min="1" required onchange="updateDashboardFromSampul()" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all" placeholder="Edisi ke-">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Judul/Tema Edisi</label> <input type="text" id="sampulJudul" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all" placeholder="Judul edisi...">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Bulan &amp; Tahun Publikasi</label>
-          <div class="grid grid-cols-2 gap-2">
-           <select id="sampulBulan" class="px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all"> <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option><option value="04">April</option> <option value="05">Mei</option><option value="06">Juni</option><option value="07">Juli</option><option value="08">Agustus</option> <option value="09">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option> </select> <input type="number" id="sampulTahun" min="2020" class="px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50 transition-all" placeholder="Tahun">
-          </div>
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Warna Sampul</label> <input type="color" id="sampulWarna" value="#0D9488" class="w-10 h-10 rounded-lg border border-warm-200 cursor-pointer">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Unggah Sampul PDF</label> <input type="file" id="sampulFile" accept=".pdf" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-         </div><button type="submit" class="w-full bg-amber-600 text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"> <i data-lucide="upload" style="width:16px;height:16px"></i> Simpan Edisi </button>
-        </form>
-        <div id="sampulList" class="mt-3 space-y-2 max-h-40 overflow-y-auto"></div>
-       </div>
-      </div>
-     </section><!-- ===================== BANK TULISAN ===================== -->
-     <section id="sec-bank" class="fade-in hidden space-y-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-       <h2 class="text-lg font-bold text-warm-900 flex items-center gap-2"><i data-lucide="archive" style="width:20px;height:20px" class="text-teal-600"></i> Bank Tulisan — Arsip Karya</h2>
-       <div class="flex gap-2 w-full sm:w-auto">
-        <div class="relative flex-1 sm:flex-initial"><input type="text" id="searchBank" oninput="renderBank()" placeholder="Cari judul/penulis..." class="w-full pl-8 pr-3 py-2 border border-warm-200 rounded-lg text-sm bg-white"> <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%)" class="text-warm-400"></i>
-        </div><select id="filterRubrik" onchange="renderBank()" class="px-3 py-2 border border-warm-200 rounded-lg text-sm bg-white"> <option value="">Semua Rubrik</option> <option value="Artikel">Artikel</option> <option value="Cerpen">Cerpen</option> <option value="Puisi">Puisi</option> <option value="Opini">Opini</option> <option value="Resensi">Resensi</option> <option value="Feature">Feature</option> </select>
-       </div>
-      </div>
-      <div id="bankTable" class="bg-white rounded-xl border border-warm-100 overflow-hidden">
-       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-         <thead class="bg-warm-100 text-warm-600">
-          <tr>
-           <th class="text-left px-4 py-2.5 font-semibold">#</th>
-           <th class="text-left px-4 py-2.5 font-semibold">Judul</th>
-           <th class="text-left px-4 py-2.5 font-semibold">Rubrik</th>
-           <th class="text-left px-4 py-2.5 font-semibold">Penulis</th>
-           <th class="text-left px-4 py-2.5 font-semibold">Kamar</th>
-           <th class="text-left px-4 py-2.5 font-semibold">Edisi</th>
-           <th class="text-left px-4 py-2.5 font-semibold">Aksi</th>
-          </tr>
-         </thead>
-         <tbody id="bankBody" class="divide-y divide-warm-100"></tbody>
-        </table>
-       </div>
-      </div>
-      <div id="bankEmpty" class="hidden text-center py-12 text-warm-400"><i data-lucide="inbox" style="width:48px;height:48px;margin:0 auto" class="text-warm-300 mb-3 block"></i>
-       <p class="font-semibold">Belum ada tulisan terdaftar</p>
-       <p class="text-xs mt-1">Daftarkan tulisan melalui Dashboard</p>
-      </div>
-     </section><!-- ===================== E-BULETIN ===================== -->
-     <section id="sec-ebuletin" class="fade-in hidden space-y-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-       <h2 class="text-lg font-bold text-warm-900 flex items-center gap-2"><i data-lucide="book-open" style="width:20px;height:20px" class="text-teal-600"></i> E-Buletin — Rak Digital</h2><button onclick="toggleEBuletinForm()" class="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors flex items-center gap-1.5"><i data-lucide="plus" style="width:14px;height:14px"></i> Unggah Edisi</button>
-      </div><!-- Form Upload E-Buletin -->
-      <div id="eBuletinForm" class="hidden bg-white rounded-xl p-4 border border-warm-100 fade-in">
-       <h3 class="font-bold text-warm-700 mb-3 text-sm">Unggah Edisi Buletin</h3>
-       <form onsubmit="submitEBuletin(event)" class="space-y-3">
-        <div class="grid md:grid-cols-2 gap-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Nomor Edisi</label> <input type="number" id="ebJudul" min="1" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Tema Edisi</label> <input type="text" id="ebTema" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Tema edisi...">
-         </div>
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Rubrik 1: Inspirasi Qur'ani — Penulis</label> <input type="text" id="ebRubrik1" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Nama penulis...">
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Rubrik 2: Petuah Qur'ani — Penulis</label> <input type="text" id="ebRubrik2" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Nama penulis...">
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Rubrik 3: Story Qur'ani — Penulis</label> <input type="text" id="ebRubrik3" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Nama penulis...">
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Rubrik 4: Artikel Qur'ani — Penulis</label> <input type="text" id="ebRubrik4" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Nama penulis...">
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Unggah PDF Sampul</label> <input type="file" id="ebPdf" accept=".pdf" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-        </div><button type="submit" class="bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold text-sm hover:bg-teal-700 transition-colors">Simpan Edisi</button>
-       </form>
-      </div>
-      <div id="buletinRak" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
-      <div id="buletinEmpty" class="hidden text-center py-12 text-warm-400"><i data-lucide="book-open" style="width:48px;height:48px;margin:0 auto" class="text-warm-300 mb-3 block"></i>
-       <p class="font-semibold">Belum ada edisi buletin</p>
-       <p class="text-xs mt-1">Unggah edisi buletin untuk ditampilkan di sini</p>
-      </div>
-     </section><!-- ===================== BUKU TAHUNAN ===================== -->
-     <section id="sec-buku" class="fade-in hidden space-y-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-       <h2 class="text-lg font-bold text-warm-900 flex items-center gap-2"><i data-lucide="library" style="width:20px;height:20px" class="text-amber-600"></i> Buku Tahunan</h2>
-       <div class="flex gap-2 w-full sm:w-auto"><button onclick="toggleProgresForm()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors flex items-center gap-1.5"><i data-lucide="book" style="width:14px;height:14px"></i> Monitoring Progres</button> <button onclick="toggleKatalogForm()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors flex items-center gap-1.5"><i data-lucide="plus" style="width:14px;height:14px"></i> Katalog Buku</button>
-       </div>
-      </div><!-- Form Monitoring Progres Buku -->
-      <div id="progresForm" class="hidden bg-white rounded-xl p-4 border border-warm-100 fade-in">
-       <h3 class="font-bold text-warm-700 mb-3 text-sm">Monitoring Progres Pembuatan Buku</h3>
-       <form onsubmit="submitProgres(event)" class="space-y-3">
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Judul Buku yang Akan Datang</label> <input type="text" id="progJudul" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Judul buku...">
-        </div>
-        <div class="grid md:grid-cols-2 gap-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Target Halaman</label> <input type="number" id="progHalaman" min="1" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Jumlah halaman">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Kontributor Penulis</label> <input type="text" id="progKontributor" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Nama/tim...">
-         </div>
-        </div>
-        <div class="grid md:grid-cols-2 gap-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Sampul Kotor</label> <input type="file" id="progSampulFile" accept=".jpg,.jpeg,.png,.pdf" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Tanggal Rilis Target</label> <input type="date" id="progRilis" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-         </div>
-        </div><button type="submit" class="bg-amber-600 text-white px-6 py-2 rounded-lg font-semibold text-sm hover:bg-amber-700 transition-colors">Simpan Progres</button>
-       </form>
-      </div><!-- List Progres Buku -->
-      <div class="bg-white rounded-xl p-4 border border-warm-100">
-       <h3 class="font-bold text-warm-700 mb-3 text-sm flex items-center gap-2"><i data-lucide="list-checks" style="width:14px;height:14px" class="text-amber-600"></i> Progres Pembuatan Buku</h3>
-       <div id="proresList" class="space-y-3 max-h-80 overflow-y-auto"></div>
-       <p id="progresEmpty" class="hidden text-center text-warm-400 text-sm py-4">Belum ada buku dalam progres</p>
-      </div><!-- Form Katalog -->
-      <div id="katalogForm" class="hidden bg-white rounded-xl p-4 border border-warm-100 fade-in">
-       <h3 class="font-bold text-warm-700 mb-3 text-sm">Tambah Buku ke Katalog</h3>
-       <form onsubmit="submitKatalog(event)" class="space-y-3">
-        <div class="grid md:grid-cols-2 gap-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Judul Buku</label> <input type="text" id="katJudul" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Penulis/Editor</label> <input type="text" id="katPenulis" required class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50">
-         </div>
-        </div>
-        <div class="grid md:grid-cols-3 gap-3">
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Harga (Rp)</label> <input type="number" id="katHarga" min="0" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="50000">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Tahun</label> <input type="number" id="katTahun" min="2020" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="2025">
-         </div>
-         <div><label class="block text-xs font-semibold text-warm-500 mb-1">Warna Sampul</label> <input type="color" id="katWarna" value="#D97706" class="w-10 h-10 rounded-lg border border-warm-200 cursor-pointer">
-         </div>
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Sinopsis</label> <textarea id="katSinopsis" rows="2" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Sinopsis singkat buku..."></textarea>
-        </div>
-        <div><label class="block text-xs font-semibold text-warm-500 mb-1">Daftar Isi (satu per baris)</label> <textarea id="katDaftarIsi" rows="3" class="w-full px-3 py-2 border border-warm-200 rounded-lg text-sm bg-warm-50" placeholder="Bab 1: Pendahuluan
-Bab 2: Isi"></textarea>
-        </div><button type="submit" class="bg-amber-600 text-white px-6 py-2 rounded-lg font-semibold text-sm hover:bg-amber-700 transition-colors">Simpan Katalog</button>
-       </form>
-      </div><!-- Katalog Grid -->
-      <div id="katalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
-      <div id="katalogEmpty" class="hidden text-center py-8 text-warm-400">
-       <p class="text-sm font-semibold">Belum ada buku di katalog</p>
-      </div>
-     </section><!-- ===================== DATABASE PENULIS ===================== -->
-     <section id="sec-penulis" class="fade-in hidden space-y-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-       <h2 class="text-lg font-bold text-warm-900 flex items-center gap-2"><i data-lucide="users" style="width:20px;height:20px" class="text-teal-600"></i> Database Penulis</h2>
-       <div class="relative w-full sm:w-64"><input type="text" id="searchPenulis" oninput="renderPenulis()" placeholder="Cari nama atau judul karya..." class="w-full pl-8 pr-3 py-2 border border-warm-200 rounded-lg text-sm bg-white"> <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%)" class="text-warm-400"></i>
-       </div>
-      </div>
-      <div id="penulisGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-      <div id="penulisEmpty" class="hidden text-center py-12 text-warm-400"><i data-lucide="users" style="width:48px;height:48px;margin:0 auto" class="text-warm-300 mb-3 block"></i>
-       <p class="font-semibold">Belum ada data penulis</p>
-      </div>
-     </section>
-    </div>
-   </main><!-- Toast Container -->
-   <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div><!-- Modal: Book Flip Viewer -->
-   <div id="modalFlip" class="fixed inset-0 z-40 hidden items-center justify-center modal-overlay" onclick="if(event.target===this)closeModal('modalFlip')">
-    <div class="bg-white rounded-2xl max-w-3xl w-full mx-4 overflow-hidden shadow-2xl fade-in">
-     <div class="flex items-center justify-between p-4 border-b border-warm-100">
-      <h3 id="flipTitle" class="font-bold text-warm-800"></h3><button onclick="closeModal('modalFlip')" class="p-1 hover:bg-warm-100 rounded-lg transition-colors"><i data-lucide="x" style="width:20px;height:20px" class="text-warm-500"></i></button>
-     </div>
-     <div class="page-flip flex flex-col md:flex-row">
-      <div class="page-left flex-1 bg-warm-50 p-6 border-r border-warm-200">
-       <div id="flipLeft" class="prose prose-sm text-warm-700"></div>
-      </div>
-      <div class="page-right flex-1 bg-white p-6">
-       <div id="flipRight" class="prose prose-sm text-warm-700"></div>
-      </div>
-     </div>
-     <div class="flex items-center justify-between p-3 bg-warm-50 border-t border-warm-100"><button onclick="flipPage(-1)" class="px-3 py-1.5 text-sm bg-white border border-warm-200 rounded-lg hover:bg-warm-100 transition-colors flex items-center gap-1"><i data-lucide="chevron-left" style="width:14px;height:14px"></i> Sebelumnya</button> <span id="flipPageNum" class="text-xs text-warm-400 font-medium"></span> <button onclick="flipPage(1)" class="px-3 py-1.5 text-sm bg-white border border-warm-200 rounded-lg hover:bg-warm-100 transition-colors flex items-center gap-1">Selanjutnya <i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
-     </div>
-    </div>
-   </div><!-- Modal: Katalog Detail -->
-   <div id="modalKatalog" class="fixed inset-0 z-40 hidden items-center justify-center modal-overlay" onclick="if(event.target===this)closeModal('modalKatalog')">
-    <div class="bg-white rounded-2xl max-w-lg w-full mx-4 overflow-hidden shadow-2xl fade-in max-h-[85%] overflow-y-auto">
-     <div class="flex items-center justify-between p-4 border-b border-warm-100">
-      <h3 id="katDetailTitle" class="font-bold text-warm-800"></h3><button onclick="closeModal('modalKatalog')" class="p-1 hover:bg-warm-100 rounded-lg transition-colors"><i data-lucide="x" style="width:20px;height:20px" class="text-warm-500"></i></button>
-     </div>
-     <div id="katDetailBody" class="p-5"></div>
-    </div>
-   </div><!-- Delete Confirmation Modal -->
-   <div id="modalDelete" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" onclick="if(event.target===this)closeModal('modalDelete')">
-    <div class="bg-white rounded-xl max-w-sm w-full mx-4 p-5 shadow-2xl fade-in text-center">
-     <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="alert-triangle" style="width:24px;height:24px" class="text-red-500"></i>
-     </div>
-     <h3 class="font-bold text-warm-800 mb-1">Hapus Data?</h3>
-     <p id="deleteMsg" class="text-sm text-warm-500 mb-4"></p>
-     <div class="flex gap-2 justify-center"><button onclick="closeModal('modalDelete')" class="px-4 py-2 bg-warm-100 text-warm-600 rounded-lg text-sm font-semibold hover:bg-warm-200 transition-colors">Batal</button> <button id="deleteConfirmBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors">Hapus</button>
-     </div>
-    </div>
-   </div>
-  </div>
-  <script>
-// ========== STATE & STORAGE ==========
-const LS = {
-  get(k) { try { return JSON.parse(localStorage.getItem('tarqiyah_'+k)) } catch { return null } },
-  set(k,v) { localStorage.setItem('tarqiyah_'+k, JSON.stringify(v)) }
-};
-
-let tulisan = LS.get('tulisan') || [];
-let sampul = LS.get('sampul') || [];
-let ebuletin = LS.get('ebuletin') || [];
-let katalog = LS.get('katalog') || [];
-let progres = LS.get('progres') || [];
-let stageProgress = LS.get('stageProgress') || {}; // Track progress per book {bookId: {stage: 'stage-name', percentage: 0}}
-let milestones = LS.get('milestones') || Array(20).fill(false);
-let currentFlipPage = 0;
-let currentFlipData = null;
-let kamarChart = null;
-let isDarkMode = LS.get('isDarkMode') || false;
-
-const KAMAR_LIST = [];
-for(let i=1;i<=18;i++) KAMAR_LIST.push('Kamar '+i);
-KAMAR_LIST.push('D4');
-
-const RUBRIK_COLORS = {
-  'Inspirasi Qur\'ani':'bg-teal-100 text-teal-700','Petuah Qur\'ani':'bg-amber-100 text-amber-700','Story Qur\'ani':'bg-purple-100 text-purple-700',
-  'Artikel Qur\'ani':'bg-blue-100 text-blue-700'
-};
-const STATUS_COLORS = {
-  'Draft':'bg-warm-200 text-warm-600','Review':'bg-amber-100 text-amber-700','Final':'bg-teal-100 text-teal-700','Terbit':'bg-green-100 text-green-700'
-};
-
-// ========== INIT ==========
-function init() {
-  populateKamarSelect();
-  updateDates();
-  renderStats();
-  renderChart();
-  renderSampulList();
-  renderBank();
-  renderEBuletin();
-  renderBukuTahunan();
-  renderPenulis();
-  setupThemeToggle();
-  applyTheme();
-  lucide.createIcons();
-}
-
-function populateKamarSelect() {
-  const sel = document.getElementById('inputKamar');
-  KAMAR_LIST.forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent=k; sel.appendChild(o); });
-}
-
-// ========== THEME TOGGLE ==========
-function setupThemeToggle() {
-  const btn = document.getElementById('themeToggle');
-  btn.addEventListener('click', toggleTheme);
-}
-
-function toggleTheme() {
-  isDarkMode = !isDarkMode;
-  LS.set('isDarkMode', isDarkMode);
-  applyTheme();
-  lucide.createIcons();
-}
-
-function applyTheme() {
-  const app = document.getElementById('app');
-  const icon = document.getElementById('themeIcon');
-  if(isDarkMode) {
-    app.classList.add('dark-mode');
-    icon.setAttribute('data-lucide', 'sun');
-  } else {
-    app.classList.remove('dark-mode');
-    icon.setAttribute('data-lucide', 'moon');
-  }
-}
-
-// ========== DATES ==========
-function updateDates() {
-  try {
-    const now = new Date();
-    const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(now);
-    document.getElementById('hijriDate').textContent = hijri;
-    const masehi = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' }).format(now);
-    document.getElementById('masehiDate').textContent = masehi;
-  } catch(e) {
-    document.getElementById('hijriDate').textContent = '—';
-    document.getElementById('masehiDate').textContent = new Date().toLocaleDateString('id-ID');
-  }
-}
-
-// ========== TABS ==========
-function switchTab(tab) {
-  document.querySelectorAll('[id^="sec-"]').forEach(s => s.classList.add('hidden'));
-  document.getElementById('sec-'+tab).classList.remove('hidden');
-  document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); n.classList.add('text-warm-500'); });
-  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-  document.querySelector(`[data-tab="${tab}"]`).classList.remove('text-warm-500');
-  lucide.createIcons();
-}
-
-// ========== RENDER 4 TULISAN PER RUBRIK ==========
-function renderRubrikTulisan() {
-  const currentEdisi = parseInt(document.getElementById('sampulEdisi')?.value) || 0;
-  const rubriks = ['Inspirasi Qur\'ani', 'Petuah Qur\'ani', 'Story Qur\'ani', 'Artikel Qur\'ani'];
-  const rubrikIds = ['rubrik1List', 'rubrik2List', 'rubrik3List', 'rubrik4List'];
-  
-  rubriks.forEach((rubrik, idx) => {
-    const list = document.getElementById(rubrikIds[idx]);
-    const edisiTulisanRubrik = tulisan.filter(t => t.edisi === currentEdisi && t.rubrik === rubrik);
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarqiyah Master Control Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
-    list.innerHTML = '';
-    if(edisiTulisanRubrik.length === 0) {
-      list.innerHTML = '<p class="text-xs text-warm-400 italic">—</p>';
-    } else {
-      edisiTulisanRubrik.forEach(t => {
-        const div = document.createElement('div');
-        div.className = 'text-xs text-warm-700 truncate';
-        div.title = t.penulis;
-        div.textContent = `${t.penulis} (${t.kamar})`;
-        list.appendChild(div);
-      });
-    }
-  });
-}
-
-// ========== STATS & CHART ==========
-function renderStats() {
-  const currentEdisi = parseInt(document.getElementById('sampulEdisi')?.value) || 0;
-  const edisiTulisan = tulisan.filter(t => t.edisi === currentEdisi);
-  
-  if(currentEdisi > 0) {
-    document.getElementById('currentEdisiInfo').textContent = `Edisi ${currentEdisi}`;
-    document.getElementById('currentEdisiDetails').innerHTML = `<p class="text-base font-semibold">${edisiTulisan.length}/4 tulisan terkumpul</p>`;
-  }
-  
-  const stages = { drafting:0, typing:0, editing:0, layouting:0, finishing:0 };
-  edisiTulisan.forEach(t => {
-    if(!t.stage) t.stage = 'drafting';
-    stages[t.stage]++;
-  });
-  
-  const total = Math.max(edisiTulisan.length, 1);
-  document.getElementById('statDrafting').textContent = Math.round(stages.drafting/total*100)+'%';
-  document.getElementById('statTyping').textContent = Math.round(stages.typing/total*100)+'%';
-  document.getElementById('statEditing').textContent = Math.round(stages.editing/total*100)+'%';
-  document.getElementById('statLayouting').textContent = Math.round(stages.layouting/total*100)+'%';
-  document.getElementById('statFinishing').textContent = Math.round(stages.finishing/total*100)+'%';
-  
-  renderRubrikTulisan();
-  renderProgresInfo();
-  renderTemaInfo();
-}
-
-function renderProgresInfo() {
-  const info = document.getElementById('progresInfo');
-  const empty = document.getElementById('progresInfoEmpty');
-  info.innerHTML = '';
-  if(progres.length === 0) { empty.classList.remove('hidden'); }
-  else {
-    empty.classList.add('hidden');
-    progres.slice(-3).forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'text-xs bg-white bg-opacity-40 rounded p-2';
-      const rilisDate = new Date(p.rilisTarget).toLocaleDateString('id-ID',{day:'numeric',month:'short'});
-      div.innerHTML = `<p class="font-semibold text-amber-900 truncate">${esc(p.judul)}</p>
-        <p class="text-amber-700 text-xs mt-0.5">${rilisDate} • ${p.halaman} hal</p>`;
-      info.appendChild(div);
-    });
-  }
-}
-
-function renderTemaInfo() {
-  const currentEdisi = parseInt(document.getElementById('sampulEdisi')?.value) || 0;
-  const tema = sampul.find(s => s.edisi === currentEdisi);
-  const info = document.getElementById('temaInfo');
-  if(tema) {
-    info.innerHTML = `<p class="text-teal-900 font-bold">${esc(tema.judul)}</p>
-      <p class="text-xs text-teal-700 mt-1">Edisi ${tema.edisi}</p>`;
-  } else {
-    info.innerHTML = '<p class="italic text-teal-700">Belum ada tema</p>';
-  }
-}
-
-function renderChart() {
-  const dist = {};
-  KAMAR_LIST.forEach(k => dist[k]=0);
-  tulisan.forEach(t => { if(dist[t.kamar]!==undefined) dist[t.kamar]++; });
-  const labels = Object.keys(dist).filter(k => dist[k]>0);
-  const data = labels.map(k => dist[k]);
-  const colors = ['#0D9488','#D97706','#7C3AED','#2563EB','#DB2777','#059669','#DC2626','#4F46E5','#CA8A04','#0891B2','#9333EA','#E11D48','#16A34A','#EA580C','#6366F1','#84CC16','#F43F5E','#14B8A6','#8B5CF6'];
-
-  const ctx = document.getElementById('kamarChart');
-  if(kamarChart) kamarChart.destroy();
-  if(labels.length === 0) {
-    kamarChart = new Chart(ctx, { type:'doughnut', data:{ labels:['Belum ada data'], datasets:[{ data:[1], backgroundColor:['#E8E4DD'], borderWidth:0 }] }, options:{ responsive:true, plugins:{ legend:{display:false} } } });
-    return;
-  }
-  kamarChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data, backgroundColor: colors.slice(0,labels.length), borderWidth: 2, borderColor: '#FAF9F6' }] },
-    options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ font:{size:10,family:'Plus Jakarta Sans'}, padding:6, usePointStyle:true, pointStyleWidth:8 } }, tooltip:{ callbacks:{ label: function(context) { return context.label + ': ' + context.parsed.y + ' kontribusi'; } } } } }
-  });
-}
-
-// ========== UPDATE DASHBOARD FROM SAMPUL ==========
-function updateDashboardFromSampul() {
-  renderStats();
-  renderChart();
-}
-
-// ========== FORM TULISAN ==========
-function submitTulisan(e) {
-  e.preventDefault();
-  const currentEdisi = parseInt(document.getElementById('sampulEdisi')?.value);
-  if(!currentEdisi) {
-    showToast('Pilih edisi di form Status Edisi Buletin terlebih dahulu!', 'amber');
-    return;
-  }
-  const entry = {
-    id: Date.now().toString(36),
-    judul: document.getElementById('inputJudul').value.trim(),
-    penulis: document.getElementById('inputPenulis').value.trim(),
-    kamar: document.getElementById('inputKamar').value,
-    rubrik: document.getElementById('inputRubrik').value,
-    edisi: currentEdisi,
-    tanggal: new Date().toISOString()
-  };
-  tulisan.push(entry);
-  LS.set('tulisan', tulisan);
-  document.getElementById('formTulisan').reset();
-  renderStats(); renderChart(); renderBank(); renderEBuletin(); renderBukuTahunan(); renderPenulis();
-  showToast('Tulisan "'+entry.judul+'" berhasil didaftarkan!','teal');
-  lucide.createIcons();
-}
-
-// ========== SAMPUL ==========
-function submitSampul(e) {
-  e.preventDefault();
-  const entry = {
-    id: Date.now().toString(36),
-    edisi: parseInt(document.getElementById('sampulEdisi').value),
-    judul: document.getElementById('sampulJudul').value.trim(),
-    bulan: document.getElementById('sampulBulan').value,
-    tahun: document.getElementById('sampulTahun').value || new Date().getFullYear(),
-    warna: document.getElementById('sampulWarna').value,
-    pdfFile: document.getElementById('sampulFile').files[0]?.name || 'pending',
-    tanggal: new Date().toISOString()
-  };
-  const existing = sampul.findIndex(s => s.edisi === entry.edisi);
-  if(existing >= 0) sampul[existing] = {...sampul[existing], ...entry};
-  else sampul.push(entry);
-  LS.set('sampul', sampul);
-  document.getElementById('formSampul').reset();
-  renderSampulList(); renderEBuletin(); renderStats();
-  showToast('Edisi Buletin #'+entry.edisi+' tersimpan!','amber');
-  lucide.createIcons();
-}
-
-function renderSampulList() {
-  const container = document.getElementById('sampulList');
-  container.innerHTML = '';
-  sampul.sort((a,b)=>b.edisi-a.edisi).slice(0,5).forEach(s => {
-    const div = document.createElement('div');
-    div.className = 'flex items-center gap-2 p-2 bg-warm-50 rounded-lg text-xs';
-    const bulanIndo = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    const bulanNama = bulanIndo[parseInt(s.bulan)] || '';
-    div.innerHTML = `<span class="w-6 h-8 rounded flex-shrink-0" style="background:${s.warna}"></span>
-      <span class="font-semibold text-warm-700 flex-1">Edisi ${s.edisi}</span>
-      <span class="text-warm-400 text-xs">${bulanNama} ${s.tahun}</span>`;
-    container.appendChild(div);
-  });
-}
-
-// ========== BANK TULISAN ==========
-function renderBank() {
-  const query = (document.getElementById('searchBank')?.value||'').toLowerCase();
-  const rubrik = document.getElementById('filterRubrik')?.value||'';
-  let filtered = tulisan.filter(t => {
-    const matchQ = !query || t.judul.toLowerCase().includes(query) || t.penulis.toLowerCase().includes(query);
-    const matchR = !rubrik || t.rubrik === rubrik;
-    return matchQ && matchR;
-  });
-  const body = document.getElementById('bankBody');
-  const empty = document.getElementById('bankEmpty');
-  const table = document.getElementById('bankTable');
-  if(filtered.length === 0) {
-    body.innerHTML = ''; table.classList.add('hidden'); empty.classList.remove('hidden');
-  } else {
-    table.classList.remove('hidden'); empty.classList.add('hidden');
-    body.innerHTML = '';
-    filtered.forEach((t,i) => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-warm-50 transition-colors slide-in';
-      tr.innerHTML = `<td class="px-4 py-2.5 text-warm-400 font-medium">${i+1}</td>
-        <td class="px-4 py-2.5 font-semibold text-warm-800">${esc(t.judul)}</td>
-        <td class="px-4 py-2.5"><span class="tag ${RUBRIK_COLORS[t.rubrik]||''}">${t.rubrik}</span></td>
-        <td class="px-4 py-2.5 text-warm-600">${esc(t.penulis)}</td>
-        <td class="px-4 py-2.5 text-warm-500 text-xs">${t.kamar}</td>
-        <td class="px-4 py-2.5 text-warm-500 text-xs">Ed. ${t.edisi}</td>
-        <td class="px-4 py-2.5"><button onclick="confirmDelete('tulisan','${t.id}','${esc(t.judul)}')" class="text-red-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button></td>`;
-      body.appendChild(tr);
-    });
-  }
-  lucide.createIcons();
-}
-
-// ========== E-BULETIN ==========
-function toggleEBuletinForm() {
-  document.getElementById('eBuletinForm').classList.toggle('hidden');
-}
-
-function submitEBuletin(e) {
-  e.preventDefault();
-  const entry = {
-    id: Date.now().toString(36),
-    edisi: parseInt(document.getElementById('ebJudul').value),
-    tema: document.getElementById('ebTema').value.trim(),
-    rubrik1: document.getElementById('ebRubrik1').value.trim(),
-    rubrik2: document.getElementById('ebRubrik2').value.trim(),
-    rubrik3: document.getElementById('ebRubrik3').value.trim(),
-    rubrik4: document.getElementById('ebRubrik4').value.trim(),
-    pdfFile: document.getElementById('ebPdf').files[0]?.name || 'pending',
-    tanggal: new Date().toISOString()
-  };
-  ebuletin.push(entry);
-  LS.set('ebuletin', ebuletin);
-  
-  // Auto-save penulis to database penulis if not empty
-  const authors = [entry.rubrik1, entry.rubrik2, entry.rubrik3, entry.rubrik4].filter(a => a.length > 0);
-  authors.forEach(author => {
-    // Check if author already exists in tulisan
-    const exists = tulisan.some(t => t.penulis.toLowerCase() === author.toLowerCase());
-    if(!exists) {
-      // Add placeholder entry to tulisan for database
-      tulisan.push({
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-        judul: '[E-Buletin Edisi '+entry.edisi+']',
-        penulis: author,
-        kamar: 'E-Buletin',
-        rubrik: 'E-Buletin',
-        edisi: entry.edisi,
-        tanggal: new Date().toISOString()
-      });
-    }
-  });
-  LS.set('tulisan', tulisan);
-  
-  e.target.reset();
-  document.getElementById('eBuletinForm').classList.add('hidden');
-  renderEBuletin(); renderPenulis();
-  showToast('Edisi E-Buletin #'+entry.edisi+' berhasil diunggah & penulis disimpan!','teal');
-  lucide.createIcons();
-}
-
-function renderEBuletin() {
-  const rak = document.getElementById('buletinRak');
-  const empty = document.getElementById('buletinEmpty');
-  rak.innerHTML = '';
-  if(ebuletin.length === 0) { empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-  ebuletin.sort((a,b)=>a.edisi-b.edisi).forEach(e => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'relative group';
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+                        amiri: ['Amiri', 'serif']
+                    },
+                    colors: {
+                        primary: '#0D9488', // Teal
+                        secondary: '#F59E0B', // Amber
+                        warm: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
     
-    const div = document.createElement('div');
-    div.className = 'book-cover rounded-xl overflow-hidden shadow-md';
-    div.style.aspectRatio = '1/1.414';
-    const warna = '#'+Math.floor(Math.random()*16777215).toString(16);
-    div.innerHTML = `<div class="w-full h-full flex flex-col justify-between p-4" style="background:linear-gradient(135deg,${warna},${lighten(warna,0.3)})">
-      <div>
-        <p class="text-white text-opacity-70 text-xs font-semibold uppercase tracking-wider">Edisi ${e.edisi}</p>
-        <p class="text-white font-bold text-sm mt-1 leading-tight">${esc(e.tema)}</p>
-      </div>
-      <div>
-        <p class="text-white text-opacity-60 text-xs">4 Rubrik</p>
-        <span class="tag mt-1 bg-white bg-opacity-20 text-white text-opacity-90">PDF</span>
-      </div>
-    </div>`;
-    div.onclick = () => openEBuletinDetail(e);
-    wrapper.appendChild(div);
-    
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 text-white p-2 rounded-lg shadow-lg hover:bg-red-600';
-    deleteBtn.onclick = (evt) => { evt.stopPropagation(); confirmDelete('ebuletin', e.id, 'Edisi '+e.edisi); };
-    deleteBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px;height:14px"></i>';
-    wrapper.appendChild(deleteBtn);
-    
-    rak.appendChild(wrapper);
-  });
-}
+    <style>
+        body { background-color: #F8FAFC; color: #1E293B; overflow: hidden; }
+        .nav-btn.active { background-color: rgba(13, 148, 136, 0.1); color: #0D9488; font-weight: bold; border-left: 4px solid #0D9488; }
+        .chart-wrapper { position: relative; width: 100%; max-width: 220px; margin: 0 auto; aspect-ratio: 1; }
+        .milestone-done { text-decoration: line-through; opacity: 0.5; }
+        .book-a5 { width: 148px; height: 210px; cursor: pointer; transition: transform 0.3s; }
+        .book-a5:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .spine-shadow { box-shadow: inset 15px 0 20px -10px rgba(0,0,0,0.1), inset -1px 0 2px rgba(0,0,0,0.05); }
+        .spine-shadow-right { box-shadow: inset -15px 0 20px -10px rgba(0,0,0,0.1), inset 1px 0 2px rgba(0,0,0,0.05); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    </style>
+</head>
+<body class="font-jakarta h-screen flex">
 
-function openEBuletinDetail(e) {
-  currentFlipData = { ebuletin: e, type: 'ebuletin' };
-  currentFlipPage = 0;
-  document.getElementById('flipTitle').textContent = 'E-Buletin Edisi '+e.edisi+': '+e.tema;
-  renderEBuletinPages();
-  openModal('modalFlip');
-}
-
-function renderEBuletinPages() {
-  if(!currentFlipData?.ebuletin) return;
-  const e = currentFlipData.ebuletin;
-  const pages = [{
-    left: `<div class="text-center"><div class="w-32 h-44 mx-auto rounded-lg mb-4 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-600"><span class="text-white font-bold text-lg font-amiri">${e.edisi}</span></div><h2 class="font-bold text-lg text-warm-800 font-amiri">${esc(e.tema)}</h2><p class="text-sm text-warm-500 mt-1">E-Buletin Digital</p></div>`,
-    right: `<h3 class="font-bold text-warm-700 mb-3">Rubrik</h3><div class="space-y-2"><div class="text-sm text-warm-700"><p class="font-semibold text-teal-700">Inspirasi Qur'ani</p><p class="text-xs text-warm-500">${esc(e.rubrik1)||'(Belum diisi)'}</p></div><div class="text-sm text-warm-700"><p class="font-semibold text-amber-700">Petuah Qur'ani</p><p class="text-xs text-warm-500">${esc(e.rubrik2)||'(Belum diisi)'}</p></div><div class="text-sm text-warm-700"><p class="font-semibold text-purple-700">Story Qur'ani</p><p class="text-xs text-warm-500">${esc(e.rubrik3)||'(Belum diisi)'}</p></div><div class="text-sm text-warm-700"><p class="font-semibold text-blue-700">Artikel Qur'ani</p><p class="text-xs text-warm-500">${esc(e.rubrik4)||'(Belum diisi)'}</p></div></div>`
-  }];
-  document.getElementById('flipLeft').innerHTML = pages[0].left;
-  document.getElementById('flipRight').innerHTML = pages[0].right;
-  document.getElementById('flipPageNum').textContent = `Halaman 1 dari 1`;
-}
-
-function flipPage(dir) {
-  if(!currentFlipData) return;
-  if(currentFlipData.type === 'ebuletin') {
-    // E-Buletin hanya 1 halaman, tidak bisa digeser
-    return;
-  }
-  const articles = currentFlipData.articles;
-  const totalPages = 1 + Math.ceil(articles.length/2);
-  currentFlipPage = Math.max(0, Math.min(totalPages-1, currentFlipPage+dir));
-  renderFlipPages();
-}
-
-function renderFlipPages() {
-  if(!currentFlipData) return;
-  if(currentFlipData.ebuletin) {
-    renderEBuletinPages();
-    return;
-  }
-  if(!currentFlipData) return;
-  const { sampul:s, articles } = currentFlipData;
-  const pages = [];
-  pages.push({
-    left: `<div class="text-center"><div class="w-32 h-44 mx-auto rounded-lg mb-4 flex items-center justify-center" style="background:${s.warna}"><span class="text-white font-bold text-lg font-amiri">${s.edisi}</span></div><h2 class="font-bold text-lg text-warm-800 font-amiri">${esc(s.judul)}</h2><p class="text-sm text-warm-500 mt-1">Edisi ${s.edisi} — ${s.status}</p></div>`,
-    right: `<h3 class="font-bold text-warm-700 mb-3">Daftar Isi</h3><div class="space-y-2">${articles.length?articles.map((a,i)=>`<div class="flex justify-between border-b border-warm-100 pb-1"><span class="text-sm text-warm-700">${i+1}. ${esc(a.judul)}</span><span class="text-xs text-warm-400">${a.rubrik}</span></div>`).join(''):'<p class="text-warm-400 text-sm italic">Belum ada tulisan</p>'}</div>`
-  });
-  for(let i=0; i<articles.length; i+=2) {
-    const a1 = articles[i], a2 = articles[i+1];
-    pages.push({
-      left: renderArticlePage(a1),
-      right: a2 ? renderArticlePage(a2) : '<p class="text-warm-300 text-center italic text-sm mt-12">— Halaman Kosong —</p>'
-    });
-  }
-  const pg = Math.min(currentFlipPage, pages.length-1);
-  currentFlipPage = pg;
-  document.getElementById('flipLeft').innerHTML = pages[pg].left;
-  document.getElementById('flipRight').innerHTML = pages[pg].right;
-  document.getElementById('flipPageNum').textContent = `Halaman ${pg+1} dari ${pages.length}`;
-}
-
-function renderArticlePage(a) {
-  return `<div class="mb-4"><span class="tag ${RUBRIK_COLORS[a.rubrik]||''} mb-2">${a.rubrik}</span><h3 class="font-bold text-warm-800 mt-2">${esc(a.judul)}</h3><p class="text-xs text-warm-400 mt-1">Oleh: ${esc(a.penulis)} — ${a.kamar}</p><div class="mt-3 text-sm text-warm-600 leading-relaxed"><p class="italic text-warm-400">Konten tulisan akan ditampilkan di sini setelah naskah final diterima.</p></div></div>`;
-}
-
-// ========== BUKU TAHUNAN ==========
-function toggleProgresForm() {
-  document.getElementById('progresForm').classList.toggle('hidden');
-}
-
-function submitProgres(e) {
-  e.preventDefault();
-  const entry = {
-    id: Date.now().toString(36),
-    judul: document.getElementById('progJudul').value.trim(),
-    halaman: parseInt(document.getElementById('progHalaman').value),
-    kontributor: document.getElementById('progKontributor').value.trim(),
-    sampulFile: document.getElementById('progSampulFile').files[0]?.name || '',
-    rilisTarget: document.getElementById('progRilis').value,
-    tanggal: new Date().toISOString()
-  };
-  progres.push(entry);
-  LS.set('progres', progres);
-  e.target.reset();
-  document.getElementById('progresForm').classList.add('hidden');
-  renderProgres(); renderStats(); renderPenulis();
-  showToast('Progres buku "'+entry.judul+'" tersimpan!','amber');
-  lucide.createIcons();
-}
-
-function renderProgres() {
-  const list = document.getElementById('proresList');
-  const empty = document.getElementById('progresEmpty');
-  list.innerHTML = '';
-  if(progres.length === 0) { empty.classList.remove('hidden'); }
-  else {
-    empty.classList.add('hidden');
-    progres.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)).forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'flex flex-col gap-2 p-3 bg-warm-50 rounded-lg border-l-4 border-amber-500 slide-in group';
-      const rilisDate = new Date(p.rilisTarget).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
-      
-      // Get progress percentages for this book
-      const bookProgres = stageProgress[p.id] || { drafting:0, typing:0, editing:0, layouting:0, finishing:0 };
-      const totalProgress = Math.round((bookProgres.drafting + bookProgres.typing + bookProgres.editing + bookProgres.layouting + bookProgres.finishing) / 5);
-      const isCompleted = totalProgress === 100;
-      
-      div.innerHTML = `<div class="flex items-start gap-3 flex-1">
-        <div class="w-1.5 h-1.5 mt-2 ${isCompleted ? 'bg-green-500' : 'bg-amber-500'} rounded-full flex-shrink-0"></div>
-        <div class="flex-1 min-w-0">
-          <p class="font-semibold text-warm-800 text-sm">${esc(p.judul)}</p>
-          <p class="text-xs text-warm-500 mt-1">Target: ${rilisDate} • ${p.halaman} halaman</p>
-          <p class="text-xs text-warm-600 mt-0.5">Kontributor: ${esc(p.kontributor)}</p>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 shadow-sm">
+        <div class="p-6 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg font-amiri text-2xl">ط</div>
+            <div>
+                <h1 class="text-sm font-black text-slate-800 tracking-tight leading-none">TARQIYAH</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Control Center</p>
+            </div>
         </div>
-        <div class="text-right flex-shrink-0 flex items-center gap-2">
-          ${p.sampulFile?'<span class="tag bg-emerald-50 text-emerald-700 text-xs">✓ Sampul</span>':'<span class="tag bg-warm-200 text-warm-600 text-xs">— Sampul</span>'}
-          <button onclick="confirmDelete('progres','${p.id}','${esc(p.judul)}')" class="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 p-1"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-left">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Dashboard</span>
+            </button>
+            <button onclick="navigate('bank')" data-nav="bank" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="archive" class="w-4 h-4"></i><span>Bank Tulisan</span>
+            </button>
+            <button onclick="navigate('buku')" data-nav="buku" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="library" class="w-4 h-4"></i><span>Buku Tahunan</span>
+            </button>
+            <button onclick="navigate('penulis')" data-nav="penulis" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="users" class="w-4 h-4"></i><span>Database Penulis</span>
+            </button>
+            <button onclick="navigate('ebulletin')" data-nav="ebulletin" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="book-open" class="w-4 h-4"></i><span>E-Buletin</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 h-full overflow-y-auto p-6 lg:p-10 relative">
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-2"></div>
+
+        <!-- Header Global -->
+        <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h2 id="hijri-date" class="text-4xl font-black text-primary font-amiri tracking-tight leading-none">14 Dzulhijjah 1446 H</h2>
+                <p id="masehi-date" class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">Kamis, 15 April 2026</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <p class="text-[9px] font-black text-slate-300 uppercase">Total Karya</p>
+                    <p id="stat-karya" class="text-2xl font-black text-slate-800 leading-none mt-1">0</p>
+                </div>
+                <div class="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <p class="text-[9px] font-black text-slate-300 uppercase">Penulis Aktif</p>
+                    <p id="stat-penulis" class="text-2xl font-black text-secondary leading-none mt-1">0</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- =================== DASHBOARD =================== -->
+        <div id="page-dashboard" class="page-section space-y-8 animate-[fadeIn_0.3s]">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Progres & Countdown -->
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center relative overflow-hidden">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Progres Edisi</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="progressChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span id="progress-pct" class="text-3xl font-black text-primary leading-none">0%</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 w-full space-y-2" id="milestones-list"></div>
+                    
+                    <div class="w-full mt-6 p-4 bg-red-50 rounded-2xl text-center border border-red-100">
+                        <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Countdown Cetak</p>
+                        <p id="countdown-timer" class="text-xl font-black text-red-600 tabular-nums">00d 00h 00m</p>
+                    </div>
+                    <button onclick="resetSiklus()" class="mt-4 w-full py-3 bg-slate-100 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all">Siklus Bulan Berikutnya</button>
+                </div>
+
+                <!-- Formulir & Sampul -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Form Pendaftaran Tulisan -->
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6"><i data-lucide="edit-3" class="inline w-5 h-5 mr-2 text-primary"></i>Daftarkan Tulisan (Dashboard)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="dash-judul" placeholder="Judul Tulisan..." class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                            <select id="dash-rubrik" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary text-slate-500">
+                                <option value="Story Qur'ani">Story Qur'ani</option>
+                                <option value="Artikel Qur'ani">Artikel Qur'ani</option>
+                                <option value="Petuah Qur'ani">Petuah Qur'ani</option>
+                                <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option>
+                            </select>
+                            <input type="text" id="dash-penulis" placeholder="Nama Penulis..." class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                            <input type="text" id="dash-kamar" placeholder="Kamar Asrama (Contoh: 18D4)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                            <button onclick="addTulisan('dashboard')" class="md:col-span-2 py-4 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-teal-700 transition-all shadow-lg shadow-teal-100">Daftarkan Naskah</button>
+                        </div>
+                    </div>
+
+                    <!-- Upload Sampul Edisi -->
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex gap-6 items-center">
+                        <div class="w-32 h-44 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center relative overflow-hidden group">
+                            <img id="cover-preview" src="" class="absolute w-full h-full object-cover hidden">
+                            <div id="cover-placeholder" class="text-center text-slate-400 group-hover:text-primary transition-colors">
+                                <i data-lucide="image" class="w-8 h-8 mx-auto mb-1"></i><span class="text-[9px] font-bold uppercase">Upload</span>
+                            </div>
+                            <input type="file" id="cover-upload" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleCoverUpload(this)">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-2">Sampul Buletin Berjalan</h3>
+                            <input type="text" id="cover-edisi" value="Edisi 27" onchange="saveData()" class="text-2xl font-black text-primary bg-transparent border-none focus:ring-0 p-0 mb-2">
+                            <p class="text-xs text-slate-400 leading-relaxed">Unggah draf sampul buletin bulan ini. Nomor edisi dapat diubah langsung pada teks di atas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="flex-1 bg-warm-200 h-2 rounded-full overflow-hidden">
-          <div class="h-full ${isCompleted ? 'bg-green-500' : 'bg-amber-500'} transition-all duration-500" style="width:${totalProgress}%"></div>
+
+        <!-- =================== BANK TULISAN =================== -->
+        <div id="page-bank" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Bank Tulisan & Arsip File</h3>
+                    <button onclick="openFormModal()" class="px-6 py-3 bg-secondary text-white text-xs font-black uppercase rounded-xl shadow-lg">+ Tambah Data Manual</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <th class="p-4 rounded-tl-xl">Judul & Rubrik</th>
+                                <th class="p-4">Penulis & Kamar</th>
+                                <th class="p-4">Edisi/Buku</th>
+                                <th class="p-4 text-center">File Naskah</th>
+                                <th class="p-4 text-right rounded-tr-xl">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bank-tbody" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <span class="text-xs font-bold ${isCompleted ? 'text-green-700' : 'text-amber-700'} w-12 text-right">${totalProgress}%</span>
-      </div>
-      <div class="grid grid-cols-5 gap-1">
-        <button onclick="updateStageProgress('${p.id}', 'drafting')" class="px-2 py-1.5 text-xs font-semibold rounded transition-all ${bookProgres.drafting > 0 ? 'bg-teal-600 text-white ring-2 ring-teal-300' : 'bg-white border border-warm-200 text-warm-600 hover:bg-warm-50'}" title="Drafting: ${bookProgres.drafting}%">📝 ${bookProgres.drafting}%</button>
-        <button onclick="updateStageProgress('${p.id}', 'typing')" class="px-2 py-1.5 text-xs font-semibold rounded transition-all ${bookProgres.typing > 0 ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-white border border-warm-200 text-warm-600 hover:bg-warm-50'}" title="Typing: ${bookProgres.typing}%">⌨️ ${bookProgres.typing}%</button>
-        <button onclick="updateStageProgress('${p.id}', 'editing')" class="px-2 py-1.5 text-xs font-semibold rounded transition-all ${bookProgres.editing > 0 ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-white border border-warm-200 text-warm-600 hover:bg-warm-50'}" title="Editing: ${bookProgres.editing}%">✏️ ${bookProgres.editing}%</button>
-        <button onclick="updateStageProgress('${p.id}', 'layouting')" class="px-2 py-1.5 text-xs font-semibold rounded transition-all ${bookProgres.layouting > 0 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-white border border-warm-200 text-warm-600 hover:bg-warm-50'}" title="Layouting: ${bookProgres.layouting}%">📐 ${bookProgres.layouting}%</button>
-        <button onclick="updateStageProgress('${p.id}', 'finishing')" class="px-2 py-1.5 text-xs font-semibold rounded transition-all ${bookProgres.finishing > 0 ? 'bg-purple-600 text-white ring-2 ring-purple-300' : 'bg-white border border-warm-200 text-warm-600 hover:bg-warm-50'}" title="Finishing: ${bookProgres.finishing}%">✨ ${bookProgres.finishing}%</button>
-      </div>
-      ${isCompleted ? '<div class="mt-2 px-3 py-2 bg-green-50 border border-green-200 rounded text-xs text-green-700 font-semibold">✓ Buku selesai! Siap publikasi</div>' : ''}`;
-      list.appendChild(div);
-    });
-  }
-  lucide.createIcons();
-}
 
-function renderBukuTahunan() {
-  const grid = document.getElementById('katalogGrid');
-  const emptyK = document.getElementById('katalogEmpty');
-  grid.innerHTML = '';
-  if(katalog.length === 0) { emptyK.classList.remove('hidden'); }
-  else {
-    emptyK.classList.add('hidden');
-    katalog.forEach(k => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'relative group';
-      
-      const div = document.createElement('div');
-      div.className = 'book-cover rounded-xl overflow-hidden shadow-md';
-      div.style.aspectRatio = '1/1.414';
-      div.innerHTML = `<div class="w-full h-full flex flex-col justify-between p-4" style="background:linear-gradient(135deg,${k.warna},${lighten(k.warna,0.4)})">
-        <div><p class="text-white text-opacity-70 text-xs font-semibold">${k.tahun||''}</p><p class="text-white font-bold text-sm mt-1 leading-tight font-amiri">${esc(k.judul)}</p></div>
-        <div><p class="text-white text-opacity-70 text-xs">${esc(k.penulis)}</p>${k.harga?`<p class="text-white font-bold text-xs mt-0.5">Rp ${Number(k.harga).toLocaleString('id-ID')}</p>`:''}</div>
-      </div>`;
-      div.onclick = () => openKatalogDetail(k);
-      wrapper.appendChild(div);
-      
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 text-white p-2 rounded-lg shadow-lg hover:bg-red-600';
-      deleteBtn.onclick = (evt) => { evt.stopPropagation(); confirmDelete('katalog', k.id, esc(k.judul)); };
-      deleteBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px;height:14px"></i>';
-      wrapper.appendChild(deleteBtn);
-      
-      grid.appendChild(wrapper);
-    });
-  }
-}
+        <!-- =================== BUKU TAHUNAN =================== -->
+        <div id="page-buku" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <!-- Progres Buku Aktif -->
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Progres Buku & Antologi</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Form Buku Baru -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h4 class="text-xs font-black text-slate-600 uppercase mb-4">Set Target Buku</h4>
+                        <input type="text" id="buku-judul" placeholder="Judul Buku..." class="w-full mb-3 px-4 py-2 bg-white rounded-lg text-sm">
+                        <input type="number" id="buku-target" placeholder="Target Halaman" class="w-full mb-3 px-4 py-2 bg-white rounded-lg text-sm">
+                        <input type="date" id="buku-rilis" class="w-full mb-4 px-4 py-2 bg-white rounded-lg text-sm text-slate-500">
+                        <button onclick="addBookProject()" class="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-teal-700">Mulai Proyek</button>
+                    </div>
+                    <!-- Daftar Proyek -->
+                    <div class="lg:col-span-2 space-y-4" id="project-list"></div>
+                </div>
+            </div>
 
-function toggleKatalogForm() {
-  document.getElementById('katalogForm').classList.toggle('hidden');
-}
-
-function submitKatalog(e) {
-  e.preventDefault();
-  const entry = {
-    id: Date.now().toString(36),
-    judul: document.getElementById('katJudul').value.trim(),
-    penulis: document.getElementById('katPenulis').value.trim(),
-    harga: document.getElementById('katHarga').value || 0,
-    tahun: document.getElementById('katTahun').value || new Date().getFullYear(),
-    warna: document.getElementById('katWarna').value,
-    sinopsis: document.getElementById('katSinopsis').value.trim(),
-    daftarIsi: document.getElementById('katDaftarIsi').value.trim()
-  };
-  katalog.push(entry);
-  LS.set('katalog', katalog);
-  e.target.reset();
-  document.getElementById('katalogForm').classList.add('hidden');
-  renderBukuTahunan(); renderStats(); renderPenulis();
-  showToast('Buku "'+entry.judul+'" ditambahkan ke katalog!','amber');
-  lucide.createIcons();
-}
-
-function openKatalogDetail(k) {
-  document.getElementById('katDetailTitle').textContent = k.judul;
-  const terkait = tulisan.filter(t => t.penulis.toLowerCase() === k.penulis.toLowerCase());
-  document.getElementById('katDetailBody').innerHTML = `
-    <div class="space-y-4">
-      <div class="flex gap-4">
-        <div class="w-24 h-34 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:${k.warna}">
-          <span class="text-white font-amiri font-bold text-lg">${k.tahun||''}</span>
+            <!-- Katalog Arsip -->
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Katalog Buku Terbit</h3>
+                <div id="katalog-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+            </div>
         </div>
-        <div>
-          <p class="text-sm text-warm-500">Penulis: <span class="font-semibold text-warm-700">${esc(k.penulis)}</span></p>
-          ${k.harga?`<p class="text-sm text-warm-500 mt-1">Harga: <span class="font-bold text-amber-700">Rp ${Number(k.harga).toLocaleString('id-ID')}</span></p>`:''}
-          ${k.tahun?`<p class="text-sm text-warm-500 mt-1">Tahun: ${k.tahun}</p>`:''}
+
+        <!-- =================== DATABASE PENULIS =================== -->
+        <div id="page-penulis" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Database Kontributor</h3>
+                    <div class="relative w-full md:w-96">
+                        <i data-lucide="search" class="absolute left-4 top-3 w-5 h-5 text-slate-400"></i>
+                        <input type="text" id="search-penulis" oninput="renderPenulis()" placeholder="Cari nama atau judul karya..." class="w-full pl-12 pr-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                    </div>
+                </div>
+                <div id="penulis-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
         </div>
-      </div>
-      ${k.sinopsis?`<div><h4 class="font-semibold text-warm-700 text-sm mb-1">Sinopsis</h4><p class="text-sm text-warm-600 leading-relaxed">${esc(k.sinopsis)}</p></div>`:''}
-      ${k.daftarIsi?`<div><h4 class="font-semibold text-warm-700 text-sm mb-1">Daftar Isi</h4><div class="space-y-1">${k.daftarIsi.split('\n').filter(Boolean).map((l,i)=>`<p class="text-sm text-warm-600 pl-3 border-l-2 border-warm-200">${esc(l)}</p>`).join('')}</div></div>`:''}
-      ${terkait.length?`<div><h4 class="font-semibold text-warm-700 text-sm mb-1">Tulisan Terkait (${terkait.length})</h4><div class="space-y-1">${terkait.map(t=>`<div class="flex items-center gap-2 text-sm"><span class="tag ${RUBRIK_COLORS[t.rubrik]||''}">${t.rubrik}</span><span class="text-warm-700">${esc(t.judul)}</span></div>`).join('')}</div></div>`:''}
-    </div>`;
-  openModal('modalKatalog');
-  lucide.createIcons();
-}
 
-// ========== DATABASE PENULIS ==========
-function renderPenulis() {
-  const query = (document.getElementById('searchPenulis')?.value||'').toLowerCase();
-  const authors = {};
-  tulisan.forEach(t => {
-    const key = t.penulis.toLowerCase();
-    if(!authors[key]) authors[key] = { nama: t.penulis, karya:[], kamar: new Set(), sumber:'buletin' };
-    authors[key].karya.push({ judul:t.judul, rubrik:t.rubrik, edisi:t.edisi, type:'buletin' });
-    authors[key].kamar.add(t.kamar);
-  });
-  katalog.forEach(k => {
-    const key = k.penulis.toLowerCase();
-    if(!authors[key]) authors[key] = { nama: k.penulis, karya:[], kamar: new Set(), sumber:'buku' };
-    authors[key].karya.push({ judul:k.judul, type:'buku', tahun:k.tahun });
-  });
+        <!-- =================== E-BULETIN =================== -->
+        <div id="page-ebulletin" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Arsip E-Buletin</h3>
+                    <button onclick="triggerBulletinUpload()" class="px-6 py-2 bg-primary text-white text-xs font-bold rounded-xl"><i data-lucide="upload" class="inline w-4 h-4 mr-2"></i>Unggah PDF Baru</button>
+                    <input type="file" id="bulletin-upload" accept="application/pdf" class="hidden" onchange="handleBulletinUpload(this)">
+                </div>
+                <div id="ebulletin-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 justify-items-center"></div>
+            </div>
+        </div>
 
-  let filtered = Object.values(authors);
-  if(query) {
-    filtered = filtered.filter(a =>
-      a.nama.toLowerCase().includes(query) ||
-      a.karya.some(k => k.judul.toLowerCase().includes(query))
-    );
-  }
+    </main>
 
-  const grid = document.getElementById('penulisGrid');
-  const empty = document.getElementById('penulisEmpty');
-  grid.innerHTML = '';
-  if(filtered.length === 0) { empty.classList.remove('hidden'); }
-  else {
-    empty.classList.add('hidden');
-    filtered.sort((a,b)=>b.karya.length-a.karya.length).forEach(a => {
-      const initials = a.nama.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-      const buletinCount = a.karya.filter(k=>k.type==='buletin').length;
-      const bukuCount = a.karya.filter(k=>k.type==='buku').length;
-      const div = document.createElement('div');
-      div.className = 'bg-white rounded-xl p-4 border border-warm-100 card-hover fade-in';
-      div.innerHTML = `<div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">${initials}</div>
-        <div class="min-w-0"><p class="font-bold text-warm-800 text-sm truncate">${esc(a.nama)}</p><p class="text-xs text-warm-400">${a.karya.length} karya${a.kamar.size?' · '+[...a.kamar].join(', '):''}</p></div>
-      </div>
-      <div class="flex gap-2 mb-3">
-        ${buletinCount?`<span class="tag bg-teal-50 text-teal-700">${buletinCount} Buletin</span>`:''}
-        ${bukuCount?`<span class="tag bg-amber-50 text-amber-700">${bukuCount} Buku</span>`:''}
-      </div>
-      <div class="space-y-1 max-h-28 overflow-y-auto">
-        ${a.karya.slice(0,5).map(k=>`<div class="flex items-center gap-1.5 text-xs"><span class="w-1 h-1 rounded-full ${k.type==='buletin'?'bg-teal-400':'bg-amber-400'} flex-shrink-0"></span><span class="text-warm-600 truncate">${esc(k.judul)}</span>${k.rubrik?`<span class="tag ${RUBRIK_COLORS[k.rubrik]||''} ml-auto flex-shrink-0">${k.rubrik}</span>`:''}</div>`).join('')}
-        ${a.karya.length>5?`<p class="text-xs text-warm-400 italic">+${a.karya.length-5} lainnya</p>`:''}
-      </div>`;
-      grid.appendChild(div);
-    });
-  }
-  lucide.createIcons();
-}
-
-// ========== DELETE ==========
-let pendingDelete = null;
-function confirmDelete(type, id, label) {
-  pendingDelete = { type, id };
-  document.getElementById('deleteMsg').textContent = 'Hapus "'+label+'" dari daftar?';
-  document.getElementById('deleteConfirmBtn').onclick = executeDelete;
-  openModal('modalDelete');
-  lucide.createIcons();
-}
-
-function executeDelete() {
-  if(!pendingDelete) return;
-  if(pendingDelete.type === 'tulisan') {
-    tulisan = tulisan.filter(t => t.id !== pendingDelete.id);
-    LS.set('tulisan', tulisan);
-    renderStats(); renderChart(); renderBank(); renderEBuletin(); renderBukuTahunan(); renderPenulis();
-  } else if(pendingDelete.type === 'ebuletin') {
-    ebuletin = ebuletin.filter(e => e.id !== pendingDelete.id);
-    LS.set('ebuletin', ebuletin);
-    renderEBuletin(); renderPenulis();
-  } else if(pendingDelete.type === 'katalog') {
-    katalog = katalog.filter(k => k.id !== pendingDelete.id);
-    LS.set('katalog', katalog);
-    renderBukuTahunan(); renderPenulis();
-  } else if(pendingDelete.type === 'progres') {
-    progres = progres.filter(p => p.id !== pendingDelete.id);
-    LS.set('progres', progres);
-    renderProgres(); renderStats(); renderPenulis();
-  }
-  pendingDelete = null;
-  closeModal('modalDelete');
-  showToast('Data berhasil dihapus','teal');
-}
-
-// ========== MODAL ==========
-function openModal(id) {
-  const el = document.getElementById(id);
-  el.classList.remove('hidden');
-  el.classList.add('flex');
-  lucide.createIcons();
-}
-function closeModal(id) {
-  const el = document.getElementById(id);
-  el.classList.add('hidden');
-  el.classList.remove('flex');
-}
-
-// ========== TOAST ==========
-function showToast(msg, color='teal') {
-  const container = document.getElementById('toastContainer');
-  const div = document.createElement('div');
-  div.className = `toast px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 ${color==='teal'?'bg-teal-600 text-white':'bg-amber-600 text-white'}`;
-  div.innerHTML = `<i data-lucide="check-circle" style="width:16px;height:16px"></i> ${msg}`;
-  container.appendChild(div);
-  lucide.createIcons();
-  setTimeout(() => div.remove(), 3000);
-}
-
-// ========== UTILS ==========
-function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function lighten(hex, amt) {
-  let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  r=Math.round(r+(255-r)*amt); g=Math.round(g+(255-g)*amt); b=Math.round(b+(255-b)*amt);
-  return '#'+[r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('');
-}
-
-// ========== ELEMENT SDK INIT ==========
-const defaultConfig = {
-  app_title: 'Tarqiyah Master Control Center',
-  subtitle: 'Pusat Kendali Redaksi Terpadu',
-  background_color: '#FAF9F6',
-  surface_color: '#FFFFFF',
-  text_color: '#231F1A',
-  primary_color: '#0D9488',
-  accent_color: '#D97706',
-  font_family: 'Plus Jakarta Sans',
-  font_size: 14
-};
-
-function applyConfig(config) {
-  const t = config.app_title || defaultConfig.app_title;
-  const s = config.subtitle || defaultConfig.subtitle;
-  const bg = config.background_color || defaultConfig.background_color;
-  const surf = config.surface_color || defaultConfig.surface_color;
-  const txt = config.text_color || defaultConfig.text_color;
-  const pri = config.primary_color || defaultConfig.primary_color;
-  const acc = config.accent_color || defaultConfig.accent_color;
-  const font = config.font_family || defaultConfig.font_family;
-  const fs = config.font_size || defaultConfig.font_size;
-
-  document.getElementById('appTitle').textContent = t;
-  document.getElementById('appSubtitle').textContent = s;
-  document.body.style.backgroundColor = bg;
-  document.body.style.color = txt;
-  document.body.style.fontFamily = `${font}, Plus Jakarta Sans, sans-serif`;
-  document.body.style.fontSize = fs + 'px';
-
-  document.querySelectorAll('.bg-white, .bg-warm-50').forEach(el => {
-    if(el.classList.contains('bg-white')) el.style.backgroundColor = surf;
-  });
-}
-
-if(window.elementSdk) {
-  window.elementSdk.init({
-    defaultConfig,
-    async onConfigChange(config) { applyConfig(config); },
-    mapToCapabilities(config) {
-      return {
-        recolorables: [
-          { get:()=>config.background_color||defaultConfig.background_color, set:(v)=>{config.background_color=v; window.elementSdk.setConfig({background_color:v})} },
-          { get:()=>config.surface_color||defaultConfig.surface_color, set:(v)=>{config.surface_color=v; window.elementSdk.setConfig({surface_color:v})} },
-          { get:()=>config.text_color||defaultConfig.text_color, set:(v)=>{config.text_color=v; window.elementSdk.setConfig({text_color:v})} },
-          { get:()=>config.primary_color||defaultConfig.primary_color, set:(v)=>{config.primary_color=v; window.elementSdk.setConfig({primary_color:v})} },
-          { get:()=>config.accent_color||defaultConfig.accent_color, set:(v)=>{config.accent_color=v; window.elementSdk.setConfig({accent_color:v})} }
-        ],
-        borderables: [],
-        fontEditable: { get:()=>config.font_family||defaultConfig.font_family, set:(v)=>{config.font_family=v; window.elementSdk.setConfig({font_family:v})} },
-        fontSizeable: { get:()=>config.font_size||defaultConfig.font_size, set:(v)=>{config.font_size=v; window.elementSdk.setConfig({font_size:v})} }
-      };
-    },
-    mapToEditPanelValues(config) {
-      return new Map([
-        ['app_title', config.app_title || defaultConfig.app_title],
-        ['subtitle', config.subtitle || defaultConfig.subtitle]
-      ]);
-    }
-  });
-}
-
-// Boot
-init();
-
-// ========== STAGE PROGRESS UPDATE ==========
-function updateStageProgress(bookId, stage) {
-  if(!stageProgress[bookId]) {
-    stageProgress[bookId] = { drafting:0, typing:0, editing:0, layouting:0, finishing:0 };
-  }
-  
-  // Add 20% to stage (0 -> 20 -> 40 -> 60 -> 80 -> 100)
-  if(stageProgress[bookId][stage] < 100) {
-    stageProgress[bookId][stage] += 20;
-  }
-  
-  LS.set('stageProgress', stageProgress);
-  renderProgres();
-  showToast(`${stage} naik menjadi ${stageProgress[bookId][stage]}%`, 'amber');
-  lucide.createIcons();
-}
-</script> function populateKamarSelect() { const sel = document.getElementById('inputKamar'); KAMAR_LIST.forEach(k =&gt; { const o=document.createElement('option'); o.value=k; o.textContent=k; sel.appendChild(o); }); } // ========== DATES ========== function updateDates() { try { const now = new Date(); const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' }).format(now); document.getElementById('hijriDate').textContent = hijri; const masehi = new Intl.DateTimeFormat('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' }).format(now); document.getElementById('masehiDate').textContent = masehi; } catch(e) { document.getElementById('hijriDate').textContent = '—'; document.getElementById('masehiDate').textContent = new Date().toLocaleDateString('id-ID'); } } // ========== TABS ========== function switchTab(tab) { document.querySelectorAll('[id^="sec-"]').forEach(s =&gt; s.classList.add('hidden')); document.getElementById('sec-'+tab).classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(n =&gt; { n.classList.remove('active'); n.classList.add('text-warm-500'); }); document.querySelector(`[data-tab="${tab}"]`).classList.add('active'); document.querySelector(`[data-tab="${tab}"]`).classList.remove('text-warm-500'); lucide.createIcons(); } // ========== RENDER EDISI TULISAN ========== function renderEdisiTulisan() { const currentEdisi = parseInt(document.getElementById('sampulEdisi')?.value) || 0; const edisiTulisan = tulisan.filter(t =&gt; t.edisi === currentEdisi); const list = document.getElementById('edisiTulisanList'); const empty = document.getElementById('edisiTulisanEmpty'); list.innerHTML = ''; if(edisiTulisan.length === 0) { list.classList.add('hidden'); empty.classList.remove('hidden'); } else { list.classList.remove('hidden'); empty.classList.add('hidden'); edisiTulisan.forEach((t,i) =&gt; { const div = document.createElement('div'); div.className = 'flex items-center gap-3 p-3 bg-warm-50 rounded-lg border-l-4 border-teal-500 slide-in'; const stageDisplay = { drafting:'📝 Drafting', typing:'⌨️ Typing', editing:'✏️ Editing', layouting:'📐 Layouting', finishing:'✨ Finishing' }; const stage = t.stage || 'drafting'; div.innerHTML = `<span class="font-bold text-warm-400 text-sm flex-shrink-0">${i+1}.</span>
-  <div class="flex-1 min-w-0">
-   <p class="font-semibold text-warm-800 text-sm truncate">${esc(t.judul)}</p>
-   <p class="text-xs text-warm-500 mt-0.5">${esc(t.penulis)} • ${t.kamar}</p>
-  </div><span class="tag ${RUBRIK_COLORS[t.rubrik]||''} text-xs flex-shrink-0">${t.rubrik.split(' ')[0]}</span>
-  <div class="text-right text-xs text-warm-400 flex-shrink-0" title="${stageDisplay[stage]}">
-   ${stageDisplay[stage]}
-  </div>`; list.appendChild(div); }); } renderStats(); lucide.createIcons(); } // ========== STATS &amp; CHART ========== function renderStats() { const currentEdisi = parseInt(document.getElementById('sampulEdisi')?.value) || 0; const edisiTulisan = tulisan.filter(t =&gt; t.edisi === currentEdisi); if(currentEdisi &gt; 0) { document.getElementById('currentEdisiInfo').textContent = `Edisi ${currentEdisi}`; document.getElementById('currentEdisiDetails').innerHTML = ` 
-  <p class="text-base font-semibold">${edisiTulisan.length}/4 tulisan terkumpul</p>`; } const stages = { drafting:0, typing:0, editing:0, layouting:0, finishing:0 }; edisiTulisan.forEach(t =&gt; { if(!t.stage) t.stage = 'drafting'; stages[t.stage]++; }); const total = Math.max(edisiTulisan.length, 1); document.getElementById('statDrafting').textContent = Math.round(stages.drafting/total*100)+'%'; document.getElementById('statTyping').textContent = Math.round(stages.typing/total*100)+'%'; document.getElementById('statEditing').textContent = Math.round(stages.editing/total*100)+'%'; document.getElementById('statLayouting').textContent = Math.round(stages.layouting/total*100)+'%'; document.getElementById('statFinishing').textContent = Math.round(stages.finishing/total*100)+'%'; } function renderChart() { const dist = {}; KAMAR_LIST.forEach(k =&gt; dist[k]=0); tulisan.forEach(t =&gt; { if(dist[t.kamar]!==undefined) dist[t.kamar]++; }); const labels = Object.keys(dist).filter(k =&gt; dist[k]&gt;0); const data = labels.map(k =&gt; dist[k]); const colors = ['#0D9488','#D97706','#7C3AED','#2563EB','#DB2777','#059669','#DC2626','#4F46E5','#CA8A04','#0891B2','#9333EA','#E11D48','#16A34A','#EA580C','#6366F1','#84CC16','#F43F5E','#14B8A6','#8B5CF6']; const ctx = document.getElementById('kamarChart'); if(kamarChart) kamarChart.destroy(); if(labels.length === 0) { kamarChart = new Chart(ctx, { type:'doughnut', data:{ labels:['Belum ada data'], datasets:[{ data:[1], backgroundColor:['#E8E4DD'], borderWidth:0 }] }, options:{ responsive:true, plugins:{ legend:{display:false} } } }); return; } kamarChart = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: colors.slice(0,labels.length), borderWidth: 2, borderColor: '#FAF9F6' }] }, options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ font:{size:10,family:'Plus Jakarta Sans'}, padding:6, usePointStyle:true, pointStyleWidth:8 } } } } }); } // ========== FORM TULISAN ========== function submitTulisan(e) { e.preventDefault(); const entry = { id: Date.now().toString(36), judul: document.getElementById('inputJudul').value.trim(), penulis: document.getElementById('inputPenulis').value.trim(), kamar: document.getElementById('inputKamar').value, rubrik: document.getElementById('inputRubrik').value, edisi: parseInt(document.getElementById('inputEdisi').value), tanggal: new Date().toISOString() }; tulisan.push(entry); LS.set('tulisan', tulisan); document.getElementById('formTulisan').reset(); renderStats(); renderChart(); renderBank(); renderBukuTahunan(); renderPenulis(); showToast('Tulisan "'+entry.judul+'" berhasil didaftarkan!','teal'); lucide.createIcons(); } // ========== SAMPUL ========== function submitSampul(e) { e.preventDefault(); const entry = { id: Date.now().toString(36), edisi: parseInt(document.getElementById('sampulEdisi').value), judul: document.getElementById('sampulJudul').value.trim(), bulan: document.getElementById('sampulBulan').value, tahun: document.getElementById('sampulTahun').value || new Date().getFullYear(), warna: document.getElementById('sampulWarna').value, pdfFile: document.getElementById('sampulFile').files[0]?.name || 'pending', tanggal: new Date().toISOString() }; const existing = sampul.findIndex(s =&gt; s.edisi === entry.edisi); if(existing &gt;= 0) sampul[existing] = {...sampul[existing], ...entry}; else sampul.push(entry); LS.set('sampul', sampul); document.getElementById('formSampul').reset(); renderSampulList(); renderEBuletin(); renderEdisiTulisan(); showToast('Edisi Buletin #'+entry.edisi+' tersimpan!','amber'); lucide.createIcons(); } function renderSampulList() { const container = document.getElementById('sampulList'); container.innerHTML = ''; sampul.sort((a,b)=&gt;b.edisi-a.edisi).slice(0,5).forEach(s =&gt; { const div = document.createElement('div'); div.className = 'flex items-center gap-2 p-2 bg-warm-50 rounded-lg text-xs'; const bulanIndo = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; const bulanNama = bulanIndo[parseInt(s.bulan)] || ''; div.innerHTML = `<span class="w-6 h-8 rounded flex-shrink-0" style="background:${s.warna}"></span> <span class="font-semibold text-warm-700 flex-1">Edisi ${s.edisi}</span> <span class="text-warm-400 text-xs">${bulanNama} ${s.tahun}</span>`; container.appendChild(div); }); } // ========== BANK TULISAN ========== function renderBank() { const query = (document.getElementById('searchBank')?.value||'').toLowerCase(); const rubrik = document.getElementById('filterRubrik')?.value||''; let filtered = tulisan.filter(t =&gt; { const matchQ = !query || t.judul.toLowerCase().includes(query) || t.penulis.toLowerCase().includes(query); const matchR = !rubrik || t.rubrik === rubrik; return matchQ &amp;&amp; matchR; }); const body = document.getElementById('bankBody'); const empty = document.getElementById('bankEmpty'); const table = document.getElementById('bankTable'); if(filtered.length === 0) { body.innerHTML = ''; table.classList.add('hidden'); empty.classList.remove('hidden'); } else { table.classList.remove('hidden'); empty.classList.add('hidden'); body.innerHTML = ''; filtered.forEach((t,i) =&gt; { const tr = document.createElement('tr'); tr.className = 'hover:bg-warm-50 transition-colors slide-in'; tr.innerHTML = `${i+1} ${esc(t.judul)} <span class="tag ${RUBRIK_COLORS[t.rubrik]||''}">${t.rubrik}</span> ${esc(t.penulis)} ${t.kamar} Ed. ${t.edisi} <button onclick="confirmDelete('tulisan','${t.id}','${esc(t.judul)}')" class="text-red-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>`; body.appendChild(tr); }); } lucide.createIcons(); } // ========== E-BULETIN ========== function renderEBuletin() { const rak = document.getElementById('buletinRak'); const empty = document.getElementById('buletinEmpty'); rak.innerHTML = ''; if(sampul.length === 0) { empty.classList.remove('hidden'); return; } empty.classList.add('hidden'); sampul.sort((a,b)=&gt;a.edisi-b.edisi).forEach(s =&gt; { const articles = tulisan.filter(t=&gt;t.edisi===s.edisi); const div = document.createElement('div'); div.className = 'book-cover rounded-xl overflow-hidden shadow-md'; div.style.aspectRatio = '1/1.414'; // A5 ratio const lightColor = lighten(s.warna, 0.85); div.innerHTML = ` 
-  <div class="w-full h-full flex flex-col justify-between p-4" style="background:linear-gradient(135deg,${s.warna},${lighten(s.warna,0.3)})">
-   <div>
-    <p class="text-white text-opacity-70 text-xs font-semibold uppercase tracking-wider">Edisi ${s.edisi}</p>
-    <p class="text-white font-bold text-sm mt-1 leading-tight">${esc(s.judul)}</p>
-   </div>
-   <div>
-    <p class="text-white text-opacity-60 text-xs">${articles.length} tulisan</p><span class="tag mt-1 bg-white bg-opacity-20 text-white text-opacity-90">${s.status}</span>
-   </div>
-  </div>`; div.onclick = () =&gt; openBookFlip(s); rak.appendChild(div); }); } function openBookFlip(s) { const articles = tulisan.filter(t=&gt;t.edisi===s.edisi); currentFlipData = { sampul:s, articles }; currentFlipPage = 0; document.getElementById('flipTitle').textContent = 'Edisi '+s.edisi+': '+s.judul; renderFlipPages(); openModal('modalFlip'); } function renderFlipPages() { if(!currentFlipData) return; const { sampul:s, articles } = currentFlipData; const pages = []; // Cover page pages.push({ left: ` 
-  <div class="text-center">
-   <div class="w-32 h-44 mx-auto rounded-lg mb-4 flex items-center justify-center" style="background:${s.warna}"><span class="text-white font-bold text-lg font-amiri">${s.edisi}</span>
-   </div>
-   <h2 class="font-bold text-lg text-warm-800 font-amiri">${esc(s.judul)}</h2>
-   <p class="text-sm text-warm-500 mt-1">Edisi ${s.edisi} — ${s.status}</p>
-  </div>`, right: ` 
-  <h3 class="font-bold text-warm-700 mb-3">Daftar Isi</h3>
-  <div class="space-y-2">
-   ${articles.length?articles.map((a,i)=&gt;` 
-   <div class="flex justify-between border-b border-warm-100 pb-1"><span class="text-sm text-warm-700">${i+1}. ${esc(a.judul)}</span><span class="text-xs text-warm-400">${a.rubrik}</span>
-   </div>`).join(''):' 
-   <p class="text-warm-400 text-sm italic">Belum ada tulisan</p>'}
-  </div>` }); // Article pages (2 per spread) for(let i=0; i<articles.length; i+="2)" { const a1="articles[i]," a2="articles[i+1];" pages.push({ left: renderarticlepage(a1), right: ? renderarticlepage(a2) : <p class="text-warm-300 text-center italic text-sm mt-12">
-   — Halaman Kosong — 
-   <p></p>' }); } const pg = Math.min(currentFlipPage, pages.length-1); currentFlipPage = pg; document.getElementById('flipLeft').innerHTML = pages[pg].left; document.getElementById('flipRight').innerHTML = pages[pg].right; document.getElementById('flipPageNum').textContent = `Halaman ${pg+1} dari ${pages.length}`; } function renderArticlePage(a) { return ` 
-   <div class="mb-4"><span class="tag ${RUBRIK_COLORS[a.rubrik]||''} mb-2">${a.rubrik}</span>
-    <h3 class="font-bold text-warm-800 mt-2">${esc(a.judul)}</h3>
-    <p class="text-xs text-warm-400 mt-1">Oleh: ${esc(a.penulis)} — ${a.kamar}</p>
-    <div class="mt-3 text-sm text-warm-600 leading-relaxed">
-     <p class="italic text-warm-400">Konten tulisan akan ditampilkan di sini setelah naskah final diterima.</p>
+    <!-- =================== MODALS =================== -->
+    <!-- Form Manual Tambah Tulisan -->
+    <div id="modal-form" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl">
+            <h3 class="text-lg font-black text-slate-800 mb-6">Tambah Tulisan Manual</h3>
+            <div class="space-y-4">
+                <input type="text" id="m-judul" placeholder="Judul Tulisan" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+                <select id="m-rubrik" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm text-slate-500">
+                    <option value="Story Qur'ani">Story Qur'ani</option>
+                    <option value="Artikel Qur'ani">Artikel Qur'ani</option>
+                    <option value="Petuah Qur'ani">Petuah Qur'ani</option>
+                    <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option>
+                </select>
+                <input type="text" id="m-penulis" placeholder="Nama Penulis" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+                <input type="text" id="m-kamar" placeholder="Kamar Asrama (Contoh: 18D4)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+                <input type="text" id="m-edisi" placeholder="Edisi Publikasi (Contoh: Edisi 27)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+            </div>
+            <div class="flex gap-4 mt-8">
+                <button onclick="closeModal('modal-form')" class="flex-1 py-3 bg-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-200 transition-colors">Batal</button>
+                <button onclick="addTulisan('manual')" class="flex-1 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-amber-600 transition-colors">Simpan Data</button>
+            </div>
+        </div>
     </div>
-   </div>`; } function flipPage(dir) { if(!currentFlipData) return; const articles = currentFlipData.articles; const totalPages = 1 + Math.ceil(articles.length/2); currentFlipPage = Math.max(0, Math.min(totalPages-1, currentFlipPage+dir)); renderFlipPages(); } // ========== E-BULETIN FUNCTIONS ========== function toggleEBuletinForm() { document.getElementById('eBuletinForm').classList.toggle('hidden'); } function submitEBuletin(e) { e.preventDefault(); const entry = { id: Date.now().toString(36), edisi: parseInt(document.getElementById('ebJudul').value), tema: document.getElementById('ebTema').value.trim(), rubrik1: document.getElementById('ebRubrik1').value.trim(), rubrik2: document.getElementById('ebRubrik2').value.trim(), rubrik3: document.getElementById('ebRubrik3').value.trim(), rubrik4: document.getElementById('ebRubrik4').value.trim(), pdfFile: document.getElementById('ebPdf').files[0]?.name || 'pending', tanggal: new Date().toISOString() }; ebuletin.push(entry); LS.set('ebuletin', ebuletin); e.target.reset(); document.getElementById('eBuletinForm').classList.add('hidden'); renderEBuletin(); renderPenulis(); showToast('Edisi E-Buletin #'+entry.edisi+' berhasil diunggah!','teal'); lucide.createIcons(); } function renderEBuletin() { const rak = document.getElementById('buletinRak'); const empty = document.getElementById('buletinEmpty'); rak.innerHTML = ''; if(ebuletin.length === 0) { empty.classList.remove('hidden'); return; } empty.classList.add('hidden'); ebuletin.sort((a,b)=&gt;a.edisi-b.edisi).forEach(e =&gt; { const div = document.createElement('div'); div.className = 'book-cover rounded-xl overflow-hidden shadow-md'; div.style.aspectRatio = '1/1.414'; const warna = '#'+Math.floor(Math.random()*16777215).toString(16); div.innerHTML = ` 
-   <div class="w-full h-full flex flex-col justify-between p-4" style="background:linear-gradient(135deg,${warna},${lighten(warna,0.3)})">
-    <div>
-     <p class="text-white text-opacity-70 text-xs font-semibold uppercase tracking-wider">Edisi ${e.edisi}</p>
-     <p class="text-white font-bold text-sm mt-1 leading-tight">${esc(e.tema)}</p>
+
+    <!-- Detail Buku Modal -->
+    <div id="modal-book" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] p-10 w-full max-w-lg shadow-2xl relative">
+            <button onclick="closeModal('modal-book')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-800"><i data-lucide="x"></i></button>
+            <div id="book-detail-content" class="text-center"></div>
+        </div>
     </div>
-    <div>
-     <p class="text-white text-opacity-60 text-xs">4 Rubrik</p><span class="tag mt-1 bg-white bg-opacity-20 text-white text-opacity-90">PDF</span>
+
+    <!-- Bookflip Modal -->
+    <div id="modal-bookflip" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4 md:p-10">
+        <div class="w-full max-w-5xl h-full max-h-[800px] flex flex-col relative">
+            <button onclick="closeModal('modal-bookflip')" class="absolute -top-4 -right-4 bg-white text-slate-800 p-2 rounded-full shadow-lg z-10"><i data-lucide="x"></i></button>
+            <h3 id="bookflip-title" class="text-white text-center font-black tracking-widest uppercase mb-6 text-xl"></h3>
+            <div class="flex-1 flex bg-white rounded-lg overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                <!-- Left Page -->
+                <div class="w-1/2 bg-[#fdfbf7] p-8 md:p-12 spine-shadow overflow-y-auto relative border-r border-slate-200/50">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-6">Halaman 1</p>
+                    <div class="prose prose-sm font-amiri text-slate-700">
+                        <h2 class="text-2xl font-black mb-4 text-slate-900">Pembukaan Redaksi</h2>
+                        <p class="leading-relaxed text-lg">Alhamdulillah, segala puji bagi Allah. Edisi kali ini menghadirkan karya-karya luar biasa dari para santri yang berjuang menjaga cahaya hafalan Al-Qur'an di dada mereka...</p>
+                    </div>
+                </div>
+                <!-- Right Page -->
+                <div class="w-1/2 bg-[#fdfbf7] p-8 md:p-12 spine-shadow-right overflow-y-auto relative">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-6 text-right">Halaman 2</p>
+                    <div class="prose prose-sm font-amiri text-slate-700">
+                        <p class="leading-relaxed text-lg">Dalam diamnya malam, coretan pena mereka menjadi saksi perjalanan spiritual yang mendalam. Bacalah dengan hati, resapi setiap hikmah yang tertuang di lembaran ini.</p>
+                        <div class="mt-8 p-6 border-2 border-slate-200 border-dashed text-center">
+                            <p class="italic text-slate-500">Visualisasi PDF Bookflip (Simulasi)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-   </div>`; div.onclick = () =&gt; openEBuletinDetail(e); rak.appendChild(div); }); } function openEBuletinDetail(e) { currentFlipData = { ebuletin: e }; currentFlipPage = 0; document.getElementById('flipTitle').textContent = 'E-Buletin Edisi '+e.edisi+': '+e.tema; renderEBuletinPages(); openModal('modalFlip'); } function renderEBuletinPages() { if(!currentFlipData?.ebuletin) return; const e = currentFlipData.ebuletin; const pages = [{ left: ` 
-   <div class="text-center">
-    <div class="w-32 h-44 mx-auto rounded-lg mb-4 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-600"><span class="text-white font-bold text-lg font-amiri">${e.edisi}</span>
-    </div>
-    <h2 class="font-bold text-lg text-warm-800 font-amiri">${esc(e.tema)}</h2>
-    <p class="text-sm text-warm-500 mt-1">E-Buletin Digital</p>
-   </div>`, right: ` 
-   <h3 class="font-bold text-warm-700 mb-3">Rubrik</h3>
-   <div class="space-y-2">
-    <div class="text-sm text-warm-700">
-     <p class="font-semibold text-teal-700">Inspirasi Qur'ani</p>
-     <p class="text-xs text-warm-500">${esc(e.rubrik1)||'(Belum diisi)'}</p>
-    </div>
-    <div class="text-sm text-warm-700">
-     <p class="font-semibold text-amber-700">Petuah Qur'ani</p>
-     <p class="text-xs text-warm-500">${esc(e.rubrik2)||'(Belum diisi)'}</p>
-    </div>
-    <div class="text-sm text-warm-700">
-     <p class="font-semibold text-purple-700">Story Qur'ani</p>
-     <p class="text-xs text-warm-500">${esc(e.rubrik3)||'(Belum diisi)'}</p>
-    </div>
-    <div class="text-sm text-warm-700">
-     <p class="font-semibold text-blue-700">Artikel Qur'ani</p>
-     <p class="text-xs text-warm-500">${esc(e.rubrik4)||'(Belum diisi)'}</p>
-    </div>
-   </div>` }]; document.getElementById('flipLeft').innerHTML = pages[0].left; document.getElementById('flipRight').innerHTML = pages[0].right; document.getElementById('flipPageNum').textContent = `Halaman 1 dari 1`; } // ========== BUKU TAHUNAN ========== function toggleProgresForm() { document.getElementById('progresForm').classList.toggle('hidden'); } function submitProgres(e) { e.preventDefault(); const entry = { id: Date.now().toString(36), judul: document.getElementById('progJudul').value.trim(), halaman: parseInt(document.getElementById('progHalaman').value), kontributor: document.getElementById('progKontributor').value.trim(), sampulKotor: document.getElementById('progSampulKotor').checked, rilisTarget: document.getElementById('progRilis').value, tanggal: new Date().toISOString() }; progres.push(entry); LS.set('progres', progres); e.target.reset(); document.getElementById('progresForm').classList.add('hidden'); renderProgres(); renderPenulis(); showToast('Progres buku "'+entry.judul+'" tersimpan!','amber'); lucide.createIcons(); } function renderProgres() { const list = document.getElementById('proresList'); const empty = document.getElementById('progresEmpty'); list.innerHTML = ''; if(progres.length === 0) { empty.classList.remove('hidden'); } else { empty.classList.add('hidden'); progres.sort((a,b)=&gt;new Date(b.tanggal)-new Date(a.tanggal)).forEach(p =&gt; { const div = document.createElement('div'); div.className = 'flex items-start gap-3 p-3 bg-warm-50 rounded-lg border-l-4 border-amber-500 slide-in'; const rilisDate = new Date(p.rilisTarget).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}); div.innerHTML = ` 
-   <div class="w-1.5 h-1.5 mt-2 bg-amber-500 rounded-full flex-shrink-0"></div>
-   <div class="flex-1 min-w-0">
-    <p class="font-semibold text-warm-800 text-sm">${esc(p.judul)}</p>
-    <p class="text-xs text-warm-500 mt-1">Target: ${rilisDate} • ${p.halaman} halaman</p>
-    <p class="text-xs text-warm-600 mt-0.5">Kontributor: ${esc(p.kontributor)}</p>
-   </div>
-   <div class="text-right flex-shrink-0">
-    ${p.sampulKotor?'<span class="tag bg-emerald-50 text-emerald-700 text-xs">✓ Sampul</span>':'<span class="tag bg-warm-200 text-warm-600 text-xs">— Sampul</span>'}
-   </div>`; list.appendChild(div); }); } lucide.createIcons(); } function renderBukuTahunan() { // Progres list const list = document.getElementById('bukuProgresList'); const emptyP = document.getElementById('bukuProgresEmpty'); list.innerHTML = ''; if(tulisan.length === 0) { emptyP.classList.remove('hidden'); } else { emptyP.classList.add('hidden'); tulisan.slice(-15).reverse().forEach(t =&gt; { const div = document.createElement('div'); div.className = 'flex items-center gap-3 p-2 bg-warm-50 rounded-lg slide-in'; div.innerHTML = ` 
-   <div class="w-1.5 h-1.5 bg-teal-500 rounded-full flex-shrink-0"></div>
-   <span class="text-sm font-medium text-warm-700 flex-1">${esc(t.judul)}</span>
-   <span class="text-xs text-warm-400">${esc(t.penulis)}</span>
-   <span class="tag ${RUBRIK_COLORS[t.rubrik]||''}">${t.rubrik}</span>`; list.appendChild(div); }); } // Katalog const grid = document.getElementById('katalogGrid'); const emptyK = document.getElementById('katalogEmpty'); grid.innerHTML = ''; if(katalog.length === 0) { emptyK.classList.remove('hidden'); } else { emptyK.classList.add('hidden'); katalog.forEach(k =&gt; { const div = document.createElement('div'); div.className = 'book-cover rounded-xl overflow-hidden shadow-md'; div.style.aspectRatio = '1/1.414'; div.innerHTML = ` 
-   <div class="w-full h-full flex flex-col justify-between p-4" style="background:linear-gradient(135deg,${k.warna},${lighten(k.warna,0.4)})">
-    <div>
-     <p class="text-white text-opacity-70 text-xs font-semibold">${k.tahun||''}</p>
-     <p class="text-white font-bold text-sm mt-1 leading-tight font-amiri">${esc(k.judul)}</p>
-    </div>
-    <div>
-     <p class="text-white text-opacity-70 text-xs">${esc(k.penulis)}</p>${k.harga?` 
-     <p class="text-white font-bold text-xs mt-0.5">Rp ${Number(k.harga).toLocaleString('id-ID')}</p>`:''}
-    </div>
-   </div>`; div.onclick = () =&gt; openKatalogDetail(k); grid.appendChild(div); }); } } function toggleKatalogForm() { document.getElementById('katalogForm').classList.toggle('hidden'); } function submitKatalog(e) { e.preventDefault(); const entry = { id: Date.now().toString(36), judul: document.getElementById('katJudul').value.trim(), penulis: document.getElementById('katPenulis').value.trim(), harga: document.getElementById('katHarga').value || 0, tahun: document.getElementById('katTahun').value || new Date().getFullYear(), warna: document.getElementById('katWarna').value, sinopsis: document.getElementById('katSinopsis').value.trim(), daftarIsi: document.getElementById('katDaftarIsi').value.trim() }; katalog.push(entry); LS.set('katalog', katalog); e.target.reset(); document.getElementById('katalogForm').classList.add('hidden'); renderBukuTahunan(); renderStats(); renderPenulis(); showToast('Buku "'+entry.judul+'" ditambahkan ke katalog!','amber'); lucide.createIcons(); } function openKatalogDetail(k) { document.getElementById('katDetailTitle').textContent = k.judul; const terkait = tulisan.filter(t =&gt; t.penulis.toLowerCase() === k.penulis.toLowerCase()); document.getElementById('katDetailBody').innerHTML = ` 
-   <div class="space-y-4">
-    <div class="flex gap-4">
-     <div class="w-24 h-34 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:${k.warna}">
-      <span class="text-white font-amiri font-bold text-lg">${k.tahun||''}</span>
-     </div>
-     <div>
-      <p class="text-sm text-warm-500">Penulis: <span class="font-semibold text-warm-700">${esc(k.penulis)}</span></p> ${k.harga?` 
-      <p class="text-sm text-warm-500 mt-1">Harga: <span class="font-bold text-amber-700">Rp ${Number(k.harga).toLocaleString('id-ID')}</span></p>`:''} ${k.tahun?` 
-      <p class="text-sm text-warm-500 mt-1">Tahun: ${k.tahun}</p>`:''}
-     </div>
-    </div> ${k.sinopsis?` 
-    <div>
-     <h4 class="font-semibold text-warm-700 text-sm mb-1">Sinopsis</h4>
-     <p class="text-sm text-warm-600 leading-relaxed">${esc(k.sinopsis)}</p>
-    </div>`:''} ${k.daftarIsi?` 
-    <div>
-     <h4 class="font-semibold text-warm-700 text-sm mb-1">Daftar Isi</h4>
-     <div class="space-y-1">
-      ${k.daftarIsi.split('\n').filter(Boolean).map((l,i)=&gt;` 
-      <p class="text-sm text-warm-600 pl-3 border-l-2 border-warm-200">${esc(l)}</p>`).join('')}
-     </div>
-    </div>`:''} ${terkait.length?` 
-    <div>
-     <h4 class="font-semibold text-warm-700 text-sm mb-1">Tulisan Terkait (${terkait.length})</h4>
-     <div class="space-y-1">
-      ${terkait.map(t=&gt;` 
-      <div class="flex items-center gap-2 text-sm"><span class="tag ${RUBRIK_COLORS[t.rubrik]||''}">${t.rubrik}</span><span class="text-warm-700">${esc(t.judul)}</span>
-      </div>`).join('')}
-     </div>
-    </div>`:''}
-   </div>`; openModal('modalKatalog'); lucide.createIcons(); } // ========== DATABASE PENULIS ========== function renderPenulis() { const query = (document.getElementById('searchPenulis')?.value||'').toLowerCase(); const authors = {}; tulisan.forEach(t =&gt; { const key = t.penulis.toLowerCase(); if(!authors[key]) authors[key] = { nama: t.penulis, karya:[], kamar: new Set(), sumber:'buletin' }; authors[key].karya.push({ judul:t.judul, rubrik:t.rubrik, edisi:t.edisi, type:'buletin' }); authors[key].kamar.add(t.kamar); }); katalog.forEach(k =&gt; { const key = k.penulis.toLowerCase(); if(!authors[key]) authors[key] = { nama: k.penulis, karya:[], kamar: new Set(), sumber:'buku' }; authors[key].karya.push({ judul:k.judul, type:'buku', tahun:k.tahun }); }); let filtered = Object.values(authors); if(query) { filtered = filtered.filter(a =&gt; a.nama.toLowerCase().includes(query) || a.karya.some(k =&gt; k.judul.toLowerCase().includes(query)) ); } const grid = document.getElementById('penulisGrid'); const empty = document.getElementById('penulisEmpty'); grid.innerHTML = ''; if(filtered.length === 0) { empty.classList.remove('hidden'); } else { empty.classList.add('hidden'); filtered.sort((a,b)=&gt;b.karya.length-a.karya.length).forEach(a =&gt; { const initials = a.nama.split(' ').map(w=&gt;w[0]).join('').toUpperCase().slice(0,2); const buletinCount = a.karya.filter(k=&gt;k.type==='buletin').length; const bukuCount = a.karya.filter(k=&gt;k.type==='buku').length; const div = document.createElement('div'); div.className = 'bg-white rounded-xl p-4 border border-warm-100 card-hover fade-in'; div.innerHTML = ` 
-   <div class="flex items-center gap-3 mb-3">
-    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-     ${initials}
-    </div>
-    <div class="min-w-0">
-     <p class="font-bold text-warm-800 text-sm truncate">${esc(a.nama)}</p>
-     <p class="text-xs text-warm-400">${a.karya.length} karya${a.kamar.size?' · '+[...a.kamar].join(', '):''}</p>
-    </div>
-   </div>
-   <div class="flex gap-2 mb-3">
-    ${buletinCount?`<span class="tag bg-teal-50 text-teal-700">${buletinCount} Buletin</span>`:''} ${bukuCount?`<span class="tag bg-amber-50 text-amber-700">${bukuCount} Buku</span>`:''}
-   </div>
-   <div class="space-y-1 max-h-28 overflow-y-auto">
-    ${a.karya.slice(0,5).map(k=&gt;` 
-    <div class="flex items-center gap-1.5 text-xs"><span class="w-1 h-1 rounded-full ${k.type==='buletin'?'bg-teal-400':'bg-amber-400'} flex-shrink-0"></span><span class="text-warm-600 truncate">${esc(k.judul)}</span>${k.rubrik?`<span class="tag ${RUBRIK_COLORS[k.rubrik]||''} ml-auto flex-shrink-0">${k.rubrik}</span>`:''}
-    </div>`).join('')} ${a.karya.length&gt;5?` 
-    <p class="text-xs text-warm-400 italic">+${a.karya.length-5} lainnya</p>`:''}
-   </div>`; grid.appendChild(div); }); } lucide.createIcons(); } // ========== DELETE ========== let pendingDelete = null; function confirmDelete(type, id, label) { pendingDelete = { type, id }; document.getElementById('deleteMsg').textContent = 'Hapus "'+label+'" dari daftar?'; document.getElementById('deleteConfirmBtn').onclick = executeDelete; openModal('modalDelete'); lucide.createIcons(); } function executeDelete() { if(!pendingDelete) return; if(pendingDelete.type === 'tulisan') { tulisan = tulisan.filter(t =&gt; t.id !== pendingDelete.id); LS.set('tulisan', tulisan); renderStats(); renderChart(); renderBank(); renderEBuletin(); renderBukuTahunan(); renderPenulis(); } pendingDelete = null; closeModal('modalDelete'); showToast('Data berhasil dihapus','teal'); } // ========== MODAL ========== function openModal(id) { const el = document.getElementById(id); el.classList.remove('hidden'); el.classList.add('flex'); lucide.createIcons(); } function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); } // ========== TOAST ========== function showToast(msg, color='teal') { const container = document.getElementById('toastContainer'); const div = document.createElement('div'); div.className = `toast px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 ${color==='teal'?'bg-teal-600 text-white':'bg-amber-600 text-white'}`; div.innerHTML = ` 
-   <i data-lucide="check-circle" style="width:16px;height:16px"></i> ${msg}`; container.appendChild(div); lucide.createIcons(); setTimeout(() =&gt; div.remove(), 3000); } // ========== UTILS ========== function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; } function lighten(hex, amt) { let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); r=Math.round(r+(255-r)*amt); g=Math.round(g+(255-g)*amt); b=Math.round(b+(255-b)*amt); return '#'+[r,g,b].map(c=&gt;c.toString(16).padStart(2,'0')).join(''); } // ========== ELEMENT SDK INIT ========== const defaultConfig = { app_title: 'Tarqiyah Master Control Center', subtitle: 'Pusat Kendali Redaksi Terpadu', background_color: '#FAF9F6', surface_color: '#FFFFFF', text_color: '#231F1A', primary_color: '#0D9488', accent_color: '#D97706', font_family: 'Plus Jakarta Sans', font_size: 14 }; function applyConfig(config) { const t = config.app_title || defaultConfig.app_title; const s = config.subtitle || defaultConfig.subtitle; const bg = config.background_color || defaultConfig.background_color; const surf = config.surface_color || defaultConfig.surface_color; const txt = config.text_color || defaultConfig.text_color; const pri = config.primary_color || defaultConfig.primary_color; const acc = config.accent_color || defaultConfig.accent_color; const font = config.font_family || defaultConfig.font_family; const fs = config.font_size || defaultConfig.font_size; document.getElementById('appTitle').textContent = t; document.getElementById('appSubtitle').textContent = s; document.body.style.backgroundColor = bg; document.body.style.color = txt; document.body.style.fontFamily = `${font}, Plus Jakarta Sans, sans-serif`; document.body.style.fontSize = fs + 'px'; document.querySelectorAll('.bg-white, .bg-warm-50').forEach(el =&gt; { if(el.classList.contains('bg-white')) el.style.backgroundColor = surf; }); } if(window.elementSdk) { window.elementSdk.init({ defaultConfig, async onConfigChange(config) { applyConfig(config); }, mapToCapabilities(config) { return { recolorables: [ { get:()=&gt;config.background_color||defaultConfig.background_color, set:(v)=&gt;{config.background_color=v; window.elementSdk.setConfig({background_color:v})} }, { get:()=&gt;config.surface_color||defaultConfig.surface_color, set:(v)=&gt;{config.surface_color=v; window.elementSdk.setConfig({surface_color:v})} }, { get:()=&gt;config.text_color||defaultConfig.text_color, set:(v)=&gt;{config.text_color=v; window.elementSdk.setConfig({text_color:v})} }, { get:()=&gt;config.primary_color||defaultConfig.primary_color, set:(v)=&gt;{config.primary_color=v; window.elementSdk.setConfig({primary_color:v})} }, { get:()=&gt;config.accent_color||defaultConfig.accent_color, set:(v)=&gt;{config.accent_color=v; window.elementSdk.setConfig({accent_color:v})} } ], borderables: [], fontEditable: { get:()=&gt;config.font_family||defaultConfig.font_family, set:(v)=&gt;{config.font_family=v; window.elementSdk.setConfig({font_family:v})} }, fontSizeable: { get:()=&gt;config.font_size||defaultConfig.font_size, set:(v)=&gt;{config.font_size=v; window.elementSdk.setConfig({font_size:v})} } }; }, mapToEditPanelValues(config) { return new Map([ ['app_title', config.app_title || defaultConfig.app_title], ['subtitle', config.subtitle || defaultConfig.subtitle] ]); } }); } // Boot init();
-  </articles.length;>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ecc96b07077aa09',t:'MTc3NjI3MzI4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+    <!-- Hidden Input for File Upload in Bank -->
+    <input type="file" id="bank-file-upload" class="hidden" onchange="handleBankFileUpload(this)">
+
+    <script>
+        // ========================== STATE & INITIALIZATION ==========================
+        const MILESTONES_DEF = [
+            { id: 0, label: 'Drafting', targetDay: 5, color: '#0D9488' },
+            { id: 1, label: 'Typing', targetDay: 10, color: '#0F766E' },
+            { id: 2, label: 'Editing', targetDay: 15, color: '#F59E0B' },
+            { id: 3, label: 'Layout', targetDay: 18, color: '#D97706' },
+            { id: 4, label: 'Siap Cetak', targetDay: 20, color: '#10B981' }
+        ];
+
+        let state = {
+            milestones: [false, false, false, false, false],
+            deadline: new Date(Date.now() + 20*24*60*60*1000).toISOString(),
+            cover: null,
+            edisi: 'Edisi 27',
+            writings: [], // {id, title, rubric, author, room, edition, file, type: 'bulletin'|'book'}
+            projects: [], // {id, title, targetPages, releaseDate, addedWritings: []}
+            ebulletins: [] // {id, title, cover}
+        };
+
+        // Dummy Catalog Data
+        const catalogData = [
+            { title: "Antologi 2023", price: "Rp 75.000", synopsis: "Jejak awal literasi santri.", desc: "Kumpulan karya perdana santri yang memuat beragam kisah inspiratif dari balik dinding asrama.", list: ["Mimpi di Batas Senja", "Sajak Untuk Ibu"] },
+            { title: "Antologi 2024", price: "Rp 85.000", synopsis: "Membangun karakter lewat aksara.", desc: "Eksplorasi pemikiran generasi muda Islam dalam merespon tantangan zaman.", list: ["Pemuda Gua Modern", "Hijrah Tanpa Lelah"] },
+            { title: "Antologi 2025", price: "Rp 90.000", synopsis: "Puncak karya gemilang.", desc: "Kompilasi naskah terbaik yang dikurasi ketat, menyajikan kedalaman spiritual yang menyentuh hati.", list: ["Ayat-ayat Cahaya", "Mahkota Surga"] }
+        ];
+
+        let chartInst = null;
+        let activeBankUploadId = null;
+
+        function loadData() {
+            const stored = localStorage.getItem('tarq_master_data');
+            if(stored) state = JSON.parse(stored);
+            
+            // Sync Input fields
+            document.getElementById('cover-edisi').value = state.edisi;
+            if(state.cover) {
+                document.getElementById('cover-preview').src = state.cover;
+                document.getElementById('cover-preview').classList.remove('hidden');
+                document.getElementById('cover-placeholder').classList.add('hidden');
+            }
+            renderAll();
+            setInterval(updateCountdown, 1000);
+        }
+
+        function saveData() {
+            state.edisi = document.getElementById('cover-edisi').value;
+            localStorage.setItem('tarq_master_data', JSON.stringify(state));
+        }
+
+        // ========================== NAVIGATION ==========================
+        function navigate(page) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+            document.querySelector(`[data-nav="${page}"]`).classList.add('active');
+            renderAll();
+        }
+
+        // ========================== DASHBOARD LOGIC ==========================
+        function updateDates() {
+            const today = new Date();
+            document.getElementById('hijri-date').innerText = new Intl.DateTimeFormat('id-u-ca-islamic-uma-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+            document.getElementById('masehi-date').innerText = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const target = new Date(state.deadline).getTime();
+            const diff = target - now;
+
+            if (diff < 0) {
+                document.getElementById('countdown-timer').innerText = "WAKTUNYA CETAK!";
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('countdown-timer').innerText = `${d} Hari ${h} Jam ${m} Mnt`;
+        }
+
+        function renderMilestones() {
+            const container = document.getElementById('milestones-list');
+            container.innerHTML = "";
+            let completed = 0;
+
+            MILESTONES_DEF.forEach((m, idx) => {
+                const isDone = state.milestones[idx];
+                if(isDone) completed += 20;
+
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-3 rounded-xl ${isDone ? 'bg-teal-50' : 'bg-slate-50'} transition-colors">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleMilestone(${idx})" class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${isDone ? 'bg-primary border-primary text-white' : 'bg-white border-slate-300'}">
+                                ${isDone ? '<i data-lucide="check" class="w-3 h-3"></i>' : ''}
+                            </button>
+                            <span class="text-xs font-bold ${isDone ? 'milestone-done text-primary' : 'text-slate-600'}">${m.label}</span>
+                        </div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase">Tgl ${m.targetDay}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('progress-pct').innerText = `${completed}%`;
+            
+            if(chartInst) {
+                chartInst.data.datasets[0].data = [completed, 100-completed];
+                chartInst.data.datasets[0].backgroundColor = [completed === 100 ? '#10B981' : '#0D9488', '#F1F5F9'];
+                chartInst.update();
+            } else {
+                const ctx = document.getElementById('progressChart').getContext('2d');
+                chartInst = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{ data: [completed, 100-completed], backgroundColor: ['#0D9488', '#F1F5F9'], borderWidth: 0, borderRadius: 20 }]
+                    },
+                    options: { cutout: '75%', animation: { animateScale: true } }
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function toggleMilestone(idx) {
+            state.milestones[idx] = !state.milestones[idx];
+            saveData();
+            renderMilestones();
+        }
+
+        function resetSiklus() {
+            if(confirm("Mulai siklus bulan depan? Progres akan direset dan target deadline diatur ulang.")) {
+                state.milestones = [false, false, false, false, false];
+                state.deadline = new Date(Date.now() + 20*24*60*60*1000).toISOString();
+                saveData();
+                renderAll();
+                showToast("Siklus berhasil direset!");
+            }
+        }
+
+        function handleCoverUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    state.cover = e.target.result;
+                    document.getElementById('cover-preview').src = state.cover;
+                    document.getElementById('cover-preview').classList.remove('hidden');
+                    document.getElementById('cover-placeholder').classList.add('hidden');
+                    saveData();
+                    showToast("Sampul tersimpan");
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addTulisan(source) {
+            const prefix = source === 'dashboard' ? 'dash' : 'm';
+            const title = document.getElementById(`${prefix}-judul`).value.trim();
+            const author = document.getElementById(`${prefix}-penulis`).value.trim();
+            const room = document.getElementById(`${prefix}-kamar`).value.trim();
+            const rubric = document.getElementById(`${prefix}-rubrik`).value;
+            const edition = source === 'dashboard' ? state.edisi : document.getElementById('m-edisi').value.trim();
+
+            if(!title || !author || !room) {
+                showToast("Mohon lengkapi semua bidang (Judul, Penulis, Kamar)", "error");
+                return;
+            }
+
+            state.writings.unshift({ id: Date.now(), title, rubric, author, room, edition, file: null, type: 'bulletin' });
+            saveData();
+
+            // Clear inputs
+            document.getElementById(`${prefix}-judul`).value = "";
+            document.getElementById(`${prefix}-penulis`).value = "";
+            document.getElementById(`${prefix}-kamar`).value = "";
+            if(source !== 'dashboard') {
+                document.getElementById('m-edisi').value = "";
+                closeModal('modal-form');
+            }
+
+            renderAll();
+            showToast("Naskah berhasil didaftarkan!");
+        }
+
+        // ========================== BANK TULISAN LOGIC ==========================
+        function renderBank() {
+            const tbody = document.getElementById('bank-tbody');
+            const dList = document.getElementById('draft-list'); // For dashboard
+            tbody.innerHTML = "";
+            if(dList) dList.innerHTML = "";
+
+            state.writings.forEach((w, i) => {
+                // Render for Bank Tab
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                        <td class="p-4">
+                            <p class="font-bold text-slate-800">${w.title}</p>
+                            <p class="text-[10px] font-black text-primary uppercase mt-1">${w.rubric}</p>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-bold text-slate-700">${w.author}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Kamar ${w.room}</p>
+                        </td>
+                        <td class="p-4 text-xs font-bold text-slate-500">${w.edition || 'Tanpa Edisi'}</td>
+                        <td class="p-4 text-center">
+                            ${w.file ? 
+                                `<span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">${w.file.substring(0,10)}...</span>` : 
+                                `<button onclick="initFileUpload(${w.id})" class="p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-primary hover:text-white transition-all"><i data-lucide="upload" class="w-4 h-4 mx-auto"></i></button>`
+                            }
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteWriting(${w.id})" class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+
+                // Render for Dashboard (Draft List, limit 4)
+                if(i < 4 && dList) {
+                    dList.innerHTML += `
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">${w.title}</p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${w.author} - ${w.edition}</p>
+                            </div>
+                            <span class="text-[9px] font-black text-primary bg-primary/10 px-2 py-1 rounded">DRAFT</span>
+                        </div>
+                    `;
+                }
+            });
+            lucide.createIcons();
+        }
+
+        function initFileUpload(id) {
+            activeBankUploadId = id;
+            document.getElementById('bank-file-upload').click();
+        }
+
+        function handleBankFileUpload(input) {
+            if(input.files && input.files[0] && activeBankUploadId) {
+                const wIndex = state.writings.findIndex(w => w.id === activeBankUploadId);
+                if(wIndex !== -1) {
+                    state.writings[wIndex].file = input.files[0].name;
+                    saveData();
+                    renderBank();
+                    showToast("File naskah berhasil diunggah");
+                }
+            }
+        }
+
+        function deleteWriting(id) {
+            if(confirm("Yakin ingin menghapus data ini?")) {
+                state.writings = state.writings.filter(w => w.id !== id);
+                saveData();
+                renderAll();
+                showToast("Data dihapus");
+            }
+        }
+
+        // ========================== BUKU TAHUNAN LOGIC ==========================
+        function addBookProject() {
+            const title = document.getElementById('buku-judul').value.trim();
+            const target = parseInt(document.getElementById('buku-target').value);
+            const rilis = document.getElementById('buku-rilis').value;
+
+            if(!title || !target || !rilis) return showToast("Lengkapi form proyek buku!", "error");
+
+            state.projects.unshift({ id: Date.now(), title, targetPages: target, releaseDate: rilis, addedWritings: [] });
+            saveData();
+            
+            document.getElementById('buku-judul').value = "";
+            document.getElementById('buku-target').value = "";
+            document.getElementById('buku-rilis').value = "";
+            
+            renderBuku();
+            showToast("Proyek buku dimulai!");
+        }
+
+        function renderBuku() {
+            const pList = document.getElementById('project-list');
+            pList.innerHTML = "";
+            
+            state.projects.forEach(p => {
+                // For simulation, assume each added writing is 3 pages
+                const currentPages = p.addedWritings.length * 3; 
+                const pct = Math.min((currentPages / p.targetPages) * 100, 100);
+                
+                pList.innerHTML += `
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-black text-slate-800">${p.title}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Rilis: ${p.releaseDate}</p>
+                            </div>
+                            <span class="text-[10px] font-black bg-white text-primary px-3 py-1 rounded-full border border-slate-200">${Math.round(pct)}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full mb-4 overflow-hidden">
+                            <div class="bg-primary h-full transition-all" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-slate-200">
+                            <p class="text-[10px] font-bold text-slate-500">${currentPages} / ${p.targetPages} Halaman</p>
+                            <button onclick="promptAddWritingToBook(${p.id})" class="text-[10px] font-black text-primary hover:text-teal-700 uppercase">+ Masukkan Naskah</button>
+                        </div>
+                        ${p.addedWritings.length > 0 ? `
+                        <div class="mt-4 space-y-1">
+                            ${p.addedWritings.map(w => `<p class="text-[10px] font-bold text-slate-600">• ${w.title} (${w.author})</p>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            const kGrid = document.getElementById('katalog-grid');
+            kGrid.innerHTML = catalogData.map(c => `
+                <div onclick='openBookCatalog(${JSON.stringify(c)})' class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="w-24 h-32 bg-slate-50 rounded-xl mx-auto mb-4 flex items-center justify-center text-slate-300 group-hover:bg-primary/5 group-hover:text-primary transition-colors"><i data-lucide="book-marked" class="w-8 h-8"></i></div>
+                    <h4 class="font-black text-slate-800">${c.title}</h4>
+                    <p class="text-xs font-black text-primary mt-1">${c.price}</p>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function promptAddWritingToBook(projectId) {
+            const title = prompt("Judul Tulisan untuk Buku:");
+            if(!title) return;
+            const author = prompt("Nama Penulis:");
+            if(!author) return;
+
+            const projIndex = state.projects.findIndex(p => p.id === projectId);
+            if(projIndex > -1) {
+                state.projects[projIndex].addedWritings.push({ title, author });
+                // Also add to global writings so they appear in Penulis DB
+                state.writings.push({ id: Date.now(), title, rubric: 'Buku', author, room: 'N/A', edition: state.projects[projIndex].title, file: null, type: 'book' });
+                saveData();
+                renderAll();
+                showToast("Naskah masuk ke buku!");
+            }
+        }
+
+        function openBookCatalog(book) {
+            const content = document.getElementById('book-detail-content');
+            content.innerHTML = `
+                <div class="w-32 h-44 bg-slate-50 rounded-2xl mx-auto mb-6 flex items-center justify-center text-primary shadow-inner"><i data-lucide="book" class="w-10 h-10"></i></div>
+                <h3 class="text-2xl font-black text-slate-800 leading-tight">${book.title}</h3>
+                <p class="text-sm font-black text-primary mt-2 uppercase tracking-widest">${book.price}</p>
+                <div class="text-left mt-8 space-y-4">
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sinopsis</p><p class="text-sm text-slate-600 leading-relaxed italic">${book.synopsis}</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Deskripsi</p><p class="text-sm text-slate-600 leading-relaxed">${book.desc}</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Daftar Isi Singkat</p><ul class="space-y-1">${book.list.map(l => `<li class="text-xs font-bold text-slate-700 flex items-center gap-2"><div class="w-1.5 h-1.5 bg-secondary rounded-full"></div>${l}</li>`).join('')}</ul></div>
+                </div>
+            `;
+            document.getElementById('modal-book').classList.replace('hidden', 'flex');
+            lucide.createIcons();
+        }
+
+        // ========================== DATABASE PENULIS LOGIC ==========================
+        function renderPenulis() {
+            const grid = document.getElementById('penulis-grid');
+            const search = document.getElementById('search-penulis').value.toLowerCase();
+            grid.innerHTML = "";
+
+            // Aggregate authors
+            const authorMap = {};
+            state.writings.forEach(w => {
+                if(!authorMap[w.author]) authorMap[w.author] = { room: w.room, works: [] };
+                authorMap[w.author].works.push(w.title);
+            });
+
+            const authorNames = Object.keys(authorMap);
+            document.getElementById('stat-penulis').innerText = authorNames.length; // Update global stat
+
+            const filtered = authorNames.filter(name => name.toLowerCase().includes(search) || authorMap[name].works.some(work => work.toLowerCase().includes(search)));
+
+            filtered.forEach(name => {
+                const data = authorMap[name];
+                grid.innerHTML += `
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-primary font-black text-lg uppercase">${name.charAt(0)}</div>
+                            <div>
+                                <h4 class="font-black text-slate-800 leading-none">${name}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Kamar ${data.room}</p>
+                            </div>
+                        </div>
+                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Rekam Jejak Karya (${data.works.length}):</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${data.works.map(w => `<span class="px-2 py-1 bg-white border border-slate-200 text-slate-500 rounded text-[9px] font-bold">${w}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ========================== E-BULETIN LOGIC ==========================
+        function triggerBulletinUpload() {
+            document.getElementById('bulletin-upload').click();
+        }
+
+        function handleBulletinUpload(input) {
+            if(input.files && input.files[0]) {
+                const title = prompt("Masukkan Nomor Edisi E-Buletin ini (cth: Edisi 27):", "Edisi Baru");
+                if(title) {
+                    state.ebulletins.push({ id: Date.now(), title });
+                    saveData();
+                    renderBulletins();
+                    showToast("E-Buletin diarsipkan!");
+                }
+            }
+        }
+
+        function renderBulletins() {
+            const grid = document.getElementById('ebulletin-grid');
+            grid.innerHTML = "";
+            
+            // Render from state + some dummies
+            const combined = [...state.ebulletins, {id: 'd1', title: 'Edisi 26'}, {id: 'd2', title: 'Edisi 25'}];
+
+            combined.forEach(eb => {
+                grid.innerHTML += `
+                    <div class="flex flex-col items-center">
+                        <div onclick="openBookflip('${eb.title}')" class="book-a5 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-slate-300 shadow-sm relative overflow-hidden group">
+                            <i data-lucide="book-open" class="w-10 h-10 group-hover:scale-110 transition-transform"></i>
+                            <div class="absolute inset-x-0 bottom-0 bg-white/90 p-2 text-center transform translate-y-full group-hover:translate-y-0 transition-transform"><span class="text-[9px] font-black text-primary uppercase">BACA SEKARANG</span></div>
+                        </div>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4">${eb.title}</p>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function openBookflip(title) {
+            document.getElementById('bookflip-title').innerText = title;
+            document.getElementById('modal-bookflip').classList.replace('hidden', 'flex');
+        }
+
+        // ========================== UTILITIES ==========================
+        function openFormModal() { document.getElementById('modal-form').classList.replace('hidden', 'flex'); }
+        function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
+
+        function showToast(msg, type="success") {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `toast-enter px-6 py-3 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest shadow-2xl ${type === 'success' ? 'bg-slate-800' : 'bg-red-500'}`;
+            el.innerText = msg;
+            container.appendChild(el);
+            setTimeout(() => { el.classList.replace('toast-enter', 'opacity-0'); setTimeout(() => el.remove(), 300); }, 3000);
+        }
+
+        function renderAll() {
+            updateDates();
+            renderMilestones();
+            renderBank();
+            renderBuku();
+            renderPenulis();
+            renderBulletins();
+            document.getElementById('stat-karya').innerText = state.writings.length;
+        }
+
+        window.onload = () => {
+            loadData();
+            lucide.createIcons();
+        };
+    </script>
+</body>
 </html>
