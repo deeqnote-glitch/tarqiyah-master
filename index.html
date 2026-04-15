@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tarqiyah Master Control Center</title>
-    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -14,408 +16,747 @@
                     fontFamily: {
                         jakarta: ['Plus Jakarta Sans', 'sans-serif'],
                         amiri: ['Amiri', 'serif']
+                    },
+                    colors: {
+                        primary: '#0D9488', // Teal
+                        secondary: '#F59E0B', // Amber
+                        warm: '#F8FAFC'
                     }
                 }
             }
         }
     </script>
+    
     <style>
-        html, body { height: 100%; margin: 0; }
-        body[data-theme="dark"] { background-color: #0F172A; color: #E2E8F0; }
-        body[data-theme="dark"] #sidebar { background-color: #1E293B; border-color: #334155; }
-        body[data-theme="dark"] main { background-color: #0F172A; }
-        body[data-theme="dark"] .bg-white { background-color: #1E293B; border-color: #334155; }
-        body[data-theme="dark"] .text-slate-800 { color: #F1F5F9; }
-        body[data-theme="dark"] .text-slate-700 { color: #CBD5E1; }
-        body[data-theme="dark"] .bg-slate-50 { background-color: #1E293B; }
-        body[data-theme="dark"] .border-slate-100 { border-color: #334155; }
-        
-        @keyframes shimmer-warning {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-            50% { box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.25); }
-        }
-        .warning-shimmer { animation: shimmer-warning 2s ease-in-out infinite; }
-        .page-section { animation: fade-in 0.3s ease forwards; }
-        @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #F8FAFC; color: #1E293B; overflow: hidden; }
+        .nav-btn.active { background-color: rgba(13, 148, 136, 0.1); color: #0D9488; font-weight: bold; border-left: 4px solid #0D9488; }
+        .chart-wrapper { position: relative; width: 100%; max-width: 220px; margin: 0 auto; aspect-ratio: 1; }
+        .milestone-done { text-decoration: line-through; opacity: 0.5; }
+        .book-a5 { width: 148px; height: 210px; cursor: pointer; transition: transform 0.3s; }
+        .book-a5:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .spine-shadow { box-shadow: inset 15px 0 20px -10px rgba(0,0,0,0.1), inset -1px 0 2px rgba(0,0,0,0.05); }
+        .spine-shadow-right { box-shadow: inset -15px 0 20px -10px rgba(0,0,0,0.1), inset 1px 0 2px rgba(0,0,0,0.05); }
         
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        
-        .nav-btn.active { background-color: rgba(14, 165, 233, 0.1); color: #0ea5e9; border-left: 4px solid #0ea5e9; font-weight: 700; }
-        .toast-enter { animation: toast-in 0.3s ease forwards; }
-        @keyframes toast-in { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
     </style>
 </head>
-<body class="h-full bg-slate-50 font-jakarta text-slate-700 overflow-hidden transition-colors duration-300" data-theme="light">
-    
-    <div id="app-root" class="h-full w-full flex">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full transition-all duration-300">
-            <div class="p-5 border-b border-slate-100">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center shadow-lg">
-                            <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-sm font-extrabold text-slate-800 tracking-tight leading-none">Tarqiyah</h1>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Control Center</p>
-                        </div>
-                    </div>
-                    <button onclick="toggleTheme()" class="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                        <i id="theme-icon" data-lucide="moon" class="w-4 h-4 text-slate-600"></i>
-                    </button>
+<body class="font-jakarta h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 shadow-sm">
+        <div class="p-6 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg font-amiri text-2xl">ط</div>
+            <div>
+                <h1 class="text-sm font-black text-slate-800 tracking-tight leading-none">TARQIYAH</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Control Center</p>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-left">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Dashboard</span>
+            </button>
+            <button onclick="navigate('bank')" data-nav="bank" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="archive" class="w-4 h-4"></i><span>Bank Tulisan</span>
+            </button>
+            <button onclick="navigate('buku')" data-nav="buku" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="library" class="w-4 h-4"></i><span>Buku Tahunan</span>
+            </button>
+            <button onclick="navigate('penulis')" data-nav="penulis" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="users" class="w-4 h-4"></i><span>Database Penulis</span>
+            </button>
+            <button onclick="navigate('ebulletin')" data-nav="ebulletin" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
+                <i data-lucide="book-open" class="w-4 h-4"></i><span>E-Buletin</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 h-full overflow-y-auto p-6 lg:p-10 relative">
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-2"></div>
+
+        <!-- Header Global -->
+        <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h2 id="hijri-date" class="text-4xl font-black text-primary font-amiri tracking-tight leading-none">14 Dzulhijjah 1446 H</h2>
+                <p id="masehi-date" class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">Kamis, 15 April 2026</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <p class="text-[9px] font-black text-slate-300 uppercase">Total Karya</p>
+                    <p id="stat-karya" class="text-2xl font-black text-slate-800 leading-none mt-1">0</p>
+                </div>
+                <div class="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <p class="text-[9px] font-black text-slate-300 uppercase">Penulis Aktif</p>
+                    <p id="stat-penulis" class="text-2xl font-black text-secondary leading-none mt-1">0</p>
                 </div>
             </div>
-            
-            <nav class="flex-1 p-3 space-y-0.5 overflow-auto">
-                <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all text-left">
-                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Dashboard</span>
-                </button>
-                <button onclick="navigate('tulisan')" data-nav="tulisan" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
-                    <i data-lucide="archive" class="w-4 h-4"></i><span>Bank Tulisan</span>
-                </button>
-                <button onclick="navigate('buku')" data-nav="buku" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
-                    <i data-lucide="library" class="w-4 h-4"></i><span>Buku Tahunan</span>
-                </button>
-                <button onclick="navigate('penulis')" data-nav="penulis" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:bg-slate-50 transition-all text-left">
-                    <i data-lucide="users" class="w-4 h-4"></i><span>Penulis</span>
-                </button>
-            </nav>
+        </header>
 
-            <div class="p-4 border-t border-slate-100 text-center">
-                <p id="hijri-sidebar" class="text-[10px] font-black text-slate-300 uppercase tracking-widest"></p>
+        <!-- =================== DASHBOARD =================== -->
+        <div id="page-dashboard" class="page-section space-y-8 animate-[fadeIn_0.3s]">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Progres & Countdown -->
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center relative overflow-hidden">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Progres Edisi</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="progressChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span id="progress-pct" class="text-3xl font-black text-primary leading-none">0%</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 w-full space-y-2" id="milestones-list"></div>
+                    
+                    <div class="w-full mt-6 p-4 bg-red-50 rounded-2xl text-center border border-red-100">
+                        <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Countdown Cetak</p>
+                        <p id="countdown-timer" class="text-xl font-black text-red-600 tabular-nums">00d 00h 00m</p>
+                    </div>
+                    <button onclick="resetSiklus()" class="mt-4 w-full py-3 bg-slate-100 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all">Siklus Bulan Berikutnya</button>
+                </div>
+
+                <!-- Formulir & Sampul -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Form Pendaftaran Tulisan -->
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6"><i data-lucide="edit-3" class="inline w-5 h-5 mr-2 text-primary"></i>Daftarkan Tulisan (Dashboard)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="dash-judul" placeholder="Judul Tulisan..." class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                            <select id="dash-rubrik" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary text-slate-500">
+                                <option value="Story Qur'ani">Story Qur'ani</option>
+                                <option value="Artikel Qur'ani">Artikel Qur'ani</option>
+                                <option value="Petuah Qur'ani">Petuah Qur'ani</option>
+                                <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option>
+                            </select>
+                            <input type="text" id="dash-penulis" placeholder="Nama Penulis..." class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                            <input type="text" id="dash-kamar" placeholder="Kamar Asrama (Contoh: 18D4)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                            <button onclick="addTulisan('dashboard')" class="md:col-span-2 py-4 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-teal-700 transition-all shadow-lg shadow-teal-100">Daftarkan Naskah</button>
+                        </div>
+                    </div>
+
+                    <!-- Upload Sampul Edisi -->
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex gap-6 items-center">
+                        <div class="w-32 h-44 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center relative overflow-hidden group">
+                            <img id="cover-preview" src="" class="absolute w-full h-full object-cover hidden">
+                            <div id="cover-placeholder" class="text-center text-slate-400 group-hover:text-primary transition-colors">
+                                <i data-lucide="image" class="w-8 h-8 mx-auto mb-1"></i><span class="text-[9px] font-bold uppercase">Upload</span>
+                            </div>
+                            <input type="file" id="cover-upload" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleCoverUpload(this)">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-2">Sampul Buletin Berjalan</h3>
+                            <input type="text" id="cover-edisi" value="Edisi 27" onchange="saveData()" class="text-2xl font-black text-primary bg-transparent border-none focus:ring-0 p-0 mb-2">
+                            <p class="text-xs text-slate-400 leading-relaxed">Unggah draf sampul buletin bulan ini. Nomor edisi dapat diubah langsung pada teks di atas.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </aside>
+        </div>
 
-        <!-- Main -->
-        <main class="flex-1 h-full overflow-y-auto bg-slate-50">
-            <div class="max-w-6xl mx-auto p-6 lg:p-10">
-                <header class="mb-8 flex justify-between items-end">
-                    <div>
-                        <h2 id="page-title" class="text-2xl font-extrabold text-slate-800 tracking-tight">Dashboard Monitoring</h2>
-                        <p id="hijri-header" class="text-amber-600 font-amiri text-lg mt-1"></p>
-                    </div>
-                    <div id="status-storage" class="hidden md:flex items-center gap-2 px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-bold text-emerald-500">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> LOCAL STORAGE ACTIVE
-                    </div>
-                </header>
-
-                <div id="toast-container" class="fixed top-4 right-4 z-[100] space-y-2"></div>
-
-                <!-- DASHBOARD -->
-                <section id="page-dashboard" class="page-section space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-2">
-                             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Input Cepat</h3>
-                             <div class="flex gap-3">
-                                <input type="text" id="quick-title" placeholder="Judul tulisan..." class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-sky-400">
-                                <input type="text" id="quick-author" placeholder="Penulis..." class="w-1/3 px-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-sky-400">
-                                <button onclick="addQuickWriting()" class="bg-sky-500 text-white px-6 py-2 rounded-xl text-xs font-bold hover:bg-sky-600 transition-all">TAMBAH</button>
-                             </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center flex flex-col justify-center">
-                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Edisi Aktif</p>
-                            <h4 class="font-bold text-slate-800">Dzulhijjah 1446 H</h4>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Total Karya</p>
-                            <p id="stat-karya" class="text-2xl font-black text-slate-800 mt-1">0</p>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Penulis</p>
-                            <p id="stat-penulis" class="text-2xl font-black text-slate-800 mt-1">0</p>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Fase Selesai</p>
-                            <p id="stat-fase" class="text-2xl font-black text-slate-800 mt-1">0/5</p>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Progres</p>
-                            <p id="stat-progres" class="text-2xl font-black text-sky-600 mt-1">0%</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm warning-shimmer">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Siklus Produksi (20 Hari)</h3>
-                            <button onclick="resetMilestones()" class="text-[9px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest">Reset Siklus</button>
-                        </div>
-                        <div class="w-full bg-slate-100 h-1.5 rounded-full mb-8 overflow-hidden">
-                            <div id="progress-bar" class="bg-sky-500 h-full transition-all duration-700" style="width: 0%"></div>
-                        </div>
-                        <div id="milestones-container" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Tulisan Baru (Draft)</h4>
-                        <div id="incoming-list" class="space-y-3"></div>
-                    </div>
-                </section>
-
-                <!-- BANK TULISAN -->
-                <section id="page-tulisan" class="page-section hidden">
-                    <div id="bank-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-                </section>
-
-                <!-- BUKU TAHUNAN -->
-                <section id="page-buku" class="page-section hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-                            <i data-lucide="book" class="w-8 h-8 text-sky-500 mx-auto mb-4"></i>
-                            <h4 class="font-bold text-slate-800">Antologi 2023</h4>
-                            <p class="text-xs text-slate-400 mt-2">Rp 75.000</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-                            <i data-lucide="book" class="w-8 h-8 text-amber-500 mx-auto mb-4"></i>
-                            <h4 class="font-bold text-slate-800">Antologi 2024</h4>
-                            <p class="text-xs text-slate-400 mt-2">Rp 85.000</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center">
-                            <i data-lucide="book" class="w-8 h-8 text-violet-500 mx-auto mb-4"></i>
-                            <h4 class="font-bold text-slate-800">Antologi 2025</h4>
-                            <p class="text-xs text-slate-400 mt-2">Rp 90.000</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- DATABASE PENULIS -->
-                <section id="page-penulis" class="page-section hidden">
-                    <div class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Santri</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Karya</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="penulis-tbody"></tbody>
-                        </table>
-                    </div>
-                </section>
+        <!-- =================== BANK TULISAN =================== -->
+        <div id="page-bank" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Bank Tulisan & Arsip File</h3>
+                    <button onclick="openFormModal()" class="px-6 py-3 bg-secondary text-white text-xs font-black uppercase rounded-xl shadow-lg">+ Tambah Data Manual</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <th class="p-4 rounded-tl-xl">Judul & Rubrik</th>
+                                <th class="p-4">Penulis & Kamar</th>
+                                <th class="p-4">Edisi/Buku</th>
+                                <th class="p-4 text-center">File Naskah</th>
+                                <th class="p-4 text-right rounded-tr-xl">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bank-tbody" class="text-sm"></tbody>
+                    </table>
+                </div>
             </div>
-        </main>
+        </div>
+
+        <!-- =================== BUKU TAHUNAN =================== -->
+        <div id="page-buku" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <!-- Progres Buku Aktif -->
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Progres Buku & Antologi</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Form Buku Baru -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h4 class="text-xs font-black text-slate-600 uppercase mb-4">Set Target Buku</h4>
+                        <input type="text" id="buku-judul" placeholder="Judul Buku..." class="w-full mb-3 px-4 py-2 bg-white rounded-lg text-sm">
+                        <input type="number" id="buku-target" placeholder="Target Halaman" class="w-full mb-3 px-4 py-2 bg-white rounded-lg text-sm">
+                        <input type="date" id="buku-rilis" class="w-full mb-4 px-4 py-2 bg-white rounded-lg text-sm text-slate-500">
+                        <button onclick="addBookProject()" class="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-teal-700">Mulai Proyek</button>
+                    </div>
+                    <!-- Daftar Proyek -->
+                    <div class="lg:col-span-2 space-y-4" id="project-list"></div>
+                </div>
+            </div>
+
+            <!-- Katalog Arsip -->
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Katalog Buku Terbit</h3>
+                <div id="katalog-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+            </div>
+        </div>
+
+        <!-- =================== DATABASE PENULIS =================== -->
+        <div id="page-penulis" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Database Kontributor</h3>
+                    <div class="relative w-full md:w-96">
+                        <i data-lucide="search" class="absolute left-4 top-3 w-5 h-5 text-slate-400"></i>
+                        <input type="text" id="search-penulis" oninput="renderPenulis()" placeholder="Cari nama atau judul karya..." class="w-full pl-12 pr-4 py-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary">
+                    </div>
+                </div>
+                <div id="penulis-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </div>
+
+        <!-- =================== E-BULETIN =================== -->
+        <div id="page-ebulletin" class="page-section hidden space-y-8 animate-[fadeIn_0.3s]">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Arsip E-Buletin</h3>
+                    <button onclick="triggerBulletinUpload()" class="px-6 py-2 bg-primary text-white text-xs font-bold rounded-xl"><i data-lucide="upload" class="inline w-4 h-4 mr-2"></i>Unggah PDF Baru</button>
+                    <input type="file" id="bulletin-upload" accept="application/pdf" class="hidden" onchange="handleBulletinUpload(this)">
+                </div>
+                <div id="ebulletin-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 justify-items-center"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- =================== MODALS =================== -->
+    <!-- Form Manual Tambah Tulisan -->
+    <div id="modal-form" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl">
+            <h3 class="text-lg font-black text-slate-800 mb-6">Tambah Tulisan Manual</h3>
+            <div class="space-y-4">
+                <input type="text" id="m-judul" placeholder="Judul Tulisan" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+                <select id="m-rubrik" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm text-slate-500">
+                    <option value="Story Qur'ani">Story Qur'ani</option>
+                    <option value="Artikel Qur'ani">Artikel Qur'ani</option>
+                    <option value="Petuah Qur'ani">Petuah Qur'ani</option>
+                    <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option>
+                </select>
+                <input type="text" id="m-penulis" placeholder="Nama Penulis" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+                <input type="text" id="m-kamar" placeholder="Kamar Asrama (Contoh: 18D4)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+                <input type="text" id="m-edisi" placeholder="Edisi Publikasi (Contoh: Edisi 27)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none text-sm">
+            </div>
+            <div class="flex gap-4 mt-8">
+                <button onclick="closeModal('modal-form')" class="flex-1 py-3 bg-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-200 transition-colors">Batal</button>
+                <button onclick="addTulisan('manual')" class="flex-1 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-amber-600 transition-colors">Simpan Data</button>
+            </div>
+        </div>
     </div>
 
+    <!-- Detail Buku Modal -->
+    <div id="modal-book" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] p-10 w-full max-w-lg shadow-2xl relative">
+            <button onclick="closeModal('modal-book')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-800"><i data-lucide="x"></i></button>
+            <div id="book-detail-content" class="text-center"></div>
+        </div>
+    </div>
+
+    <!-- Bookflip Modal -->
+    <div id="modal-bookflip" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4 md:p-10">
+        <div class="w-full max-w-5xl h-full max-h-[800px] flex flex-col relative">
+            <button onclick="closeModal('modal-bookflip')" class="absolute -top-4 -right-4 bg-white text-slate-800 p-2 rounded-full shadow-lg z-10"><i data-lucide="x"></i></button>
+            <h3 id="bookflip-title" class="text-white text-center font-black tracking-widest uppercase mb-6 text-xl"></h3>
+            <div class="flex-1 flex bg-white rounded-lg overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                <!-- Left Page -->
+                <div class="w-1/2 bg-[#fdfbf7] p-8 md:p-12 spine-shadow overflow-y-auto relative border-r border-slate-200/50">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-6">Halaman 1</p>
+                    <div class="prose prose-sm font-amiri text-slate-700">
+                        <h2 class="text-2xl font-black mb-4 text-slate-900">Pembukaan Redaksi</h2>
+                        <p class="leading-relaxed text-lg">Alhamdulillah, segala puji bagi Allah. Edisi kali ini menghadirkan karya-karya luar biasa dari para santri yang berjuang menjaga cahaya hafalan Al-Qur'an di dada mereka...</p>
+                    </div>
+                </div>
+                <!-- Right Page -->
+                <div class="w-1/2 bg-[#fdfbf7] p-8 md:p-12 spine-shadow-right overflow-y-auto relative">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-6 text-right">Halaman 2</p>
+                    <div class="prose prose-sm font-amiri text-slate-700">
+                        <p class="leading-relaxed text-lg">Dalam diamnya malam, coretan pena mereka menjadi saksi perjalanan spiritual yang mendalam. Bacalah dengan hati, resapi setiap hikmah yang tertuang di lembaran ini.</p>
+                        <div class="mt-8 p-6 border-2 border-slate-200 border-dashed text-center">
+                            <p class="italic text-slate-500">Visualisasi PDF Bookflip (Simulasi)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Input for File Upload in Bank -->
+    <input type="file" id="bank-file-upload" class="hidden" onchange="handleBankFileUpload(this)">
+
     <script>
-        // --- DATA & STATE ---
-        const MILESTONE_DEFS = [
-            { id: 0, day: 5, label: 'Drafting' },
-            { id: 1, day: 10, label: 'Typing' },
-            { id: 2, day: 15, label: 'Editing' },
-            { id: 3, day: 18, label: 'Layout' },
-            { id: 4, day: 20, label: 'Siap' }
+        // ========================== STATE & INITIALIZATION ==========================
+        const MILESTONES_DEF = [
+            { id: 0, label: 'Drafting', targetDay: 5, color: '#0D9488' },
+            { id: 1, label: 'Typing', targetDay: 10, color: '#0F766E' },
+            { id: 2, label: 'Editing', targetDay: 15, color: '#F59E0B' },
+            { id: 3, label: 'Layout', targetDay: 18, color: '#D97706' },
+            { id: 4, label: 'Siap Cetak', targetDay: 20, color: '#10B981' }
         ];
 
         let state = {
             milestones: [false, false, false, false, false],
-            writings: [
-                { id: 1, title: 'Penjaga Surga', author: 'Deeq', rubric: 'Inspirasi', status: 'Draft' }
-            ]
+            deadline: new Date(Date.now() + 20*24*60*60*1000).toISOString(),
+            cover: null,
+            edisi: 'Edisi 27',
+            writings: [], // {id, title, rubric, author, room, edition, file, type: 'bulletin'|'book'}
+            projects: [], // {id, title, targetPages, releaseDate, addedWritings: []}
+            ebulletins: [] // {id, title, cover}
         };
 
-        // --- LOCAL STORAGE ENGINE ---
-        function saveToLocal() {
-            localStorage.setItem('tarqiyah_app_data', JSON.stringify(state));
-        }
+        // Dummy Catalog Data
+        const catalogData = [
+            { title: "Antologi 2023", price: "Rp 75.000", synopsis: "Jejak awal literasi santri.", desc: "Kumpulan karya perdana santri yang memuat beragam kisah inspiratif dari balik dinding asrama.", list: ["Mimpi di Batas Senja", "Sajak Untuk Ibu"] },
+            { title: "Antologi 2024", price: "Rp 85.000", synopsis: "Membangun karakter lewat aksara.", desc: "Eksplorasi pemikiran generasi muda Islam dalam merespon tantangan zaman.", list: ["Pemuda Gua Modern", "Hijrah Tanpa Lelah"] },
+            { title: "Antologi 2025", price: "Rp 90.000", synopsis: "Puncak karya gemilang.", desc: "Kompilasi naskah terbaik yang dikurasi ketat, menyajikan kedalaman spiritual yang menyentuh hati.", list: ["Ayat-ayat Cahaya", "Mahkota Surga"] }
+        ];
 
-        function loadFromLocal() {
-            const saved = localStorage.getItem('tarqiyah_app_data');
-            if (saved) {
-                state = JSON.parse(saved);
+        let chartInst = null;
+        let activeBankUploadId = null;
+
+        function loadData() {
+            const stored = localStorage.getItem('tarq_master_data');
+            if(stored) state = JSON.parse(stored);
+            
+            // Sync Input fields
+            document.getElementById('cover-edisi').value = state.edisi;
+            if(state.cover) {
+                document.getElementById('cover-preview').src = state.cover;
+                document.getElementById('cover-preview').classList.remove('hidden');
+                document.getElementById('cover-placeholder').classList.add('hidden');
             }
             renderAll();
+            setInterval(updateCountdown, 1000);
         }
 
-        // --- NAVIGATION ---
+        function saveData() {
+            state.edisi = document.getElementById('cover-edisi').value;
+            localStorage.setItem('tarq_master_data', JSON.stringify(state));
+        }
+
+        // ========================== NAVIGATION ==========================
         function navigate(page) {
             document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('page-' + page).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active', 'bg-sky-50', 'text-sky-700'));
-            document.querySelector(`[data-nav="${page}"]`).classList.add('active', 'bg-sky-50', 'text-sky-700');
-            
-            const titles = { dashboard: 'Dashboard Monitoring', tulisan: 'Bank Tulisan', buku: 'Buku Tahunan', penulis: 'Database Penulis' };
-            document.getElementById('page-title').innerText = titles[page];
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+            document.querySelector(`[data-nav="${page}"]`).classList.add('active');
             renderAll();
         }
 
-        // --- ACTIONS ---
-        function addQuickWriting() {
-            const title = document.getElementById('quick-title').value.trim();
-            const author = document.getElementById('quick-author').value.trim();
-            
-            if (!title || !author) {
-                showToast('Isi judul dan penulis!', 'warning');
+        // ========================== DASHBOARD LOGIC ==========================
+        function updateDates() {
+            const today = new Date();
+            document.getElementById('hijri-date').innerText = new Intl.DateTimeFormat('id-u-ca-islamic-uma-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+            document.getElementById('masehi-date').innerText = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const target = new Date(state.deadline).getTime();
+            const diff = target - now;
+
+            if (diff < 0) {
+                document.getElementById('countdown-timer').innerText = "WAKTUNYA CETAK!";
                 return;
             }
 
-            const newItem = {
-                id: Date.now(),
-                title: title,
-                author: author,
-                rubric: 'Umum',
-                status: 'Draft'
-            };
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('countdown-timer').innerText = `${d} Hari ${h} Jam ${m} Mnt`;
+        }
 
-            state.writings.unshift(newItem);
-            document.getElementById('quick-title').value = '';
-            document.getElementById('quick-author').value = '';
+        function renderMilestones() {
+            const container = document.getElementById('milestones-list');
+            container.innerHTML = "";
+            let completed = 0;
+
+            MILESTONES_DEF.forEach((m, idx) => {
+                const isDone = state.milestones[idx];
+                if(isDone) completed += 20;
+
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-3 rounded-xl ${isDone ? 'bg-teal-50' : 'bg-slate-50'} transition-colors">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleMilestone(${idx})" class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${isDone ? 'bg-primary border-primary text-white' : 'bg-white border-slate-300'}">
+                                ${isDone ? '<i data-lucide="check" class="w-3 h-3"></i>' : ''}
+                            </button>
+                            <span class="text-xs font-bold ${isDone ? 'milestone-done text-primary' : 'text-slate-600'}">${m.label}</span>
+                        </div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase">Tgl ${m.targetDay}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('progress-pct').innerText = `${completed}%`;
             
-            saveToLocal();
-            renderAll();
-            showToast('Tulisan berhasil disimpan ke memori!');
+            if(chartInst) {
+                chartInst.data.datasets[0].data = [completed, 100-completed];
+                chartInst.data.datasets[0].backgroundColor = [completed === 100 ? '#10B981' : '#0D9488', '#F1F5F9'];
+                chartInst.update();
+            } else {
+                const ctx = document.getElementById('progressChart').getContext('2d');
+                chartInst = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{ data: [completed, 100-completed], backgroundColor: ['#0D9488', '#F1F5F9'], borderWidth: 0, borderRadius: 20 }]
+                    },
+                    options: { cutout: '75%', animation: { animateScale: true } }
+                });
+            }
+            lucide.createIcons();
         }
 
         function toggleMilestone(idx) {
             state.milestones[idx] = !state.milestones[idx];
-            saveToLocal();
+            saveData();
             renderMilestones();
-            showToast(state.milestones[idx] ? 'Fase selesai!' : 'Fase dibatalkan');
         }
 
-        function resetMilestones() {
-            if (confirm('Mulai ulang siklus produksi bulan ini?')) {
+        function resetSiklus() {
+            if(confirm("Mulai siklus bulan depan? Progres akan direset dan target deadline diatur ulang.")) {
                 state.milestones = [false, false, false, false, false];
-                saveToLocal();
+                state.deadline = new Date(Date.now() + 20*24*60*60*1000).toISOString();
+                saveData();
                 renderAll();
+                showToast("Siklus berhasil direset!");
+            }
+        }
+
+        function handleCoverUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    state.cover = e.target.result;
+                    document.getElementById('cover-preview').src = state.cover;
+                    document.getElementById('cover-preview').classList.remove('hidden');
+                    document.getElementById('cover-placeholder').classList.add('hidden');
+                    saveData();
+                    showToast("Sampul tersimpan");
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addTulisan(source) {
+            const prefix = source === 'dashboard' ? 'dash' : 'm';
+            const title = document.getElementById(`${prefix}-judul`).value.trim();
+            const author = document.getElementById(`${prefix}-penulis`).value.trim();
+            const room = document.getElementById(`${prefix}-kamar`).value.trim();
+            const rubric = document.getElementById(`${prefix}-rubrik`).value;
+            const edition = source === 'dashboard' ? state.edisi : document.getElementById('m-edisi').value.trim();
+
+            if(!title || !author || !room) {
+                showToast("Mohon lengkapi semua bidang (Judul, Penulis, Kamar)", "error");
+                return;
+            }
+
+            state.writings.unshift({ id: Date.now(), title, rubric, author, room, edition, file: null, type: 'bulletin' });
+            saveData();
+
+            // Clear inputs
+            document.getElementById(`${prefix}-judul`).value = "";
+            document.getElementById(`${prefix}-penulis`).value = "";
+            document.getElementById(`${prefix}-kamar`).value = "";
+            if(source !== 'dashboard') {
+                document.getElementById('m-edisi').value = "";
+                closeModal('modal-form');
+            }
+
+            renderAll();
+            showToast("Naskah berhasil didaftarkan!");
+        }
+
+        // ========================== BANK TULISAN LOGIC ==========================
+        function renderBank() {
+            const tbody = document.getElementById('bank-tbody');
+            const dList = document.getElementById('draft-list'); // For dashboard
+            tbody.innerHTML = "";
+            if(dList) dList.innerHTML = "";
+
+            state.writings.forEach((w, i) => {
+                // Render for Bank Tab
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                        <td class="p-4">
+                            <p class="font-bold text-slate-800">${w.title}</p>
+                            <p class="text-[10px] font-black text-primary uppercase mt-1">${w.rubric}</p>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-bold text-slate-700">${w.author}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Kamar ${w.room}</p>
+                        </td>
+                        <td class="p-4 text-xs font-bold text-slate-500">${w.edition || 'Tanpa Edisi'}</td>
+                        <td class="p-4 text-center">
+                            ${w.file ? 
+                                `<span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">${w.file.substring(0,10)}...</span>` : 
+                                `<button onclick="initFileUpload(${w.id})" class="p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-primary hover:text-white transition-all"><i data-lucide="upload" class="w-4 h-4 mx-auto"></i></button>`
+                            }
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteWriting(${w.id})" class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+
+                // Render for Dashboard (Draft List, limit 4)
+                if(i < 4 && dList) {
+                    dList.innerHTML += `
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">${w.title}</p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${w.author} - ${w.edition}</p>
+                            </div>
+                            <span class="text-[9px] font-black text-primary bg-primary/10 px-2 py-1 rounded">DRAFT</span>
+                        </div>
+                    `;
+                }
+            });
+            lucide.createIcons();
+        }
+
+        function initFileUpload(id) {
+            activeBankUploadId = id;
+            document.getElementById('bank-file-upload').click();
+        }
+
+        function handleBankFileUpload(input) {
+            if(input.files && input.files[0] && activeBankUploadId) {
+                const wIndex = state.writings.findIndex(w => w.id === activeBankUploadId);
+                if(wIndex !== -1) {
+                    state.writings[wIndex].file = input.files[0].name;
+                    saveData();
+                    renderBank();
+                    showToast("File naskah berhasil diunggah");
+                }
             }
         }
 
         function deleteWriting(id) {
-            state.writings = state.writings.filter(w => w.id !== id);
-            saveToLocal();
-            renderAll();
-            showToast('Tulisan dihapus');
-        }
-
-        // --- RENDERING ---
-        function renderAll() {
-            renderStats();
-            renderMilestones();
-            renderIncoming();
-            renderBank();
-            renderPenulis();
-            renderHijri();
-            lucide.createIcons();
-        }
-
-        function renderStats() {
-            document.getElementById('stat-karya').innerText = state.writings.length;
-            const authors = [...new Set(state.writings.map(w => w.author))];
-            document.getElementById('stat-penulis').innerText = authors.length;
-        }
-
-        function renderMilestones() {
-            const container = document.getElementById('milestones-container');
-            container.innerHTML = '';
-            let completed = 0;
-
-            MILESTONE_DEFS.forEach((m, i) => {
-                const isDone = state.milestones[i];
-                if(isDone) completed++;
-                const btn = document.createElement('button');
-                btn.onclick = () => toggleMilestone(i);
-                btn.className = `p-4 rounded-xl border transition-all text-center ${isDone ? 'bg-sky-500 border-sky-400 text-white shadow-lg' : 'bg-slate-50 border-transparent text-slate-400'}`;
-                btn.innerHTML = `
-                    <p class="text-[9px] font-black uppercase tracking-widest">${m.label}</p>
-                    <p class="text-[8px] font-bold opacity-60">TGL ${m.day}</p>
-                `;
-                container.appendChild(btn);
-            });
-
-            const pct = (completed / 5) * 100;
-            document.getElementById('progress-bar').style.width = pct + '%';
-            document.getElementById('stat-progres').innerText = pct + '%';
-            document.getElementById('stat-fase').innerText = completed + '/5';
-        }
-
-        function renderIncoming() {
-            const list = document.getElementById('incoming-list');
-            list.innerHTML = '';
-            const drafts = state.writings.filter(w => w.status === 'Draft').slice(0, 5);
-            
-            if (drafts.length === 0) {
-                list.innerHTML = '<p class="text-xs text-slate-300 italic text-center py-4">Belum ada naskah baru</p>';
-                return;
+            if(confirm("Yakin ingin menghapus data ini?")) {
+                state.writings = state.writings.filter(w => w.id !== id);
+                saveData();
+                renderAll();
+                showToast("Data dihapus");
             }
+        }
 
-            drafts.forEach(w => {
-                list.innerHTML += `
-                    <div class="bg-white p-4 rounded-xl border border-slate-50 flex justify-between items-center group">
-                        <div>
-                            <p class="text-sm font-bold text-slate-700">${w.title}</p>
-                            <p class="text-[10px] text-slate-400 uppercase font-bold">${w.author}</p>
+        // ========================== BUKU TAHUNAN LOGIC ==========================
+        function addBookProject() {
+            const title = document.getElementById('buku-judul').value.trim();
+            const target = parseInt(document.getElementById('buku-target').value);
+            const rilis = document.getElementById('buku-rilis').value;
+
+            if(!title || !target || !rilis) return showToast("Lengkapi form proyek buku!", "error");
+
+            state.projects.unshift({ id: Date.now(), title, targetPages: target, releaseDate: rilis, addedWritings: [] });
+            saveData();
+            
+            document.getElementById('buku-judul').value = "";
+            document.getElementById('buku-target').value = "";
+            document.getElementById('buku-rilis').value = "";
+            
+            renderBuku();
+            showToast("Proyek buku dimulai!");
+        }
+
+        function renderBuku() {
+            const pList = document.getElementById('project-list');
+            pList.innerHTML = "";
+            
+            state.projects.forEach(p => {
+                // For simulation, assume each added writing is 3 pages
+                const currentPages = p.addedWritings.length * 3; 
+                const pct = Math.min((currentPages / p.targetPages) * 100, 100);
+                
+                pList.innerHTML += `
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-black text-slate-800">${p.title}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Rilis: ${p.releaseDate}</p>
+                            </div>
+                            <span class="text-[10px] font-black bg-white text-primary px-3 py-1 rounded-full border border-slate-200">${Math.round(pct)}%</span>
                         </div>
-                        <button onclick="deleteWriting(${w.id})" class="text-slate-200 hover:text-red-500 transition-colors">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full mb-4 overflow-hidden">
+                            <div class="bg-primary h-full transition-all" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-slate-200">
+                            <p class="text-[10px] font-bold text-slate-500">${currentPages} / ${p.targetPages} Halaman</p>
+                            <button onclick="promptAddWritingToBook(${p.id})" class="text-[10px] font-black text-primary hover:text-teal-700 uppercase">+ Masukkan Naskah</button>
+                        </div>
+                        ${p.addedWritings.length > 0 ? `
+                        <div class="mt-4 space-y-1">
+                            ${p.addedWritings.map(w => `<p class="text-[10px] font-bold text-slate-600">• ${w.title} (${w.author})</p>`).join('')}
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             });
-        }
 
-        function renderBank() {
-            const grid = document.getElementById('bank-grid');
-            grid.innerHTML = '';
-            state.writings.forEach(w => {
-                grid.innerHTML += `
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <span class="text-[9px] font-black bg-slate-100 text-slate-400 px-2 py-1 rounded-md uppercase tracking-widest">${w.status}</span>
-                        <h4 class="font-bold text-slate-800 mt-4 leading-tight">${w.title}</h4>
-                        <p class="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">${w.author}</p>
-                    </div>
-                `;
-            });
-        }
-
-        function renderPenulis() {
-            const tbody = document.getElementById('penulis-tbody');
-            tbody.innerHTML = '';
-            const authors = [...new Set(state.writings.map(w => w.author))];
-            authors.forEach(name => {
-                const count = state.writings.filter(w => w.author === name).length;
-                tbody.innerHTML += `
-                    <tr class="border-b border-slate-50">
-                        <td class="px-6 py-4 text-sm font-bold text-slate-700">${name}</td>
-                        <td class="px-6 py-4 text-sm font-bold text-slate-400">${count} Karya</td>
-                        <td class="px-6 py-4"><span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">AKTIF</span></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderHijri() {
-            const fmt = new Intl.DateTimeFormat('id-u-ca-islamic-uma-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' });
-            const hijri = fmt.format(new Date());
-            document.getElementById('hijri-sidebar').innerText = hijri;
-            document.getElementById('hijri-header').innerText = hijri;
-        }
-
-        function toggleTheme() {
-            const current = document.body.getAttribute('data-theme');
-            const target = current === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', target);
-            document.getElementById('theme-icon').setAttribute('data-lucide', target === 'light' ? 'moon' : 'sun');
+            const kGrid = document.getElementById('katalog-grid');
+            kGrid.innerHTML = catalogData.map(c => `
+                <div onclick='openBookCatalog(${JSON.stringify(c)})' class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
+                    <div class="w-24 h-32 bg-slate-50 rounded-xl mx-auto mb-4 flex items-center justify-center text-slate-300 group-hover:bg-primary/5 group-hover:text-primary transition-colors"><i data-lucide="book-marked" class="w-8 h-8"></i></div>
+                    <h4 class="font-black text-slate-800">${c.title}</h4>
+                    <p class="text-xs font-black text-primary mt-1">${c.price}</p>
+                </div>
+            `).join('');
             lucide.createIcons();
         }
 
-        function showToast(msg, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast-enter px-4 py-2 rounded-lg text-white text-xs font-bold shadow-lg ${type === 'success' ? 'bg-emerald-500' : 'bg-amber-500'}`;
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+        function promptAddWritingToBook(projectId) {
+            const title = prompt("Judul Tulisan untuk Buku:");
+            if(!title) return;
+            const author = prompt("Nama Penulis:");
+            if(!author) return;
+
+            const projIndex = state.projects.findIndex(p => p.id === projectId);
+            if(projIndex > -1) {
+                state.projects[projIndex].addedWritings.push({ title, author });
+                // Also add to global writings so they appear in Penulis DB
+                state.writings.push({ id: Date.now(), title, rubric: 'Buku', author, room: 'N/A', edition: state.projects[projIndex].title, file: null, type: 'book' });
+                saveData();
+                renderAll();
+                showToast("Naskah masuk ke buku!");
+            }
         }
 
-        // --- STARTUP ---
-        window.onload = loadFromLocal;
+        function openBookCatalog(book) {
+            const content = document.getElementById('book-detail-content');
+            content.innerHTML = `
+                <div class="w-32 h-44 bg-slate-50 rounded-2xl mx-auto mb-6 flex items-center justify-center text-primary shadow-inner"><i data-lucide="book" class="w-10 h-10"></i></div>
+                <h3 class="text-2xl font-black text-slate-800 leading-tight">${book.title}</h3>
+                <p class="text-sm font-black text-primary mt-2 uppercase tracking-widest">${book.price}</p>
+                <div class="text-left mt-8 space-y-4">
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sinopsis</p><p class="text-sm text-slate-600 leading-relaxed italic">${book.synopsis}</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Deskripsi</p><p class="text-sm text-slate-600 leading-relaxed">${book.desc}</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Daftar Isi Singkat</p><ul class="space-y-1">${book.list.map(l => `<li class="text-xs font-bold text-slate-700 flex items-center gap-2"><div class="w-1.5 h-1.5 bg-secondary rounded-full"></div>${l}</li>`).join('')}</ul></div>
+                </div>
+            `;
+            document.getElementById('modal-book').classList.replace('hidden', 'flex');
+            lucide.createIcons();
+        }
+
+        // ========================== DATABASE PENULIS LOGIC ==========================
+        function renderPenulis() {
+            const grid = document.getElementById('penulis-grid');
+            const search = document.getElementById('search-penulis').value.toLowerCase();
+            grid.innerHTML = "";
+
+            // Aggregate authors
+            const authorMap = {};
+            state.writings.forEach(w => {
+                if(!authorMap[w.author]) authorMap[w.author] = { room: w.room, works: [] };
+                authorMap[w.author].works.push(w.title);
+            });
+
+            const authorNames = Object.keys(authorMap);
+            document.getElementById('stat-penulis').innerText = authorNames.length; // Update global stat
+
+            const filtered = authorNames.filter(name => name.toLowerCase().includes(search) || authorMap[name].works.some(work => work.toLowerCase().includes(search)));
+
+            filtered.forEach(name => {
+                const data = authorMap[name];
+                grid.innerHTML += `
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-primary font-black text-lg uppercase">${name.charAt(0)}</div>
+                            <div>
+                                <h4 class="font-black text-slate-800 leading-none">${name}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Kamar ${data.room}</p>
+                            </div>
+                        </div>
+                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Rekam Jejak Karya (${data.works.length}):</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${data.works.map(w => `<span class="px-2 py-1 bg-white border border-slate-200 text-slate-500 rounded text-[9px] font-bold">${w}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ========================== E-BULETIN LOGIC ==========================
+        function triggerBulletinUpload() {
+            document.getElementById('bulletin-upload').click();
+        }
+
+        function handleBulletinUpload(input) {
+            if(input.files && input.files[0]) {
+                const title = prompt("Masukkan Nomor Edisi E-Buletin ini (cth: Edisi 27):", "Edisi Baru");
+                if(title) {
+                    state.ebulletins.push({ id: Date.now(), title });
+                    saveData();
+                    renderBulletins();
+                    showToast("E-Buletin diarsipkan!");
+                }
+            }
+        }
+
+        function renderBulletins() {
+            const grid = document.getElementById('ebulletin-grid');
+            grid.innerHTML = "";
+            
+            // Render from state + some dummies
+            const combined = [...state.ebulletins, {id: 'd1', title: 'Edisi 26'}, {id: 'd2', title: 'Edisi 25'}];
+
+            combined.forEach(eb => {
+                grid.innerHTML += `
+                    <div class="flex flex-col items-center">
+                        <div onclick="openBookflip('${eb.title}')" class="book-a5 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-slate-300 shadow-sm relative overflow-hidden group">
+                            <i data-lucide="book-open" class="w-10 h-10 group-hover:scale-110 transition-transform"></i>
+                            <div class="absolute inset-x-0 bottom-0 bg-white/90 p-2 text-center transform translate-y-full group-hover:translate-y-0 transition-transform"><span class="text-[9px] font-black text-primary uppercase">BACA SEKARANG</span></div>
+                        </div>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4">${eb.title}</p>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function openBookflip(title) {
+            document.getElementById('bookflip-title').innerText = title;
+            document.getElementById('modal-bookflip').classList.replace('hidden', 'flex');
+        }
+
+        // ========================== UTILITIES ==========================
+        function openFormModal() { document.getElementById('modal-form').classList.replace('hidden', 'flex'); }
+        function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
+
+        function showToast(msg, type="success") {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `toast-enter px-6 py-3 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest shadow-2xl ${type === 'success' ? 'bg-slate-800' : 'bg-red-500'}`;
+            el.innerText = msg;
+            container.appendChild(el);
+            setTimeout(() => { el.classList.replace('toast-enter', 'opacity-0'); setTimeout(() => el.remove(), 300); }, 3000);
+        }
+
+        function renderAll() {
+            updateDates();
+            renderMilestones();
+            renderBank();
+            renderBuku();
+            renderPenulis();
+            renderBulletins();
+            document.getElementById('stat-karya').innerText = state.writings.length;
+        }
+
+        window.onload = () => {
+            loadData();
+            lucide.createIcons();
+        };
     </script>
 </body>
 </html>
