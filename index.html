@@ -399,6 +399,29 @@
                 </div>
             </div>
 
+            <!-- Form Pendaftaran Naskah E-Buletin -->
+            <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest"><i data-lucide="file-plus" class="inline w-5 h-5 mr-2 text-primary"></i>Pendaftaran Naskah Edisi Spesifik</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:block">Otomatis sinkron ke Bank & Penulis</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <input type="text" id="eb-n-judul" placeholder="Judul Tulisan..." class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-800 dark:text-white placeholder-slate-400 lg:col-span-2">
+                    <select id="eb-n-rubrik" class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-600 dark:text-slate-300">
+                        <option value="Story Qur'ani">Story Qur'ani</option>
+                        <option value="Artikel Qur'ani">Artikel Qur'ani</option>
+                        <option value="Petuah Qur'ani">Petuah Qur'ani</option>
+                        <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option>
+                    </select>
+                    <input type="text" id="eb-n-penulis" placeholder="Nama Penulis..." class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-800 dark:text-white placeholder-slate-400">
+                    <select id="eb-n-kamar" class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-600 dark:text-slate-300">
+                        <option value="" disabled selected>Pilih Kamar (1D4 - 18D4)</option>
+                    </select>
+                    <input type="text" id="eb-n-edisi" placeholder="Edisi Tujuan (cth: Edisi 27)..." class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-800 dark:text-white placeholder-slate-400">
+                    <button onclick="saveTulisan('ebulletin')" class="md:col-span-2 lg:col-span-3 py-4 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-teal-700 transition-all shadow-lg shadow-teal-500/30 mt-2">Daftarkan Naskah ke Edisi Ini</button>
+                </div>
+            </div>
+
             <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div id="ebulletin-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 justify-items-center"></div>
             </div>
@@ -490,6 +513,7 @@
             const kamarOptions = `<option value="" disabled selected>Pilih Kamar</option>` + defaultKamar.map(k => `<option value="${k}">${k}</option>`).join('');
             document.getElementById('d-kamar').innerHTML = kamarOptions;
             document.getElementById('m-kamar').innerHTML = kamarOptions;
+            document.getElementById('eb-n-kamar').innerHTML = kamarOptions;
 
             applyTheme();
             updateDates();
@@ -777,15 +801,16 @@
         // ========================== GLOBAL DATA OPERATIONS (TULISAN) ==========================
         function saveTulisan(source) {
             const isDash = source === 'dashboard';
-            const prefix = isDash ? 'd' : 'm';
+            const isEB = source === 'ebulletin';
+            const prefix = isDash ? 'd' : (isEB ? 'eb-n' : 'm');
             
             const judul = document.getElementById(`${prefix}-judul`).value.trim();
             const penulis = document.getElementById(`${prefix}-penulis`).value.trim();
             const kamar = document.getElementById(`${prefix}-kamar`).value;
             const rubrik = document.getElementById(`${prefix}-rubrik`).value;
-            const edisi = isDash ? state.edisiAktif : document.getElementById('m-edisi').value.trim();
+            const edisi = isDash ? state.edisiAktif : document.getElementById(`${prefix}-edisi`).value.trim();
 
-            if(!judul || !penulis || !kamar) return showToast("Lengkapi form pendaftaran!", "error");
+            if(!judul || !penulis || !kamar || (!isDash && !edisi)) return showToast("Lengkapi form pendaftaran!", "error");
 
             state.tulisan.unshift({ id: Date.now().toString(), judul, penulis, kamar, rubrik, edisi, source });
             saveData();
@@ -794,7 +819,10 @@
             document.getElementById(`${prefix}-judul`).value = "";
             document.getElementById(`${prefix}-penulis`).value = "";
             document.getElementById(`${prefix}-kamar`).value = "";
-            if(!isDash) { document.getElementById('m-edisi').value = ""; closeModal('modal-form'); }
+            if(!isDash) { 
+                document.getElementById(`${prefix}-edisi`).value = ""; 
+                if(!isEB) closeModal('modal-form'); 
+            }
 
             renderAll();
             showToast("Naskah tersimpan!");
