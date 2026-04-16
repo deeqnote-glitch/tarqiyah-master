@@ -146,7 +146,7 @@
                         
                         <!-- Countdown Merah -->
                         <div class="w-full p-4 bg-red-50 dark:bg-red-500/10 rounded-2xl text-center border border-red-100 dark:border-red-500/20">
-                            <p class="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-widest mb-1"><i data-lucide="timer" class="w-3 h-3 inline mr-1"></i>Deadline Cetak</p>
+                            <p class="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-widest mb-1"><i data-lucide="timer" class="w-3 h-3 inline mr-1"></i>Deadline Cetak (Tgl 20)</p>
                             <p id="countdown-timer" class="text-lg font-black text-red-600 dark:text-red-400 tabular-nums leading-none">00H 00:00:00</p>
                         </div>
                     </div>
@@ -568,8 +568,38 @@
         function updateCountdown() {
             const timerEl = document.getElementById('countdown-timer');
             if(!timerEl) return;
-            const diff = new Date(state.deadlineCetak).getTime() - new Date().getTime();
-            if (diff < 0) { timerEl.innerText = "HARI H CETAK!"; return; }
+            
+            // Dapatkan tanggal Hijriah hari ini secara otomatis
+            let hijriDay = 1;
+            try { 
+                const fmt = new Intl.DateTimeFormat('en-US-u-ca-islamic', { day: 'numeric' }); 
+                hijriDay = parseInt(fmt.format(new Date())) || 1; 
+            } catch(e) { hijriDay = 1; }
+
+            // Hitung sisa hari menuju tanggal 20 Hijriah
+            let daysLeft = 0;
+            if (hijriDay < 20) {
+                daysLeft = 20 - hijriDay;
+            } else if (hijriDay === 20) {
+                daysLeft = 0; // Hari H!
+            } else {
+                daysLeft = (30 - hijriDay) + 20; // Asumsi siklus selesai, lanjut hitung ke tgl 20 bulan depan
+            }
+
+            // Set waktu target ke jam 23:59:59 di hari deadline
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + daysLeft);
+            targetDate.setHours(23, 59, 59, 999);
+
+            const diff = targetDate.getTime() - new Date().getTime();
+            
+            if (daysLeft === 0) { 
+                timerEl.innerText = "HARI H CETAK!"; 
+                timerEl.classList.add("animate-pulse"); 
+                return; 
+            }
+            
+            timerEl.classList.remove("animate-pulse");
             const d = Math.floor(diff / (1000 * 60 * 60 * 24));
             const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -578,9 +608,8 @@
         }
 
         function resetSiklus() {
-            if(confirm("Mulai edisi baru? Progres akan direset dan deadline diperpanjang 30 hari.")) {
+            if(confirm("Mulai edisi baru? Progres akan direset (Deadline otomatis menyesuaikan tanggal 20 Hijriah terdekat).")) {
                 state.milestones = [false, false, false, false, false];
-                state.deadlineCetak = new Date(Date.now() + 30*24*60*60*1000).toISOString();
                 const num = parseInt(state.edisiAktif.replace(/\D/g, '')) || 0;
                 state.edisiAktif = `Edisi ${num + 1}`;
                 state.sampulDash = null; // Clear cover
