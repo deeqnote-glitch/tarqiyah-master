@@ -28,10 +28,10 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-jakarta antialiased transition-colors duration-300 overflow-hidden flex">
 
-    <!-- Loading Screen (Menunggu Database) -->
+    <!-- Loading Screen -->
     <div id="app-loading" class="fixed inset-0 z-[200] bg-white dark:bg-darkBg flex flex-col items-center justify-center transition-opacity duration-500">
         <i data-lucide="loader-2" class="w-12 h-12 text-primary animate-spin mb-4"></i>
-        <h2 class="text-xl font-black text-slate-800 dark:text-white">Menyiapkan Database Lokal (IndexedDB)...</h2>
+        <h2 class="text-xl font-black text-slate-800 dark:text-white">Menyiapkan Database (IndexedDB)...</h2>
     </div>
 
     <!-- Sidebar -->
@@ -43,7 +43,7 @@
             </div>
             <div class="hidden lg:block">
                 <h1 class="font-black text-sm tracking-widest text-slate-800 dark:text-white uppercase">Tarqiyah</h1>
-                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Penyimpanan Lokal<br>(Support File PDF)</p>
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Penyimpanan Lokal<br>(Super Aman)</p>
             </div>
         </div>
 
@@ -65,7 +65,22 @@
             </button>
         </nav>
 
-        <div class="p-3 lg:p-4 border-t border-slate-100 dark:border-slate-700/50">
+        <!-- Sidebar Footer (Theme + Backup System) -->
+        <div class="p-3 lg:p-4 border-t border-slate-100 dark:border-slate-700/50 space-y-2">
+            <!-- BACKUP & RESTORE -->
+            <div class="grid grid-cols-2 gap-2 mb-2 lg:mb-4">
+                <button onclick="exportData()" class="w-full flex flex-col items-center justify-center p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors" title="Download Backup">
+                    <i data-lucide="download-cloud" class="w-4 h-4 mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-widest hidden lg:block">Backup</span>
+                </button>
+                <button onclick="document.getElementById('import-file').click()" class="w-full flex flex-col items-center justify-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors" title="Restore Data">
+                    <i data-lucide="upload-cloud" class="w-4 h-4 mb-1"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-widest hidden lg:block">Restore</span>
+                </button>
+                <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(this)">
+            </div>
+
+            <!-- TEMA -->
             <button onclick="toggleTheme()" class="w-full flex items-center justify-center lg:justify-between p-3 lg:px-4 py-3 text-sm font-bold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary transition-all">
                 <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
                 <span class="hidden lg:block text-xs uppercase tracking-widest">Tema</span>
@@ -83,7 +98,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                     <div>
                         <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Dashboard Tarqiyah</h2>
-                        <p class="text-sm font-medium text-slate-500">Pantau redaksi E-Buletin bulan ini (Lokal + File).</p>
+                        <p class="text-sm font-medium text-slate-500">Pantau redaksi E-Buletin bulan ini (Lokal Super).</p>
                     </div>
                     <div class="bg-white dark:bg-darkPanel p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-right min-w-[200px]">
                         <h3 class="text-2xl font-black text-primary font-amiri mb-1" id="date-hijri">Memuat...</h3>
@@ -418,6 +433,31 @@
             </div>
         </div>
 
+        <div id="modal-edit-ebulletin" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+            <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
+                <h3 class="font-black text-lg mb-4 text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="edit" class="w-5 h-5 text-primary"></i> Edit Arsip E-Buletin</h3>
+                <div class="space-y-4">
+                    <input type="hidden" id="edit-eb-id">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Edisi</label>
+                        <input type="text" id="edit-eb-edisi" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold dark:text-white" placeholder="Contoh: Edisi 27">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Ubah Cover (Kosongkan jika tetap)</label>
+                        <input type="file" id="edit-eb-cover" accept="image/*" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-red-500 uppercase mb-1">Ubah PDF (Kosongkan jika tetap)</label>
+                        <input type="file" id="edit-eb-pdf" accept="application/pdf" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-red-50 dark:file:bg-red-900/20 file:text-red-600 dark:file:text-red-400 file:font-bold">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button onclick="document.getElementById('modal-edit-ebulletin').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500">Batal</button>
+                    <button onclick="saveEditEbulletin()" id="btn-edit-eb-simpan" class="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-white flex gap-2 items-center">Update Arsip</button>
+                </div>
+            </div>
+        </div>
+
         <div id="modal-detail-penulis" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
             <div class="bg-white dark:bg-darkPanel w-full max-w-lg max-h-[85vh] rounded-[2rem] p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
                 <div class="flex justify-between items-start mb-6 border-b border-slate-100 dark:border-slate-700 pb-4 shrink-0">
@@ -545,7 +585,7 @@
 
     </main>
 
-    <!-- LOGIKA LOKAL SUPER (INDEXED DB) -->
+    <!-- LOGIKA LOKAL SUPER (INDEXED DB + BACKUP/RESTORE) -->
     <script>
         // GLOBAL STATE & DEFAULTS
         const baseDl = new Date(Date.now() + 14*86400000);
@@ -624,6 +664,42 @@
                 reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
             });
         }
+
+        // --- BACKUP & RESTORE ---
+        window.exportData = function() {
+            const dataStr = JSON.stringify(window.state);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Tarqiyah_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup berhasil diunduh! Simpan file ini baik-baik.');
+        }
+
+        window.importData = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState && importedState.tulisan !== undefined) {
+                        window.state = importedState;
+                        await saveToDB();
+                        showToast('Data berhasil di-restore!');
+                        input.value = ''; // Reset file input
+                    } else {
+                        showToast('Format file Backup tidak valid', 'error');
+                    }
+                } catch (err) {
+                    showToast('Gagal membaca file Backup', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
 
         // --- INIT APP ---
         window.onload = function() { loadFromDB(); };
@@ -853,8 +929,58 @@
                 showToast('Arsip E-Buletin + PDF tersimpan!'); 
             } catch (error) { showToast('Gagal memproses file.', 'error'); } finally { btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Simpan Arsip ke Database'; if(window.lucide) lucide.createIcons(); } 
         }
+
+        window.editEbulletin = function(id) {
+            const eb = state.ebulletins.find(e => e.id === id);
+            if(!eb) return;
+            document.getElementById('edit-eb-id').value = id;
+            document.getElementById('edit-eb-edisi').value = eb.edisi;
+            document.getElementById('edit-eb-cover').value = ''; // Reset input file
+            document.getElementById('edit-eb-pdf').value = '';   // Reset input file
+            document.getElementById('modal-edit-ebulletin').classList.remove('hidden');
+        }
+
+        window.saveEditEbulletin = async function() {
+            const id = document.getElementById('edit-eb-id').value;
+            const edisi = document.getElementById('edit-eb-edisi').value.trim();
+            const coverInput = document.getElementById('edit-eb-cover');
+            const pdfInput = document.getElementById('edit-eb-pdf');
+            const btn = document.getElementById('btn-edit-eb-simpan');
+            
+            if(!edisi) return showToast('Nama Edisi wajib diisi!', 'error');
+
+            const idx = state.ebulletins.findIndex(e => e.id === id);
+            if(idx === -1) return;
+
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...';
+            if(window.lucide) lucide.createIcons();
+
+            try {
+                let newCover = state.ebulletins[idx].cover;
+                let newPdf = state.ebulletins[idx].pdf;
+
+                if(coverInput.files && coverInput.files[0]) {
+                    newCover = await getBase64(coverInput.files[0]);
+                }
+                if(pdfInput.files && pdfInput.files[0]) {
+                    newPdf = await getBase64(pdfInput.files[0]);
+                }
+
+                state.ebulletins[idx].edisi = edisi;
+                state.ebulletins[idx].cover = newCover;
+                state.ebulletins[idx].pdf = newPdf;
+
+                await saveToDB();
+                document.getElementById('modal-edit-ebulletin').classList.add('hidden');
+                showToast('Arsip E-Buletin berhasil diupdate!');
+            } catch (error) {
+                showToast('Gagal memproses file yang baru.', 'error');
+            } finally {
+                btn.innerHTML = 'Update Arsip';
+            }
+        }
         
-        window.hapusEbulletin = function(id) { if(!confirm('Hapus arsip beserta PDF-nya?')) return; state.ebulletins = state.ebulletins.filter(e => e.id !== id); saveToDB(); showToast('Arsip Dihapus'); }
+        window.hapusEbulletin = function(id) { if(!confirm('Hapus arsip beserta PDF-nya secara permanen?')) return; state.ebulletins = state.ebulletins.filter(e => e.id !== id); saveToDB(); showToast('Arsip Dihapus'); }
         window.bukaPDF = function(data) { if(!data || data==='null') return showToast('PDF tidak tersedia', 'error'); document.getElementById('pdf-frame').src = data; document.getElementById('pdf-modal').classList.remove('hidden'); }
 
         // --- RENDERERS ---
@@ -914,7 +1040,26 @@
         }
 
         function renderKatalog() { document.getElementById('katalog-grid').innerHTML = state.katalogBuku.map(b => `<div class="bg-white dark:bg-darkPanel rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col group"><div class="h-48 bg-slate-100 dark:bg-slate-800 relative cursor-pointer" onclick="bukaPDF('${b.pdf}')"><img src="${b.cover}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-white font-bold text-xs bg-primary px-3 py-1.5 rounded-lg flex gap-1"><i data-lucide="book-open" class="w-4 h-4"></i> Buka</span></div></div><div class="p-4 flex-1 flex flex-col"><h4 class="font-black text-sm text-slate-800 dark:text-white leading-tight mb-1">${b.judul}</h4><p class="text-[10px] text-slate-500 line-clamp-2 mb-2 flex-1">${b.sinopsis}</p><div class="flex justify-between items-center mt-auto border-t border-slate-100 dark:border-slate-700/50 pt-2"><span class="text-xs font-black text-green-600 dark:text-green-400">${b.harga || '-'}</span><button onclick="hapusKatalog('${b.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Belum ada buku terbit di katalog.</p>'; }
-        function renderEbulletin() { document.getElementById('ebulletin-grid').innerHTML = state.ebulletins.map(e => `<div class="relative group w-full max-w-[160px]"><div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer" onclick="bukaPDF('${e.pdf}')"><img src="${e.cover}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white"><i data-lucide="book-open" class="w-6 h-6 mb-2"></i><span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span></div></div><div class="mt-3 text-center"><h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4><button onclick="hapusEbulletin('${e.id}')" class="mt-1 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus Arsip</button></div></div>`).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; }
+        
+        function renderEbulletin() { 
+            document.getElementById('ebulletin-grid').innerHTML = state.ebulletins.map(e => `
+                <div class="relative group w-full max-w-[160px]">
+                    <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer" onclick="bukaPDF('${e.pdf}')">
+                        <img src="${e.cover}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                            <i data-lucide="book-open" class="w-6 h-6 mb-2"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4>
+                        <div class="flex justify-center gap-3 mt-1.5">
+                            <button onclick="editEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-blue-500 transition-colors"><i data-lucide="edit-3" class="w-3 h-3 inline"></i> Edit</button>
+                            <button onclick="hapusEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus</button>
+                        </div>
+                    </div>
+                </div>`).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; 
+        }
 
         function renderChart() {
             const ctx = document.getElementById('mainChart').getContext('2d'); const kamarCount = {}; state.tulisan.forEach(t => { kamarCount[t.kamar] = (kamarCount[t.kamar] || 0) + 1; }); const topKamar = Object.entries(kamarCount).sort((a,b)=>b[1]-a[1]).slice(0,5); const labels = topKamar.map(x=>x[0]); const data = topKamar.map(x=>x[1]); if(labels.length === 0) { labels.push('Belum ada data'); data.push(1); }
