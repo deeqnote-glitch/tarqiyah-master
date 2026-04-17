@@ -84,9 +84,9 @@
                     </div>
                 </div>
 
-                <!-- Proyek Edisi Berjalan -->
                 <div class="bg-white dark:bg-darkPanel rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 p-6 lg:p-8 mb-8 relative overflow-hidden">
                     <div class="flex flex-col lg:flex-row gap-8 relative z-10">
+                        <!-- Cover & Deadline -->
                         <div class="w-full lg:w-1/4 flex flex-col items-center">
                             <div class="w-40 h-56 bg-slate-100 dark:bg-slate-800 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer mb-4" onclick="document.getElementById('input-proj-cover').click()">
                                 <img id="proj-cover-img" src="" class="absolute inset-0 w-full h-full object-cover hidden z-10">
@@ -103,10 +103,11 @@
                             <button onclick="openConfigDashboard()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors">Edit Info & Deadline</button>
                         </div>
 
+                        <!-- Progress & Lineup Drafting Tracker -->
                         <div class="w-full lg:w-3/4 flex flex-col justify-between">
                             <div class="mb-8">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-500">Progres Fase Redaksi</h4>
+                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-500">Progres Keseluruhan (Siklus Kerja)</h4>
                                     <span class="text-xs font-black text-primary" id="dash-progress-text">0%</span>
                                 </div>
                                 <div class="relative w-full">
@@ -116,14 +117,21 @@
                                 </div>
                             </div>
 
+                            <!-- Drafting Readiness Block -->
                             <div>
-                                <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Line-up Naskah Edisi Ini</h4>
+                                <div class="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
+                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                        <i data-lucide="align-left" class="w-4 h-4"></i> Drafting Kesiapan Naskah
+                                    </h4>
+                                    <span id="dash-naskah-count" class="px-2 py-1 bg-primary/10 text-primary text-[10px] rounded-lg font-black uppercase tracking-widest">0/4 Siap</span>
+                                </div>
+                                
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dash-lineup-grid"></div>
                             </div>
 
                             <div class="mt-6 flex justify-end">
                                 <button onclick="bukaModalSiklus()" class="px-6 py-3 bg-gradient-to-r from-teal-600 to-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-500/30 flex items-center gap-2 hover:scale-105 transition-transform">
-                                    <i data-lucide="rocket" class="w-4 h-4"></i> Mulai Siklus Baru (Terbitkan)
+                                    <i data-lucide="rocket" class="w-4 h-4"></i> Selesaikan Siklus (Arsipkan)
                                 </button>
                             </div>
                         </div>
@@ -152,7 +160,7 @@
                     </div>
 
                     <div class="lg:col-span-2 bg-white dark:bg-darkPanel p-6 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700">
-                        <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-primary"></i> Analisis Rubrik & Kamar (Hover)</h4>
+                        <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-primary"></i> Analisis Rubrik & Kamar</h4>
                         <div class="h-48 w-full">
                             <canvas id="mainChart"></canvas>
                         </div>
@@ -181,7 +189,7 @@
                         </select>
                     </div>
                     <div class="mt-4 flex gap-4 items-center">
-                        <input type="text" id="bank-in-edisi" placeholder="Dimuat di Edisi/Buku..." class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none focus:ring-2 focus:ring-primary dark:text-white">
+                        <input type="text" id="bank-in-edisi" placeholder="Dimuat di Edisi/Buku... (Kosongkan jika hanya Draft)" class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none focus:ring-2 focus:ring-primary dark:text-white">
                         <button onclick="simpanBankManual()" class="px-6 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-colors">Simpan Data</button>
                     </div>
                 </div>
@@ -287,7 +295,6 @@
                     <p class="text-sm font-medium text-slate-500">Mendata otomatis setiap penulis beserta karyanya (Edisi & Buku).</p>
                 </div>
 
-                <!-- Kolom Pencarian Cerdas -->
                 <div class="mb-8 relative max-w-xl">
                     <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
                     <input type="text" id="search-penulis" placeholder="Cari nama penulis, karya, atau kamar..." class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-darkPanel rounded-[1rem] shadow-sm border border-slate-200 dark:border-slate-700 text-sm font-bold focus:ring-2 focus:ring-primary dark:text-white transition-all" oninput="renderPenulis()">
@@ -303,31 +310,78 @@
                     <p class="text-sm font-medium text-slate-500">Kumpulan PDF E-Buletin yang terbit. Klik cover untuk baca.</p>
                 </div>
 
-                <!-- Form Upload Arsip Lama/Manual -->
-                <div class="bg-white dark:bg-darkPanel p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
-                    <h3 class="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="upload-cloud" class="w-4 h-4"></i> Pendaftaran / Unggah Arsip Lama</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Form Upload Arsip Lama/Manual 4-in-1 -->
+                <div class="bg-white dark:bg-darkPanel p-6 lg:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
+                    <h3 class="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4"></i> Pendaftaran Arsip & Naskah Lama
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Nomor/Nama Edisi</label>
-                            <input type="text" id="arsip-in-edisi" placeholder="Contoh: Edisi 27" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none focus:ring-2 focus:ring-primary dark:text-white">
+                            <input type="text" id="arsip-in-edisi" placeholder="Contoh: Edisi 27" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border border-slate-100 dark:border-slate-700 focus:ring-2 focus:ring-primary dark:text-white">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Cover (Opsional)</label>
-                            <input type="file" id="arsip-in-cover" accept="image/*" class="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                            <input type="file" id="arsip-in-cover" accept="image/*" class="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">File PDF E-Buletin</label>
-                            <input type="file" id="arsip-in-pdf" accept="application/pdf" class="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                            <input type="file" id="arsip-in-pdf" accept="application/pdf" class="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                         </div>
                     </div>
-                    <div class="mt-5 flex justify-end">
+
+                    <!-- 4-in-1 Lineup Block -->
+                    <div class="border-t border-slate-100 dark:border-slate-700/50 pt-6">
+                        <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><i data-lucide="users-2" class="w-4 h-4"></i> Data Penulis 4 Rubrik (Opsional)</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- SQ -->
+                            <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Story Qur'ani</p>
+                                <input type="text" id="arsip-j-sq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
+                                <div class="flex gap-2">
+                                    <input type="text" id="arsip-p-sq" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white">
+                                    <select id="arsip-k-sq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
+                                </div>
+                            </div>
+                            <!-- AQ -->
+                            <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Artikel Qur'ani</p>
+                                <input type="text" id="arsip-j-aq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
+                                <div class="flex gap-2">
+                                    <input type="text" id="arsip-p-aq" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white">
+                                    <select id="arsip-k-aq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
+                                </div>
+                            </div>
+                            <!-- PQ -->
+                            <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Petuah Qur'ani</p>
+                                <input type="text" id="arsip-j-pq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
+                                <div class="flex gap-2">
+                                    <input type="text" id="arsip-p-pq" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white">
+                                    <select id="arsip-k-pq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
+                                </div>
+                            </div>
+                            <!-- IQ -->
+                            <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Inspirasi Qur'ani</p>
+                                <input type="text" id="arsip-j-iq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
+                                <div class="flex gap-2">
+                                    <input type="text" id="arsip-p-iq" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white">
+                                    <select id="arsip-k-iq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
                         <button onclick="simpanArsipManual()" id="btn-arsip-simpan" class="px-6 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-colors flex items-center gap-2">
-                           <i data-lucide="save" class="w-4 h-4"></i> Tambahkan ke Arsip
+                           <i data-lucide="save" class="w-4 h-4"></i> Simpan Edisi & Data Penulis
                         </button>
                     </div>
                 </div>
                 
-                <!-- Grid Arsip -->
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center" id="ebulletin-grid"></div>
             </div>
 
@@ -363,8 +417,8 @@
 
         <div id="modal-siklus" class="fixed inset-0 z-[100] hidden bg-slate-900/80 flex items-center justify-center p-4 backdrop-blur-sm">
             <div class="bg-white dark:bg-darkPanel w-full max-w-sm rounded-3xl p-6 border border-slate-200 dark:border-slate-700">
-                <h3 class="font-black text-lg mb-2 text-slate-800 dark:text-white">Terbitkan Edisi Ini</h3>
-                <p class="text-xs text-slate-500 mb-6">Pastikan line-up terisi. Unggah file PDF final untuk disimpan ke Arsip.</p>
+                <h3 class="font-black text-lg mb-2 text-slate-800 dark:text-white">Selesaikan Siklus Edisi</h3>
+                <p class="text-xs text-slate-500 mb-6">Mulai siklus Edisi baru. Unggah file PDF final untuk disimpan ke Arsip.</p>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Cover Final (Opsional)</label>
@@ -477,10 +531,15 @@
         }
 
         function populateSelects() {
-            const opts = `<option value="" disabled selected>Pilih Kamar</option>` + kamarOptions.map(k => `<option value="${k}">${k}</option>`).join('');
+            const opts = `<option value="" disabled selected>Kamar</option>` + kamarOptions.map(k => `<option value="${k}">${k}</option>`).join('');
             document.getElementById('bank-in-kamar').innerHTML = opts;
             document.getElementById('edit-naskah-kamar').innerHTML = opts;
             document.getElementById('buku-in-kamar').innerHTML = opts;
+            
+            // Populate 4-in-1 arsip
+            ['sq', 'aq', 'pq', 'iq'].forEach(k => {
+                document.getElementById('arsip-k-'+k).innerHTML = opts;
+            });
         }
 
         function getBase64(file) {
@@ -557,7 +616,7 @@
             }
         }
 
-        // ========================== DASHBOARD ==========================
+        // ========================== DASHBOARD & LINE-UP ==========================
         function setDashStep(step) { state.proyekAktif.step = step; saveData(); renderDashboard(); }
 
         function renderDashboard() {
@@ -567,6 +626,7 @@
                 document.getElementById('proj-cover-img').classList.remove('hidden');
             }
 
+            // Stepper Siklus
             const stepNames = ['Ide', 'Naskah', 'Edit', 'Layout', 'Siap'];
             let stepHtml = '';
             stepNames.forEach((n, i) => {
@@ -583,41 +643,78 @@
             document.getElementById('dash-progress-bar').style.width = pct + '%';
             document.getElementById('dash-progress-text').textContent = pct + '%';
 
+            // DRAFTING READINESS (Line-up)
+            let naskahSiap = 0;
             const lineupGrid = document.getElementById('dash-lineup-grid');
             lineupGrid.innerHTML = Object.keys(rubrikMap).map(k => {
-                const id = state.proyekAktif.lineup[k];
-                const tul = state.tulisan.find(x => x.id === id);
+                let id = state.proyekAktif.lineup[k];
+                let tul = state.tulisan.find(x => x.id === id);
+
+                // Auto-link logic: Jika tidak ada di lineup memory, tapi ada di Bank yg edisi dan rubriknya cocok, tarik!
+                if(!tul) {
+                    tul = state.tulisan.find(x => x.edisi.toLowerCase() === state.proyekAktif.edisi.toLowerCase() && x.rubrik === rubrikMap[k]);
+                    if(tul) {
+                        state.proyekAktif.lineup[k] = tul.id;
+                    }
+                }
+
                 if(tul) {
+                    naskahSiap++;
                     return `
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex justify-between items-start group">
-                        <div>
-                            <p class="text-[9px] font-black text-primary uppercase tracking-widest mb-1">${rubrikMap[k]} <i data-lucide="check-circle-2" class="w-3 h-3 inline text-green-500"></i></p>
-                            <h4 class="font-bold text-sm dark:text-white line-clamp-1">${tul.judul}</h4>
-                            <p class="text-xs text-slate-500 mt-1">${tul.penulis} (${tul.kamar})</p>
+                    <div class="bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-teal-200 dark:border-teal-800/50 flex justify-between items-start group shadow-sm">
+                        <div class="flex-1 pr-2">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-[9px] font-black text-teal-700 dark:text-teal-300 uppercase tracking-widest bg-teal-200/50 dark:bg-teal-900/80 px-2 py-0.5 rounded-full">${rubrikMap[k]}</span>
+                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white line-clamp-2 leading-tight">${tul.judul}</h4>
+                            <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="pen-tool" class="w-3 h-3"></i> ${tul.penulis} (${tul.kamar})</p>
                         </div>
-                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editNaskah('${tul.id}')" class="p-1.5 text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
-                            <button onclick="hapusLineup('${k}')" class="p-1.5 text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-3 h-3"></i></button>
+                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <button onclick="editNaskah('${tul.id}')" class="p-1.5 bg-white dark:bg-darkPanel rounded-lg text-slate-400 hover:text-blue-500 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                            <button onclick="hapusLineup('${k}')" class="p-1.5 bg-white dark:bg-darkPanel rounded-lg text-slate-400 hover:text-red-500 shadow-sm"><i data-lucide="x" class="w-3 h-3"></i></button>
                         </div>
                     </div>`;
                 } else {
+                    // Cek naskah draft yg ada di bank (belum ada edisinya / beda edisi) khusus rubrik ini
+                    const naskahTersedia = state.tulisan.filter(t => t.rubrik === rubrikMap[k] && t.edisi !== state.proyekAktif.edisi);
+                    const optAvailable = naskahTersedia.map(t => `<option value="${t.id}">${t.judul} (${t.penulis})</option>`).join('');
+                    
                     return `
-                    <div class="bg-slate-50/50 dark:bg-slate-800/20 p-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-600">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">${rubrikMap[k]} (Kosong)</p>
-                        <div class="space-y-2">
-                            <input type="text" id="lu-j-${k}" placeholder="Judul" class="w-full bg-white dark:bg-darkPanel text-xs px-2 py-1.5 rounded border-none">
-                            <div class="flex gap-1">
-                                <input type="text" id="lu-p-${k}" placeholder="Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-2 py-1.5 rounded border-none">
-                                <select id="lu-k-${k}" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-1 py-1.5 rounded border-none">
+                    <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 flex flex-col justify-center">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1"><i data-lucide="circle-dashed" class="w-3 h-3"></i> ${rubrikMap[k]} (Kosong)</p>
+                        
+                        <div class="space-y-2 w-full">
+                            <input type="text" id="lu-j-${k}" placeholder="Judul Naskah Baru..." class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white shadow-sm">
+                            <div class="flex gap-2">
+                                <input type="text" id="lu-p-${k}" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white shadow-sm">
+                                <select id="lu-k-${k}" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:text-slate-300 shadow-sm">
                                     <option value="" disabled selected>Kamar</option>
                                     ${kamarOptions.map(km=>`<option value="${km}">${km}</option>`).join('')}
                                 </select>
                             </div>
-                            <button onclick="simpanLineup('${k}')" class="w-full bg-primary/10 text-primary text-[10px] font-bold py-1.5 rounded hover:bg-primary/20 transition-colors">Simpan Naskah</button>
+                            <button onclick="simpanLineup('${k}')" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors shadow-sm">Simpan Naskah Baru</button>
                         </div>
+
+                        ${naskahTersedia.length > 0 ? `
+                        <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                            <select onchange="pilihNaskahBank('${k}', this.value)" class="w-full bg-white dark:bg-darkPanel text-[10px] px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:text-slate-300 shadow-sm cursor-pointer hover:border-primary transition-colors">
+                                <option value="" disabled selected>...Atau tarik dari Bank (${naskahTersedia.length} Naskah)</option>
+                                ${optAvailable}
+                            </select>
+                        </div>` : ''}
                     </div>`;
                 }
             }).join('');
+
+            // Update Label Tracker
+            const dashNaskahCount = document.getElementById('dash-naskah-count');
+            if(dashNaskahCount) {
+                dashNaskahCount.textContent = `${naskahSiap}/4 Siap`;
+                dashNaskahCount.className = naskahSiap === 4 
+                    ? "px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 text-[10px] rounded-lg font-black uppercase tracking-widest flex items-center gap-1"
+                    : "px-2 py-1 bg-primary/10 text-primary text-[10px] rounded-lg font-black uppercase tracking-widest";
+            }
 
             document.getElementById('stat-karya').textContent = state.tulisan.length;
             document.getElementById('stat-penulis').textContent = new Set(state.tulisan.map(t=>t.penulis)).size;
@@ -637,13 +734,27 @@
             state.tulisan.unshift({ id, judul:j, penulis:p, kamar:km, rubrik:rubrikMap[k], edisi: state.proyekAktif.edisi });
             state.proyekAktif.lineup[k] = id;
             saveData(); renderSemua();
-            showToast('Naskah dimasukkan ke Lineup & Bank');
+            showToast('Naskah berhasil ditambahkan ke Line-up & Bank!');
+        }
+
+        // Fungsi baru untuk menarik naskah yg sudah ada di bank masuk ke Line-up edisi berjalan
+        function pilihNaskahBank(k, id) {
+            const tul = state.tulisan.find(x => x.id === id);
+            if(tul) {
+                tul.edisi = state.proyekAktif.edisi; // Mengganti edisinya ke edisi proyek saat ini
+                state.proyekAktif.lineup[k] = id;
+                saveData();
+                renderSemua();
+                showToast('Naskah dari Bank berhasil ditarik ke Dashboard!');
+            }
         }
 
         function hapusLineup(k) {
-            if(!confirm('Hapus naskah ini dari line-up dan database?')) return;
+            if(!confirm('Keluarkan naskah ini dari line-up Edisi Ini?\n(Catatan: Data tidak dihapus dari Bank Tulisan, hanya dicopot dari Line-up)')) return;
             const id = state.proyekAktif.lineup[k];
-            state.tulisan = state.tulisan.filter(t => t.id !== id);
+            const tul = state.tulisan.find(x => x.id === id);
+            if(tul) tul.edisi = 'Draft / Arsip Umum'; // Reset edisinya
+            
             state.proyekAktif.lineup[k] = null;
             saveData(); renderSemua();
         }
@@ -722,7 +833,7 @@
             const p = document.getElementById('bank-in-penulis').value.trim();
             const k = document.getElementById('bank-in-kamar').value;
             const r = document.getElementById('bank-in-rubrik').value;
-            const e = document.getElementById('bank-in-edisi').value.trim() || 'Arsip Umum';
+            const e = document.getElementById('bank-in-edisi').value.trim() || 'Draft / Arsip Umum';
 
             if(!j||!p||!k) return showToast('Lengkapi Judul, Penulis, Kamar', 'error');
 
@@ -911,7 +1022,7 @@
             saveData(); renderKatalog();
         }
 
-        // ========================== DATABASE PENULIS (DENGAN SEARCH) ==========================
+        // ========================== DATABASE PENULIS ==========================
         function renderPenulis() {
             const query = (document.getElementById('search-penulis')?.value || '').toLowerCase();
             const pMap = {};
@@ -923,7 +1034,6 @@
             
             let pArr = Object.values(pMap);
 
-            // Filter Search Berdasarkan Nama, Kamar, atau Judul Karya
             if (query) {
                 pArr = pArr.filter(p => {
                     const matchNama = p.nama.toLowerCase().includes(query);
@@ -958,7 +1068,7 @@
             `).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
         }
 
-        // ========================== ARSIP E-BULETIN ==========================
+        // ========================== ARSIP E-BULETIN DENGAN 4-IN-1 ==========================
         async function simpanArsipManual() {
             const edisi = document.getElementById('arsip-in-edisi').value.trim();
             const coverFile = document.getElementById('arsip-in-cover').files[0];
@@ -982,22 +1092,42 @@
                     date: new Date().toISOString()
                 });
 
-                // Urutkan supaya yang terbaru (atau edisi angka terbesar) bisa di atas, 
-                // tapi sementara disortir berdasarkan waktu input jika id pakai Date.now()
                 state.ebulletins.sort((a,b) => b.id.localeCompare(a.id));
 
+                ['sq', 'aq', 'pq', 'iq'].forEach((k, idx) => {
+                    const judul = document.getElementById(`arsip-j-${k}`).value.trim();
+                    const penulis = document.getElementById(`arsip-p-${k}`).value.trim();
+                    const kamar = document.getElementById(`arsip-k-${k}`).value;
+
+                    if (judul && penulis && kamar) {
+                        state.tulisan.unshift({
+                            id: 't' + Date.now() + idx,
+                            judul: judul,
+                            penulis: penulis,
+                            kamar: kamar,
+                            rubrik: rubrikMap[k],
+                            edisi: edisi
+                        });
+                    }
+                });
+
                 saveData(); 
-                renderEbulletin();
+                renderSemua();
 
                 document.getElementById('arsip-in-edisi').value = '';
                 document.getElementById('arsip-in-cover').value = '';
                 document.getElementById('arsip-in-pdf').value = '';
+                ['sq', 'aq', 'pq', 'iq'].forEach(k => {
+                    document.getElementById(`arsip-j-${k}`).value = '';
+                    document.getElementById(`arsip-p-${k}`).value = '';
+                    document.getElementById(`arsip-k-${k}`).value = '';
+                });
 
-                showToast('Arsip E-Buletin berhasil ditambahkan!');
+                showToast('Arsip E-Buletin & Data Penulis berhasil disimpan!');
             } catch (error) {
                 showToast('Gagal memproses file.', 'error');
             } finally {
-                btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Tambahkan ke Arsip';
+                btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Simpan Edisi & Data Penulis';
                 lucide.createIcons();
             }
         }
