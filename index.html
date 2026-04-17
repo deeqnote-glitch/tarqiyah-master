@@ -292,7 +292,7 @@
             <div id="tab-penulis" class="tab-pane">
                 <div class="mb-8">
                     <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Database Penulis</h2>
-                    <p class="text-sm font-medium text-slate-500">Mendata otomatis setiap penulis beserta karyanya (Edisi & Buku).</p>
+                    <p class="text-sm font-medium text-slate-500">Mendata otomatis setiap penulis beserta karyanya. Klik kartu penulis untuk melihat semua karya.</p>
                 </div>
 
                 <div class="mb-8 relative max-w-xl">
@@ -415,6 +415,31 @@
             </div>
         </div>
 
+        <!-- MODAL DETAIL PENULIS (BARU) -->
+        <div id="modal-detail-penulis" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+            <div class="bg-white dark:bg-darkPanel w-full max-w-lg max-h-[85vh] rounded-[2rem] p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+                <div class="flex justify-between items-start mb-6 border-b border-slate-100 dark:border-slate-700 pb-4 shrink-0">
+                    <div>
+                        <h3 class="font-black text-2xl text-slate-800 dark:text-white leading-tight" id="dp-nama">Nama Penulis</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1" id="dp-kamar">Kamar XX</p>
+                    </div>
+                    <div class="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-teal-700 text-white flex flex-col items-center justify-center font-black text-2xl shadow-lg shadow-teal-500/30" id="dp-total">
+                        0
+                    </div>
+                </div>
+                
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 shrink-0 flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4 text-primary"></i> Daftar Karya Keseluruhan</h4>
+                
+                <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar" id="dp-list">
+                    <!-- List karya akan dimuat di sini oleh JS -->
+                </div>
+                
+                <div class="mt-6 flex justify-end shrink-0 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button onclick="document.getElementById('modal-detail-penulis').classList.add('hidden')" class="px-6 py-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Tutup Jendela</button>
+                </div>
+            </div>
+        </div>
+
         <div id="modal-siklus" class="fixed inset-0 z-[100] hidden bg-slate-900/80 flex items-center justify-center p-4 backdrop-blur-sm">
             <div class="bg-white dark:bg-darkPanel w-full max-w-sm rounded-3xl p-6 border border-slate-200 dark:border-slate-700">
                 <h3 class="font-black text-lg mb-2 text-slate-800 dark:text-white">Selesaikan Siklus Edisi</h3>
@@ -489,7 +514,6 @@
             </div>
         </div>
 
-        <!-- Perbaikan Sistem Notifikasi (Toast) agar error terlihat jelas dengan warna merah -->
         <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[110] flex gap-2 items-center">
             <i data-lucide="info" class="w-5 h-5 shrink-0" id="toast-icon"></i> <span id="toast-msg" class="text-sm font-bold">OK</span>
         </div>
@@ -511,8 +535,6 @@
         let mainChartObj = null;
 
         function init() {
-            // Catatan: Memori browser dinonaktifkan agar aplikasi terhindar dari crash karena PDF.
-            // Saat ini aplikasi bersifat "Sesi-Tunggal" (Single-Session).
             if(!state.proyekAktif.deadline) state.proyekAktif.deadline = new Date(Date.now() + 14*86400000).toISOString().split('T')[0];
             if(!state.bukuAktif.deadline) state.bukuAktif.deadline = new Date(Date.now() + 180*86400000).toISOString().split('T')[0];
 
@@ -526,10 +548,8 @@
             renderSemua();
         }
 
-        // Fungsi saveData() dikosongkan untuk menghindari error limit browser 5MB.
-        function saveData() {
-            // (Akan diganti dengan sistem Cloud Storage jika kamu setuju)
-        }
+        // Dummy save data - Menghindari limit memori browser untuk file besar
+        function saveData() {}
 
         function populateSelects() {
             const opts = `<option value="" disabled selected>Kamar</option>` + kamarOptions.map(k => `<option value="${k}">${k}</option>`).join('');
@@ -542,7 +562,6 @@
             });
         }
 
-        // INI ADALAH KUNCI PERBAIKANNYA: Menggunakan URL Virtual, bukan base64 utuh yang membuat browser crash
         function getFileUrl(file) {
             return new Promise((resolve) => {
                 if(!file) return resolve(null);
@@ -562,7 +581,6 @@
             }
         }
 
-        // Toast Notifikasi yang lebih canggih untuk membedakan sukses dan error
         function showToast(msg, type='success') {
             const t = document.getElementById('toast');
             const icon = document.getElementById('toast-icon');
@@ -1031,7 +1049,35 @@
             saveData(); renderKatalog();
         }
 
-        // ========================== DATABASE PENULIS ==========================
+        // ========================== DATABASE PENULIS (DENGAN MODAL DETAIL) ==========================
+        function bukaDetailPenulis(namaStr) {
+            // Unescape nama penulis jika mengandung tanda kutip
+            const nama = namaStr.replace(/\\'/g, "'");
+            const karyaPenulis = state.tulisan.filter(t => t.penulis === nama);
+            if(karyaPenulis.length === 0) return;
+
+            // Ambil kamar dari naskah pertama
+            const kamar = karyaPenulis[0].kamar;
+
+            document.getElementById('dp-nama').textContent = nama;
+            document.getElementById('dp-kamar').textContent = 'Kamar ' + kamar;
+            document.getElementById('dp-total').textContent = karyaPenulis.length;
+
+            // Render list semua karya
+            document.getElementById('dp-list').innerHTML = karyaPenulis.map((k, index) => `
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary/50 transition-colors flex flex-col justify-center">
+                    <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-2 leading-tight">${index + 1}. ${k.judul}</h4>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2 py-1 rounded-md border border-primary/20"><i data-lucide="bookmark" class="w-3 h-3 inline-block -mt-0.5 mr-1"></i>${k.edisi}</span>
+                        ${k.rubrik !== '-' ? `<span class="text-[9px] font-black uppercase tracking-widest bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md">${k.rubrik}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+            document.getElementById('modal-detail-penulis').classList.remove('hidden');
+        }
+
         function renderPenulis() {
             const query = (document.getElementById('search-penulis')?.value || '').toLowerCase();
             const pMap = {};
@@ -1054,27 +1100,35 @@
 
             pArr.sort((a,b) => b.karya.length - a.karya.length);
 
-            document.getElementById('penulis-grid').innerHTML = pArr.map(p => `
-                <div class="bg-white dark:bg-darkPanel p-6 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-primary/30 transition-colors">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+            document.getElementById('penulis-grid').innerHTML = pArr.map(p => {
+                // Escape tanda kutip tunggal pada nama agar tidak memecah syntax onclick
+                const escapedName = p.nama.replace(/'/g, "\\'");
+
+                return `
+                <div onclick="bukaDetailPenulis('${escapedName}')" class="bg-white dark:bg-darkPanel p-6 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
                     <div class="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
                         <div class="pr-2">
-                            <h3 class="font-black text-lg text-slate-800 dark:text-white leading-tight break-words">${p.nama}</h3>
+                            <h3 class="font-black text-lg text-slate-800 dark:text-white leading-tight break-words group-hover:text-primary transition-colors">${p.nama}</h3>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kamar ${p.kamar}</p>
                         </div>
                         <div class="w-10 h-10 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center font-black text-sm shadow-md">${p.karya.length}</div>
                     </div>
                     <div class="space-y-2">
                         ${p.karya.slice(0,3).map(k=>`
-                            <div class="flex justify-between items-center text-[11px] bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                            <div class="flex justify-between items-center text-[11px] bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-transparent group-hover:border-slate-100 dark:group-hover:border-slate-700">
                                 <span class="font-bold text-slate-600 dark:text-slate-300 truncate pr-2">${k.judul}</span>
                                 <span class="text-primary font-black uppercase text-[9px] shrink-0 bg-primary/10 px-1.5 py-0.5 rounded">${k.edisi}</span>
                             </div>
                         `).join('')}
-                        ${p.karya.length>3 ? `<p class="text-[10px] text-center text-primary font-bold mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">+ ${p.karya.length-3} karya lainnya</p>`:''}
+                        ${p.karya.length>3 ? `<p class="text-[10px] text-center text-primary font-bold mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Lihat ${p.karya.length-3} karya lainnya</p>`:''}
                     </div>
                 </div>
-            `).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
+                `
+            }).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
+            
+            // Re-render icons since we appended raw HTML strings that might have new icons
+            setTimeout(() => { lucide.createIcons(); }, 10);
         }
 
         // ========================== ARSIP E-BULETIN DENGAN 4-IN-1 ==========================
