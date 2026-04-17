@@ -31,8 +31,8 @@
     <!-- Loading Screen (Menunggu Cloud) -->
     <div id="app-loading" class="fixed inset-0 bg-slate-900/95 z-[200] flex flex-col items-center justify-center text-white backdrop-blur-sm transition-opacity duration-500">
         <i data-lucide="cloud-cog" class="w-12 h-12 animate-pulse text-primary mb-4"></i>
-        <h2 class="font-black text-xl tracking-wide">Menghubungkan ke Cloud...</h2>
-        <p class="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest">Sinkronisasi Database Aktif</p>
+        <h2 class="font-black text-xl tracking-wide" id="loading-title">Menghubungkan ke Cloud...</h2>
+        <p class="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest" id="loading-subtitle">Sinkronisasi Database Aktif</p>
     </div>
 
     <!-- Sidebar -->
@@ -40,7 +40,7 @@
         <div class="p-4 lg:p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-center lg:justify-start gap-3">
             <div class="w-10 h-10 lg:w-12 lg:h-12 bg-primary text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/30 relative">
                 <i data-lucide="command" class="w-6 h-6 relative z-10"></i>
-                <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 border-2 border-white dark:border-darkPanel rounded-full shadow-sm" title="Cloud Connected"></div>
+                <div id="cloud-indicator" class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 border-2 border-white dark:border-darkPanel rounded-full shadow-sm" title="Cloud Connected"></div>
             </div>
             <div class="hidden lg:block">
                 <h1 class="font-black text-sm tracking-widest text-slate-800 dark:text-white uppercase">Tarqiyah</h1>
@@ -609,21 +609,55 @@
         const katCol = collection(db, 'artifacts', appId, 'public', 'data', 'tarqiyah_katalog');
 
         let loaded = { meta: false, tul: false, eb: false, kat: false };
+        let forceUnlocked = false;
+
         function checkReady() {
+            if(forceUnlocked) return;
             if(loaded.meta && loaded.tul && loaded.eb && loaded.kat) {
-                document.getElementById('app-loading').classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(()=>document.getElementById('app-loading').classList.add('hidden'), 500);
-                populateSelects(); updateDates(); applyTheme(true); renderSemua();
-                setInterval(updateDates, 60000); 
+                bukaLayarLoading();
             }
         }
 
+        // BUKA LAYAR LOADING
+        function bukaLayarLoading(pesanError = null) {
+            forceUnlocked = true;
+            const loader = document.getElementById('app-loading');
+            if(!loader.classList.contains('hidden')) {
+                loader.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(()=>loader.classList.add('hidden'), 500);
+            }
+            populateSelects(); updateDates(); applyTheme(true); renderSemua();
+            setInterval(updateDates, 60000); 
+            if(pesanError) showToast(pesanError, 'error');
+        }
+
+        // FAILSAFE TIMER: Jika Cloud macet lebih dari 8 detik, buka paksa.
+        setTimeout(() => {
+            const loader = document.getElementById('app-loading');
+            if(!loader.classList.contains('hidden')) {
+                document.getElementById('cloud-indicator').classList.remove('bg-green-400');
+                document.getElementById('cloud-indicator').classList.add('bg-red-500');
+                bukaLayarLoading('Koneksi Cloud tersendat. Menggunakan Mode Lokal Sementara.');
+            }
+        }, 8000);
+
         // --- AUTH & LISTENERS ---
         async function initAuth() {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
-            else await signInAnonymously(auth);
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            } catch (err) {
+                console.error("Auth init gagal:", err);
+                bukaLayarLoading('Sistem keamanan gagal terhubung. Layar dibuka paksa.');
+            }
         }
         initAuth();
+
+        const handleDbError = (err, module) => {
+            console.error(`Firebase Error [${module}]:`, err);
+            loaded[module] = true; 
+            checkReady();
+        };
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
@@ -635,24 +669,29 @@
                         if(d.bukuAktif) state.bukuAktif = d.bukuAktif;
                         if(d.theme) state.theme = d.theme;
                     } else saveMeta(); // Init first time
-                    if(!loaded.meta) { loaded.meta = true; checkReady(); } else { applyTheme(true); renderSemua(); updateDates(); }
-                }, (e) => showToast('Gagal memuat info proyek', 'error'));
+                    
+                    if(!loaded.meta) { loaded.meta = true; checkReady(); } 
+                    else { applyTheme(true); renderSemua(); updateDates(); }
+                }, (e) => handleDbError(e, 'meta'));
 
                 onSnapshot(tulCol, (snap) => {
                     state.tulisan = snap.docs.map(d => ({id: d.id, ...d.data()}));
                     if(!loaded.tul) { loaded.tul = true; checkReady(); } else renderSemua();
-                });
+                }, (e) => handleDbError(e, 'tul'));
 
                 onSnapshot(ebCol, (snap) => {
                     state.ebulletins = snap.docs.map(d => ({id: d.id, ...d.data()}));
                     state.ebulletins.sort((a,b) => b.date.localeCompare(a.date));
                     if(!loaded.eb) { loaded.eb = true; checkReady(); } else renderSemua();
-                });
+                }, (e) => handleDbError(e, 'eb'));
 
                 onSnapshot(katCol, (snap) => {
                     state.katalogBuku = snap.docs.map(d => ({id: d.id, ...d.data()}));
                     if(!loaded.kat) { loaded.kat = true; checkReady(); } else renderSemua();
-                });
+                }, (e) => handleDbError(e, 'kat'));
+            } else {
+                // User logout/disconnect
+                document.getElementById('cloud-indicator').classList.replace('bg-green-400', 'bg-red-500');
             }
         });
 
@@ -664,7 +703,7 @@
         async function saveFileDoc(collectionRef, docId, dataObj) {
             if(!currentUser) return false;
             try { await setDoc(doc(collectionRef, docId), dataObj); return true; } 
-            catch(e) { showToast('Gagal menyimpan ke Cloud. Ukuran file melebih batas 1MB!', 'error'); return false; }
+            catch(e) { showToast('Gagal menyimpan ke Cloud. Ukuran file mungkin melebihi 1MB!', 'error'); return false; }
         }
 
         // BASE64 CONVERTER
