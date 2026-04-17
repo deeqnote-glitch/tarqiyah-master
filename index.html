@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarqiyah Master Control</title>
+    <title>Tarqiyah Master Control Center</title>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -489,8 +489,9 @@
             </div>
         </div>
 
+        <!-- Perbaikan Sistem Notifikasi (Toast) agar error terlihat jelas dengan warna merah -->
         <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[110] flex gap-2 items-center">
-            <i data-lucide="info" class="w-4 h-4 text-primary" id="toast-icon"></i> <span id="toast-msg" class="text-sm font-bold">OK</span>
+            <i data-lucide="info" class="w-5 h-5 shrink-0" id="toast-icon"></i> <span id="toast-msg" class="text-sm font-bold">OK</span>
         </div>
 
     </main>
@@ -510,8 +511,8 @@
         let mainChartObj = null;
 
         function init() {
-            const saved = localStorage.getItem('tarqiyah_master_v3');
-            if(saved) state = { ...state, ...JSON.parse(saved) };
+            // Catatan: Memori browser dinonaktifkan agar aplikasi terhindar dari crash karena PDF.
+            // Saat ini aplikasi bersifat "Sesi-Tunggal" (Single-Session).
             if(!state.proyekAktif.deadline) state.proyekAktif.deadline = new Date(Date.now() + 14*86400000).toISOString().split('T')[0];
             if(!state.bukuAktif.deadline) state.bukuAktif.deadline = new Date(Date.now() + 180*86400000).toISOString().split('T')[0];
 
@@ -525,9 +526,9 @@
             renderSemua();
         }
 
+        // Fungsi saveData() dikosongkan untuk menghindari error limit browser 5MB.
         function saveData() {
-            try { localStorage.setItem('tarqiyah_master_v3', JSON.stringify(state)); } 
-            catch(e) { showToast('Penyimpanan penuh (hapus file PDF lama)', 'error'); }
+            // (Akan diganti dengan sistem Cloud Storage jika kamu setuju)
         }
 
         function populateSelects() {
@@ -536,24 +537,22 @@
             document.getElementById('edit-naskah-kamar').innerHTML = opts;
             document.getElementById('buku-in-kamar').innerHTML = opts;
             
-            // Populate 4-in-1 arsip
             ['sq', 'aq', 'pq', 'iq'].forEach(k => {
                 document.getElementById('arsip-k-'+k).innerHTML = opts;
             });
         }
 
-        function getBase64(file) {
+        // INI ADALAH KUNCI PERBAIKANNYA: Menggunakan URL Virtual, bukan base64 utuh yang membuat browser crash
+        function getFileUrl(file) {
             return new Promise((resolve) => {
                 if(!file) return resolve(null);
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.readAsDataURL(file);
+                resolve(URL.createObjectURL(file)); 
             });
         }
 
         function updateCover(input, imgId) {
             if(input.files && input.files[0]) {
-                getBase64(input.files[0]).then(res => {
+                getFileUrl(input.files[0]).then(res => {
                     document.getElementById(imgId).src = res;
                     document.getElementById(imgId).classList.remove('hidden');
                     if(imgId === 'proj-cover-img') state.proyekAktif.cover = res;
@@ -563,11 +562,29 @@
             }
         }
 
+        // Toast Notifikasi yang lebih canggih untuk membedakan sukses dan error
         function showToast(msg, type='success') {
-            document.getElementById('toast-msg').textContent = msg;
             const t = document.getElementById('toast');
-            t.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
+            const icon = document.getElementById('toast-icon');
+            
+            document.getElementById('toast-msg').textContent = msg;
+            
+            if (type === 'error') {
+                t.className = 'fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
+                icon.setAttribute('data-lucide', 'alert-circle');
+            } else if (type === 'info') {
+                t.className = 'fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
+                icon.setAttribute('data-lucide', 'info');
+            } else {
+                t.className = 'fixed bottom-8 right-8 bg-slate-800 dark:bg-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
+                icon.setAttribute('data-lucide', 'check-circle-2');
+            }
+            lucide.createIcons();
+
+            setTimeout(() => {
+                t.classList.add('translate-y-24', 'opacity-0');
+                t.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
         }
 
         function navigate(tab) {
@@ -626,7 +643,6 @@
                 document.getElementById('proj-cover-img').classList.remove('hidden');
             }
 
-            // Stepper Siklus
             const stepNames = ['Ide', 'Naskah', 'Edit', 'Layout', 'Siap'];
             let stepHtml = '';
             stepNames.forEach((n, i) => {
@@ -643,19 +659,15 @@
             document.getElementById('dash-progress-bar').style.width = pct + '%';
             document.getElementById('dash-progress-text').textContent = pct + '%';
 
-            // DRAFTING READINESS (Line-up)
             let naskahSiap = 0;
             const lineupGrid = document.getElementById('dash-lineup-grid');
             lineupGrid.innerHTML = Object.keys(rubrikMap).map(k => {
                 let id = state.proyekAktif.lineup[k];
                 let tul = state.tulisan.find(x => x.id === id);
 
-                // Auto-link logic: Jika tidak ada di lineup memory, tapi ada di Bank yg edisi dan rubriknya cocok, tarik!
                 if(!tul) {
                     tul = state.tulisan.find(x => x.edisi.toLowerCase() === state.proyekAktif.edisi.toLowerCase() && x.rubrik === rubrikMap[k]);
-                    if(tul) {
-                        state.proyekAktif.lineup[k] = tul.id;
-                    }
+                    if(tul) state.proyekAktif.lineup[k] = tul.id;
                 }
 
                 if(tul) {
@@ -676,7 +688,6 @@
                         </div>
                     </div>`;
                 } else {
-                    // Cek naskah draft yg ada di bank (belum ada edisinya / beda edisi) khusus rubrik ini
                     const naskahTersedia = state.tulisan.filter(t => t.rubrik === rubrikMap[k] && t.edisi !== state.proyekAktif.edisi);
                     const optAvailable = naskahTersedia.map(t => `<option value="${t.id}">${t.judul} (${t.penulis})</option>`).join('');
                     
@@ -707,7 +718,6 @@
                 }
             }).join('');
 
-            // Update Label Tracker
             const dashNaskahCount = document.getElementById('dash-naskah-count');
             if(dashNaskahCount) {
                 dashNaskahCount.textContent = `${naskahSiap}/4 Siap`;
@@ -728,7 +738,7 @@
             const j = document.getElementById(`lu-j-${k}`).value.trim();
             const p = document.getElementById(`lu-p-${k}`).value.trim();
             const km = document.getElementById(`lu-k-${k}`).value;
-            if(!j || !p || !km) return showToast('Lengkapi data form!', 'error');
+            if(!j || !p || !km) return showToast('Lengkapi data form yang masih kosong!', 'error');
 
             const id = 't'+Date.now();
             state.tulisan.unshift({ id, judul:j, penulis:p, kamar:km, rubrik:rubrikMap[k], edisi: state.proyekAktif.edisi });
@@ -737,11 +747,10 @@
             showToast('Naskah berhasil ditambahkan ke Line-up & Bank!');
         }
 
-        // Fungsi baru untuk menarik naskah yg sudah ada di bank masuk ke Line-up edisi berjalan
         function pilihNaskahBank(k, id) {
             const tul = state.tulisan.find(x => x.id === id);
             if(tul) {
-                tul.edisi = state.proyekAktif.edisi; // Mengganti edisinya ke edisi proyek saat ini
+                tul.edisi = state.proyekAktif.edisi; 
                 state.proyekAktif.lineup[k] = id;
                 saveData();
                 renderSemua();
@@ -753,7 +762,7 @@
             if(!confirm('Keluarkan naskah ini dari line-up Edisi Ini?\n(Catatan: Data tidak dihapus dari Bank Tulisan, hanya dicopot dari Line-up)')) return;
             const id = state.proyekAktif.lineup[k];
             const tul = state.tulisan.find(x => x.id === id);
-            if(tul) tul.edisi = 'Draft / Arsip Umum'; // Reset edisinya
+            if(tul) tul.edisi = 'Draft / Arsip Umum'; 
             
             state.proyekAktif.lineup[k] = null;
             saveData(); renderSemua();
@@ -765,8 +774,8 @@
             const coverFile = document.getElementById('siklus-cover').files[0];
             const pdfFile = document.getElementById('siklus-pdf').files[0];
             
-            const coverData = await getBase64(coverFile) || state.proyekAktif.cover || 'https://via.placeholder.com/300x400?text=No+Cover';
-            const pdfData = await getBase64(pdfFile);
+            const coverData = await getFileUrl(coverFile) || state.proyekAktif.cover || 'https://via.placeholder.com/300x400?text=No+Cover';
+            const pdfData = await getFileUrl(pdfFile);
 
             state.ebulletins.unshift({
                 id: 'eb'+Date.now(), edisi: state.proyekAktif.edisi,
@@ -835,12 +844,12 @@
             const r = document.getElementById('bank-in-rubrik').value;
             const e = document.getElementById('bank-in-edisi').value.trim() || 'Draft / Arsip Umum';
 
-            if(!j||!p||!k) return showToast('Lengkapi Judul, Penulis, Kamar', 'error');
+            if(!j || !p || !k) return showToast('Harap lengkapi semua data (Judul, Penulis, Kamar)!', 'error');
 
             state.tulisan.unshift({ id: 't'+Date.now(), judul:j, penulis:p, kamar:k, rubrik:r, edisi:e });
             saveData(); renderSemua();
             ['judul','penulis','edisi'].forEach(id => document.getElementById('bank-in-'+id).value='');
-            showToast('Naskah tersimpan ke Bank!');
+            showToast('Naskah berhasil tersimpan ke Bank!');
         }
 
         function editNaskah(id) {
@@ -866,7 +875,7 @@
                 state.tulisan[idx].edisi = document.getElementById('edit-naskah-edisi').value;
                 saveData(); renderSemua();
                 document.getElementById('modal-edit-naskah').classList.add('hidden');
-                showToast('Data diperbarui!');
+                showToast('Data berhasil diperbarui!');
             }
         }
 
@@ -885,7 +894,7 @@
             const data = state.tulisan.filter(t => t.judul.toLowerCase().includes(q) || t.penulis.toLowerCase().includes(q) || t.kamar.toLowerCase().includes(q));
 
             tb.innerHTML = data.map(t => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td class="p-4 font-bold text-slate-800 dark:text-white">${t.judul}</td>
                     <td class="p-4 text-slate-600 dark:text-slate-300">${t.penulis} <span class="text-[10px] font-bold uppercase ml-1 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded">${t.kamar}</span></td>
                     <td class="p-4 text-xs font-bold text-slate-500 uppercase">${t.rubrik}</td>
@@ -938,12 +947,12 @@
             const j = document.getElementById('buku-in-judul').value.trim();
             const p = document.getElementById('buku-in-penulis').value.trim();
             const k = document.getElementById('buku-in-kamar').value;
-            if(!j||!p||!k) return showToast('Lengkapi data form', 'error');
+            if(!j||!p||!k) return showToast('Lengkapi data form!', 'error');
 
             state.tulisan.unshift({ id: 't'+Date.now(), judul:j, penulis:p, kamar:k, rubrik: '-', edisi: state.bukuAktif.judul });
             saveData(); renderSemua();
             document.getElementById('buku-in-judul').value=''; document.getElementById('buku-in-penulis').value='';
-            showToast('Masuk ke Draft Buku!');
+            showToast('Naskah Masuk ke Draft Buku!');
         }
 
         function renderBukuTahunan() {
@@ -984,8 +993,8 @@
             const coverFile = document.getElementById('katalog-cover').files[0];
             const pdfFile = document.getElementById('katalog-pdf').files[0];
             
-            const coverData = await getBase64(coverFile) || 'https://via.placeholder.com/300x400?text=No+Cover';
-            const pdfData = await getBase64(pdfFile);
+            const coverData = await getFileUrl(coverFile) || 'https://via.placeholder.com/300x400?text=No+Cover';
+            const pdfData = await getFileUrl(pdfFile);
 
             state.katalogBuku.push({ id:'bk'+Date.now(), judul:j, sinopsis:s, harga:h, cover:coverData, pdf:pdfData });
             saveData(); renderKatalog();
@@ -1081,8 +1090,8 @@
             lucide.createIcons();
 
             try {
-                const coverData = await getBase64(coverFile) || 'https://via.placeholder.com/300x400?text=No+Cover';
-                const pdfData = await getBase64(pdfFile);
+                const coverData = await getFileUrl(coverFile) || 'https://via.placeholder.com/300x400?text=No+Cover';
+                const pdfData = await getFileUrl(pdfFile);
 
                 state.ebulletins.push({
                     id: 'eb' + Date.now(),
