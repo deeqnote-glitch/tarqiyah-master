@@ -84,9 +84,21 @@
                     </div>
                 </div>
 
+                <!-- ALERT BANNER FASE -->
+                <div id="dash-phase-alert" class="hidden mb-6 px-6 py-4 rounded-2xl flex items-center justify-between border shadow-sm transition-all duration-500">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 shrink-0" id="dash-phase-alert-icon"></i>
+                        <div>
+                            <h4 class="font-black text-sm" id="dash-phase-alert-title">Peringatan Deadline!</h4>
+                            <p class="text-xs font-medium" id="dash-phase-alert-msg">Pesan peringatan akan muncul di sini.</p>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('dash-phase-alert').classList.add('hidden')" class="opacity-70 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+
                 <div class="bg-white dark:bg-darkPanel rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 p-6 lg:p-8 mb-8 relative overflow-hidden">
                     <div class="flex flex-col lg:flex-row gap-8 relative z-10">
-                        <!-- Cover & Deadline -->
+                        <!-- Cover & Deadline Utama -->
                         <div class="w-full lg:w-1/4 flex flex-col items-center">
                             <div class="w-40 h-56 bg-slate-100 dark:bg-slate-800 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer mb-4" onclick="document.getElementById('input-proj-cover').click()">
                                 <img id="proj-cover-img" src="" class="absolute inset-0 w-full h-full object-cover hidden z-10">
@@ -96,23 +108,24 @@
                             </div>
                             
                             <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 text-center" id="dash-edisi-title">Edisi 28</h3>
-                            <div class="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-red-100 dark:border-red-500/20 w-full mb-3" id="dash-deadline-box">
-                                <i data-lucide="clock" class="w-4 h-4"></i> <span id="dash-countdown">Menghitung...</span>
+                            <div class="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 border border-red-100 dark:border-red-500/20 w-full mb-3" id="dash-deadline-box">
+                                <span class="text-[9px] uppercase tracking-widest text-red-400/80">Tenggat Terbit Final</span>
+                                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> <span id="dash-countdown">Menghitung...</span></div>
                             </div>
                             
                             <button onclick="openConfigDashboard()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors">Edit Info & Deadline</button>
                         </div>
 
-                        <!-- Progress & Lineup Drafting Tracker -->
+                        <!-- Progress Tracker -->
                         <div class="w-full lg:w-3/4 flex flex-col justify-between">
-                            <div class="mb-8">
+                            <div class="mb-10 mt-2">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-500">Progres Keseluruhan (Siklus Kerja)</h4>
+                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-500">Progres Siklus Redaksi</h4>
                                     <span class="text-xs font-black text-primary" id="dash-progress-text">0%</span>
                                 </div>
                                 <div class="relative w-full">
-                                    <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-2 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
-                                    <div id="dash-progress-bar" class="absolute top-1/2 -translate-y-1/2 left-0 h-2 bg-primary rounded-full transition-all duration-500" style="width: 25%;"></div>
+                                    <div class="absolute top-3 left-0 right-0 h-2 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                                    <div id="dash-progress-bar" class="absolute top-3 left-0 h-2 bg-primary rounded-full transition-all duration-500" style="width: 25%;"></div>
                                     <div class="flex justify-between relative z-10" id="dash-stepper"></div>
                                 </div>
                             </div>
@@ -139,6 +152,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Stats ringkasan ... -->
                     <div class="lg:col-span-1 grid grid-cols-2 gap-4">
                         <div class="bg-white dark:bg-darkPanel p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center text-center">
                             <i data-lucide="file-text" class="w-6 h-6 text-primary mb-2"></i>
@@ -168,6 +182,7 @@
                 </div>
             </div>
 
+            <!-- TAB LAINNYA SAMA (Bank, Buku, Penulis, Arsip) -->
             <!-- ================= 2. BANK TULISAN TAB ================= -->
             <div id="tab-bank" class="tab-pane">
                 <div class="mb-8">
@@ -230,6 +245,7 @@
                 </div>
 
                 <div id="buku-monitoring" class="sub-tab-pane active space-y-8">
+                    <!-- Konten buku (sama seperti sebelumnya) -->
                     <div class="bg-white dark:bg-darkPanel rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 p-8 flex flex-col md:flex-row gap-8">
                         <div class="w-full md:w-1/3 flex flex-col items-center border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 pb-6 md:pb-0 md:pr-8">
                             <div class="w-48 h-64 bg-slate-100 dark:bg-slate-800 rounded-lg shadow-inner flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer border border-slate-200 dark:border-slate-700 mb-4" onclick="document.getElementById('in-buku-cover').click()">
@@ -277,6 +293,7 @@
                 </div>
 
                 <div id="buku-katalog" class="sub-tab-pane">
+                    <!-- Katalog Sama -->
                     <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-[2rem] p-6 lg:p-8 text-white mb-8 shadow-lg flex flex-col md:flex-row gap-6 items-center">
                         <div class="flex-1">
                             <h3 class="font-black text-xl mb-2 flex items-center gap-2"><i data-lucide="book-check" class="text-primary w-6 h-6"></i> Unggah Buku Terbit Baru</h3>
@@ -305,12 +322,12 @@
 
             <!-- ================= 5. E-BULETIN (ARSIP) TAB ================= -->
             <div id="tab-ebulletin" class="tab-pane">
+                <!-- Arsip E-Buletin Konten Sama -->
                 <div class="mb-8">
                     <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Arsip E-Buletin</h2>
-                    <p class="text-sm font-medium text-slate-500">Kumpulan PDF E-Buletin yang terbit. Klik cover untuk baca.</p>
+                    <p class="text-sm font-medium text-slate-500">Kumpulan PDF E-Buletin yang terbit.</p>
                 </div>
 
-                <!-- Form Upload Arsip Lama/Manual 4-in-1 -->
                 <div class="bg-white dark:bg-darkPanel p-6 lg:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
                     <h3 class="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
                         <i data-lucide="upload-cloud" class="w-4 h-4"></i> Pendaftaran Arsip & Naskah Lama
@@ -331,12 +348,11 @@
                         </div>
                     </div>
 
-                    <!-- 4-in-1 Lineup Block -->
                     <div class="border-t border-slate-100 dark:border-slate-700/50 pt-6">
                         <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><i data-lucide="users-2" class="w-4 h-4"></i> Data Penulis 4 Rubrik (Opsional)</h4>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- SQ -->
+                            <!-- 4 inputs untuk rubrik ... -->
                             <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Story Qur'ani</p>
                                 <input type="text" id="arsip-j-sq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
@@ -345,7 +361,6 @@
                                     <select id="arsip-k-sq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
                                 </div>
                             </div>
-                            <!-- AQ -->
                             <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Artikel Qur'ani</p>
                                 <input type="text" id="arsip-j-aq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
@@ -354,7 +369,6 @@
                                     <select id="arsip-k-aq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
                                 </div>
                             </div>
-                            <!-- PQ -->
                             <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Petuah Qur'ani</p>
                                 <input type="text" id="arsip-j-pq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
@@ -363,7 +377,6 @@
                                     <select id="arsip-k-pq" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 dark:text-slate-300"></select>
                                 </div>
                             </div>
-                            <!-- IQ -->
                             <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Inspirasi Qur'ani</p>
                                 <input type="text" id="arsip-j-iq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
@@ -389,6 +402,8 @@
 
         <!-- ================= MODALS & OVERLAYS ================= -->
         
+        <!-- Modal Edit Naskah, Detail Penulis, Siklus, dll tetap sama dengan tambahan MODAL CONFIG BARU -->
+        <!-- (Sengaja dipersingkat di sini namun utuh di file HTML) -->
         <div id="modal-edit-naskah" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
             <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
                 <h3 class="font-black text-lg mb-4 text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-primary"></i> Edit Data Naskah</h3>
@@ -415,7 +430,6 @@
             </div>
         </div>
 
-        <!-- MODAL DETAIL PENULIS (BARU) -->
         <div id="modal-detail-penulis" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
             <div class="bg-white dark:bg-darkPanel w-full max-w-lg max-h-[85vh] rounded-[2rem] p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
                 <div class="flex justify-between items-start mb-6 border-b border-slate-100 dark:border-slate-700 pb-4 shrink-0">
@@ -423,17 +437,10 @@
                         <h3 class="font-black text-2xl text-slate-800 dark:text-white leading-tight" id="dp-nama">Nama Penulis</h3>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1" id="dp-kamar">Kamar XX</p>
                     </div>
-                    <div class="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-teal-700 text-white flex flex-col items-center justify-center font-black text-2xl shadow-lg shadow-teal-500/30" id="dp-total">
-                        0
-                    </div>
+                    <div class="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-primary to-teal-700 text-white flex flex-col items-center justify-center font-black text-2xl shadow-lg shadow-teal-500/30" id="dp-total">0</div>
                 </div>
-                
                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 shrink-0 flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4 text-primary"></i> Daftar Karya Keseluruhan</h4>
-                
-                <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar" id="dp-list">
-                    <!-- List karya akan dimuat di sini oleh JS -->
-                </div>
-                
+                <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar" id="dp-list"></div>
                 <div class="mt-6 flex justify-end shrink-0 pt-4 border-t border-slate-100 dark:border-slate-700">
                     <button onclick="document.getElementById('modal-detail-penulis').classList.add('hidden')" class="px-6 py-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Tutup Jendela</button>
                 </div>
@@ -461,12 +468,44 @@
             </div>
         </div>
 
-        <div id="modal-config-dash" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-darkPanel w-full max-w-xs rounded-3xl p-6">
-                <h3 class="font-black mb-4 dark:text-white">Info Proyek</h3>
-                <input type="text" id="config-dash-edisi" placeholder="Nama Edisi" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm font-bold mb-3">
-                <input type="date" id="config-dash-date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm font-bold">
-                <div class="flex justify-end mt-4"><button onclick="saveConfigDash()" class="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold">Simpan</button></div>
+        <!-- MODAL CONFIG DASHBOARD (DIPERBARUI UNTUK FASE) -->
+        <div id="modal-config-dash" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
+                <h3 class="font-black mb-4 text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-primary"></i> Info & Tenggat Waktu</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Edisi</label>
+                    <input type="text" id="config-dash-edisi" placeholder="Edisi XX" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm font-bold border border-slate-100 dark:border-slate-700 focus:ring-primary focus:ring-2">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <h4 class="col-span-2 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 border-b border-slate-200 dark:border-slate-600 pb-2">Tanggal Target per Fase</h4>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">1. Ide / Tema</label>
+                        <input type="date" id="cd-step1" class="w-full px-3 py-2 bg-white dark:bg-slate-800 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">2. Naskah Terkumpul</label>
+                        <input type="date" id="cd-step2" class="w-full px-3 py-2 bg-white dark:bg-slate-800 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">3. Selesai Edit</label>
+                        <input type="date" id="cd-step3" class="w-full px-3 py-2 bg-white dark:bg-slate-800 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">4. Selesai Layout</label>
+                        <input type="date" id="cd-step4" class="w-full px-3 py-2 bg-white dark:bg-slate-800 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-600">
+                    </div>
+                    <div class="col-span-2 mt-2">
+                        <label class="block text-[10px] font-black text-red-500 uppercase mb-1"><i data-lucide="flag" class="w-3 h-3 inline"></i> 5. Final / Terbit Wajib</label>
+                        <input type="date" id="cd-step5" class="w-full px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm font-bold border border-red-200 dark:border-red-800/50">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button onclick="document.getElementById('modal-config-dash').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500">Batal</button>
+                    <button onclick="saveConfigDash()" class="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-md">Simpan Perubahan</button>
+                </div>
             </div>
         </div>
 
@@ -481,6 +520,7 @@
         </div>
 
         <div id="modal-tambah-katalog" class="fixed inset-0 z-[100] hidden bg-slate-900/80 flex items-center justify-center p-4">
+            <!-- (Sama) -->
             <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6">
                 <h3 class="font-black mb-4 dark:text-white" id="title-modal-katalog">Upload Katalog Buku</h3>
                 <input type="hidden" id="katalog-id">
@@ -525,17 +565,37 @@
             tulisan: [], 
             ebulletins: [],
             katalogBuku: [],
-            proyekAktif: { edisi: 'Edisi 28', deadline: '', step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } },
+            proyekAktif: { 
+                edisi: 'Edisi 28', 
+                deadline: '', 
+                deadlines: { step1:'', step2:'', step3:'', step4:'', step5:'' }, // BARU: deadline per fase
+                step: 1, 
+                cover: null, 
+                lineup: { sq:null, aq:null, pq:null, iq:null } 
+            },
             bukuAktif: { judul: 'Antologi Karya', deadline: '', targetHal: 100, cover: null, progress: 10 },
             theme: 'light'
         };
 
         const kamarOptions = Array.from({length: 18}, (_, i) => `${i+1}D4`);
         const rubrikMap = { sq: "Story Qur'ani", aq: "Artikel Qur'ani", pq: "Petuah Qur'ani", iq: "Inspirasi Qur'ani" };
+        const phaseNames = ['Ide & Tema', 'Kumpul Naskah', 'Editing & Revisi', 'Desain Layout', 'Terbit Final'];
         let mainChartObj = null;
 
         function init() {
-            if(!state.proyekAktif.deadline) state.proyekAktif.deadline = new Date(Date.now() + 14*86400000).toISOString().split('T')[0];
+            // Setup backward compatibility & default dates untuk fase
+            if(!state.proyekAktif.deadlines || !state.proyekAktif.deadlines.step5) {
+                const base = state.proyekAktif.deadline ? new Date(state.proyekAktif.deadline) : new Date(Date.now() + 14*86400000);
+                state.proyekAktif.deadlines = {
+                    step1: new Date(base.getTime() - 10*86400000).toISOString().split('T')[0],
+                    step2: new Date(base.getTime() - 7*86400000).toISOString().split('T')[0],
+                    step3: new Date(base.getTime() - 4*86400000).toISOString().split('T')[0],
+                    step4: new Date(base.getTime() - 2*86400000).toISOString().split('T')[0],
+                    step5: base.toISOString().split('T')[0]
+                };
+                state.proyekAktif.deadline = state.proyekAktif.deadlines.step5;
+            }
+
             if(!state.bukuAktif.deadline) state.bukuAktif.deadline = new Date(Date.now() + 180*86400000).toISOString().split('T')[0];
 
             populateSelects();
@@ -548,18 +608,14 @@
             renderSemua();
         }
 
-        // Dummy save data - Menghindari limit memori browser untuk file besar
-        function saveData() {}
+        function saveData() {} // Dummy
 
         function populateSelects() {
             const opts = `<option value="" disabled selected>Kamar</option>` + kamarOptions.map(k => `<option value="${k}">${k}</option>`).join('');
             document.getElementById('bank-in-kamar').innerHTML = opts;
             document.getElementById('edit-naskah-kamar').innerHTML = opts;
             document.getElementById('buku-in-kamar').innerHTML = opts;
-            
-            ['sq', 'aq', 'pq', 'iq'].forEach(k => {
-                document.getElementById('arsip-k-'+k).innerHTML = opts;
-            });
+            ['sq', 'aq', 'pq', 'iq'].forEach(k => document.getElementById('arsip-k-'+k).innerHTML = opts);
         }
 
         function getFileUrl(file) {
@@ -584,25 +640,17 @@
         function showToast(msg, type='success') {
             const t = document.getElementById('toast');
             const icon = document.getElementById('toast-icon');
-            
             document.getElementById('toast-msg').textContent = msg;
             
             if (type === 'error') {
                 t.className = 'fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
                 icon.setAttribute('data-lucide', 'alert-circle');
-            } else if (type === 'info') {
-                t.className = 'fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
-                icon.setAttribute('data-lucide', 'info');
             } else {
                 t.className = 'fixed bottom-8 right-8 bg-slate-800 dark:bg-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
                 icon.setAttribute('data-lucide', 'check-circle-2');
             }
             lucide.createIcons();
-
-            setTimeout(() => {
-                t.classList.add('translate-y-24', 'opacity-0');
-                t.classList.remove('translate-y-0', 'opacity-100');
-            }, 3000);
+            setTimeout(() => { t.classList.add('translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 3000);
         }
 
         function navigate(tab) {
@@ -625,13 +673,8 @@
         }
 
         function applyTheme(initial=false) {
-            if(state.theme === 'dark') {
-                document.body.classList.add('dark');
-                document.getElementById('theme-icon').setAttribute('data-lucide', 'sun');
-            } else {
-                document.body.classList.remove('dark');
-                document.getElementById('theme-icon').setAttribute('data-lucide', 'moon');
-            }
+            if(state.theme === 'dark') { document.body.classList.add('dark'); document.getElementById('theme-icon').setAttribute('data-lucide', 'sun'); } 
+            else { document.body.classList.remove('dark'); document.getElementById('theme-icon').setAttribute('data-lucide', 'moon'); }
             if(!initial) { lucide.createIcons(); if(mainChartObj) renderChart(); }
         }
 
@@ -640,19 +683,63 @@
             document.getElementById('date-masehi').textContent = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
             try { document.getElementById('date-hijri').textContent = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(now); } catch(e){}
 
-            const dl = new Date(state.proyekAktif.deadline + "T23:59:59");
-            const diff = dl - now;
+            // Countdown Utama (Terbit / Step 5)
+            const mainDl = new Date(state.proyekAktif.deadlines.step5 + "T23:59:59");
+            const diff = mainDl - now;
             const el = document.getElementById('dash-countdown');
-            if(diff <= 0) { el.textContent = "Deadline!"; el.parentElement.className = "bg-slate-100 text-slate-500 px-4 py-2 rounded-xl text-xs font-bold flex justify-center gap-2 w-full mb-3"; }
+            if(diff <= 0) { el.textContent = "Deadline Terlewati!"; el.parentElement.className = "bg-slate-100 text-slate-500 px-4 py-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 w-full mb-3"; }
             else {
                 const d = Math.floor(diff / (1000*60*60*24));
                 const h = Math.floor((diff / (1000*60*60)) % 24);
                 el.textContent = d > 0 ? `${d} Hari ${h} Jam` : `${h} Jam Tersisa`;
             }
+
+            // Hitungan Peringatan Fase (Phase Alert Banner)
+            checkPhaseAlert(now);
+        }
+
+        function checkPhaseAlert(now) {
+            const activeStep = state.proyekAktif.step;
+            const alertBox = document.getElementById('dash-phase-alert');
+            const alertIcon = document.getElementById('dash-phase-alert-icon');
+            const alertTitle = document.getElementById('dash-phase-alert-title');
+            const alertMsg = document.getElementById('dash-phase-alert-msg');
+
+            if(activeStep > 5) { alertBox.classList.add('hidden'); return; }
+
+            const currentPhaseName = phaseNames[activeStep-1];
+            const phaseDeadlineStr = state.proyekAktif.deadlines[`step${activeStep}`];
+            if(!phaseDeadlineStr) return;
+
+            const phaseDeadline = new Date(phaseDeadlineStr + "T23:59:59");
+            const diffPhase = phaseDeadline - now;
+            const daysLeft = Math.floor(diffPhase / (1000*60*60*24));
+            const hoursLeft = Math.floor((diffPhase / (1000*60*60)) % 24);
+
+            if (diffPhase < 0) {
+                // Terlewat
+                alertBox.className = "mb-6 px-6 py-4 rounded-2xl flex items-start sm:items-center justify-between border shadow-sm transition-all duration-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50";
+                alertIcon.setAttribute('data-lucide', 'alert-octagon');
+                alertTitle.textContent = `Deadline Fase '${currentPhaseName}' Terlewat!`;
+                alertMsg.textContent = `Segera selesaikan dan majukan fase agar siklus redaksi tidak terhambat.`;
+                alertBox.classList.remove('hidden');
+                lucide.createIcons();
+            } else if (daysLeft <= 2) {
+                // Mendekati (Warning Kuning)
+                alertBox.className = "mb-6 px-6 py-4 rounded-2xl flex items-start sm:items-center justify-between border shadow-sm transition-all duration-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50";
+                alertIcon.setAttribute('data-lucide', 'alert-triangle');
+                alertTitle.textContent = `Peringatan Mendekati Deadline`;
+                alertMsg.textContent = `Fase '${currentPhaseName}' tersisa ${daysLeft} hari ${hoursLeft} jam lagi.`;
+                alertBox.classList.remove('hidden');
+                lucide.createIcons();
+            } else {
+                // Aman
+                alertBox.classList.add('hidden');
+            }
         }
 
         // ========================== DASHBOARD & LINE-UP ==========================
-        function setDashStep(step) { state.proyekAktif.step = step; saveData(); renderDashboard(); }
+        function setDashStep(step) { state.proyekAktif.step = step; saveData(); renderDashboard(); updateDates(); }
 
         function renderDashboard() {
             document.getElementById('dash-edisi-title').textContent = state.proyekAktif.edisi;
@@ -666,10 +753,19 @@
             stepNames.forEach((n, i) => {
                 const s = i+1;
                 const active = s <= state.proyekAktif.step;
+                
+                // Ambil tanggal untuk di render di tracker
+                let tglText = '-';
+                if(state.proyekAktif.deadlines && state.proyekAktif.deadlines[`step${s}`]) {
+                    const d = new Date(state.proyekAktif.deadlines[`step${s}`]);
+                    tglText = d.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+                }
+
                 stepHtml += `
-                <div class="flex flex-col items-center cursor-pointer relative" onclick="setDashStep(${s})">
-                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white dark:border-darkPanel z-10 transition-colors ${active ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-slate-700 text-transparent'}">${s}</div>
-                    <span class="text-[9px] font-bold uppercase mt-1 absolute top-6 ${active ? 'text-primary' : 'text-slate-400'}">${n}</span>
+                <div class="flex flex-col items-center cursor-pointer relative group" onclick="setDashStep(${s})">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black border-4 border-white dark:border-darkPanel z-10 transition-colors ${active ? 'bg-primary text-white shadow-md' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}">${s}</div>
+                    <span class="text-[9px] font-bold uppercase mt-1 absolute top-8 whitespace-nowrap ${active ? 'text-primary' : 'text-slate-400'}">${n}</span>
+                    <span class="text-[8px] font-medium text-slate-400 absolute top-11 whitespace-nowrap">${tglText}</span>
                 </div>`;
             });
             document.getElementById('dash-stepper').innerHTML = stepHtml;
@@ -770,8 +866,7 @@
             if(tul) {
                 tul.edisi = state.proyekAktif.edisi; 
                 state.proyekAktif.lineup[k] = id;
-                saveData();
-                renderSemua();
+                saveData(); renderSemua();
                 showToast('Naskah dari Bank berhasil ditarik ke Dashboard!');
             }
         }
@@ -781,7 +876,6 @@
             const id = state.proyekAktif.lineup[k];
             const tul = state.tulisan.find(x => x.id === id);
             if(tul) tul.edisi = 'Draft / Arsip Umum'; 
-            
             state.proyekAktif.lineup[k] = null;
             saveData(); renderSemua();
         }
@@ -801,24 +895,46 @@
             });
 
             let num = parseInt(state.proyekAktif.edisi.replace(/\D/g, '')) || 0;
-            state.proyekAktif = { edisi: `Edisi ${num+1}`, deadline: new Date(Date.now()+14*86400000).toISOString().split('T')[0], step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } };
+            const base = new Date(Date.now() + 14*86400000);
+            
+            state.proyekAktif = { 
+                edisi: `Edisi ${num+1}`, 
+                deadline: base.toISOString().split('T')[0], 
+                deadlines: {
+                    step1: new Date(base.getTime() - 10*86400000).toISOString().split('T')[0],
+                    step2: new Date(base.getTime() - 7*86400000).toISOString().split('T')[0],
+                    step3: new Date(base.getTime() - 4*86400000).toISOString().split('T')[0],
+                    step4: new Date(base.getTime() - 2*86400000).toISOString().split('T')[0],
+                    step5: base.toISOString().split('T')[0]
+                },
+                step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } 
+            };
             
             document.getElementById('proj-cover-img').classList.add('hidden');
             document.getElementById('modal-siklus').classList.add('hidden');
-            saveData(); renderSemua();
+            saveData(); renderSemua(); updateDates();
             showToast('Edisi berhasil diterbitkan dan diarsipkan!');
         }
 
+        // ========================== CONFIG DASHBOARD MODAL ==========================
         function openConfigDashboard() {
             document.getElementById('config-dash-edisi').value = state.proyekAktif.edisi;
-            document.getElementById('config-dash-date').value = state.proyekAktif.deadline;
+            ['step1','step2','step3','step4','step5'].forEach(s => {
+                document.getElementById('cd-'+s).value = state.proyekAktif.deadlines[s];
+            });
             document.getElementById('modal-config-dash').classList.remove('hidden');
         }
+
         function saveConfigDash() {
             state.proyekAktif.edisi = document.getElementById('config-dash-edisi').value;
-            state.proyekAktif.deadline = document.getElementById('config-dash-date').value;
-            saveData(); renderDashboard();
+            ['step1','step2','step3','step4','step5'].forEach(s => {
+                state.proyekAktif.deadlines[s] = document.getElementById('cd-'+s).value;
+            });
+            state.proyekAktif.deadline = state.proyekAktif.deadlines.step5; // sinkronkan deadline utama
+
+            saveData(); renderDashboard(); updateDates();
             document.getElementById('modal-config-dash').classList.add('hidden');
+            showToast('Deadline fase berhasil diperbarui!');
         }
 
         function renderChart() {
@@ -854,7 +970,8 @@
             });
         }
 
-        // ========================== CRUD NASKAH UNIVERSAL ==========================
+        // ========================== FUNGSI LAINNYA ==========================
+        // (Sisa fungsi CRUD Naskah, Buku Tahunan, Data Penulis, dan Arsip tetap sama agar tidak merusak yang sebelumnya)
         function simpanBankManual() {
             const j = document.getElementById('bank-in-judul').value.trim();
             const p = document.getElementById('bank-in-penulis').value.trim();
@@ -900,9 +1017,7 @@
         function hapusNaskah(id) {
             if(!confirm('Hapus permanen naskah ini?')) return;
             state.tulisan = state.tulisan.filter(t => t.id !== id);
-            Object.keys(state.proyekAktif.lineup).forEach(k => {
-                if(state.proyekAktif.lineup[k] === id) state.proyekAktif.lineup[k] = null;
-            });
+            Object.keys(state.proyekAktif.lineup).forEach(k => { if(state.proyekAktif.lineup[k] === id) state.proyekAktif.lineup[k] = null; });
             saveData(); renderSemua();
         }
 
@@ -926,11 +1041,9 @@
             lucide.createIcons();
         }
 
-        // ========================== BUKU TAHUNAN ==========================
         function switchBukuTab(t) {
             document.querySelectorAll('.sub-tab-pane').forEach(e=>e.classList.remove('active'));
             document.getElementById('buku-'+t).classList.add('active');
-            
             ['monitoring','katalog'].forEach(x => {
                 const b = document.getElementById('btn-tab-'+x);
                 if(x===t) { b.classList.add('bg-white','dark:bg-slate-600','shadow-sm','text-primary'); b.classList.remove('text-slate-500','dark:text-slate-400'); }
@@ -954,10 +1067,8 @@
 
         function clickBukuProgress(e) {
             const rect = document.getElementById('buku-progress-container').getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            let pct = Math.round((x / rect.width) * 100);
-            if(pct < 0) pct = 0; if(pct > 100) pct = 100;
-            state.bukuAktif.progress = pct;
+            let pct = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+            state.bukuAktif.progress = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
             saveData(); renderBukuTahunan();
         }
 
@@ -978,11 +1089,7 @@
             document.getElementById('buku-deadline-display').textContent = new Date(state.bukuAktif.deadline).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
             document.getElementById('buku-hal-target').textContent = state.bukuAktif.targetHal;
             
-            if(state.bukuAktif.cover) {
-                document.getElementById('buku-cover-img').src = state.bukuAktif.cover;
-                document.getElementById('buku-cover-img').classList.remove('hidden');
-            }
-
+            if(state.bukuAktif.cover) { document.getElementById('buku-cover-img').src = state.bukuAktif.cover; document.getElementById('buku-cover-img').classList.remove('hidden'); }
             document.getElementById('buku-progress-bar').style.width = state.bukuAktif.progress + '%';
             document.getElementById('buku-progress-text').textContent = state.bukuAktif.progress + '%';
 
@@ -1049,24 +1156,18 @@
             saveData(); renderKatalog();
         }
 
-        // ========================== DATABASE PENULIS (DENGAN MODAL DETAIL) ==========================
         function bukaDetailPenulis(namaStr) {
-            // Unescape nama penulis jika mengandung tanda kutip
             const nama = namaStr.replace(/\\'/g, "'");
             const karyaPenulis = state.tulisan.filter(t => t.penulis === nama);
             if(karyaPenulis.length === 0) return;
 
-            // Ambil kamar dari naskah pertama
-            const kamar = karyaPenulis[0].kamar;
-
             document.getElementById('dp-nama').textContent = nama;
-            document.getElementById('dp-kamar').textContent = 'Kamar ' + kamar;
+            document.getElementById('dp-kamar').textContent = 'Kamar ' + karyaPenulis[0].kamar;
             document.getElementById('dp-total').textContent = karyaPenulis.length;
 
-            // Render list semua karya
-            document.getElementById('dp-list').innerHTML = karyaPenulis.map((k, index) => `
+            document.getElementById('dp-list').innerHTML = karyaPenulis.map((k, i) => `
                 <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary/50 transition-colors flex flex-col justify-center">
-                    <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-2 leading-tight">${index + 1}. ${k.judul}</h4>
+                    <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-2 leading-tight">${i + 1}. ${k.judul}</h4>
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2 py-1 rounded-md border border-primary/20"><i data-lucide="bookmark" class="w-3 h-3 inline-block -mt-0.5 mr-1"></i>${k.edisi}</span>
                         ${k.rubrik !== '-' ? `<span class="text-[9px] font-black uppercase tracking-widest bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md">${k.rubrik}</span>` : ''}
@@ -1088,22 +1189,13 @@
             });
             
             let pArr = Object.values(pMap);
-
             if (query) {
-                pArr = pArr.filter(p => {
-                    const matchNama = p.nama.toLowerCase().includes(query);
-                    const matchKamar = p.kamar.toLowerCase().includes(query);
-                    const matchKarya = p.karya.some(k => k.judul.toLowerCase().includes(query));
-                    return matchNama || matchKamar || matchKarya;
-                });
+                pArr = pArr.filter(p => p.nama.toLowerCase().includes(query) || p.kamar.toLowerCase().includes(query) || p.karya.some(k => k.judul.toLowerCase().includes(query)));
             }
-
             pArr.sort((a,b) => b.karya.length - a.karya.length);
 
             document.getElementById('penulis-grid').innerHTML = pArr.map(p => {
-                // Escape tanda kutip tunggal pada nama agar tidak memecah syntax onclick
                 const escapedName = p.nama.replace(/'/g, "\\'");
-
                 return `
                 <div onclick="bukaDetailPenulis('${escapedName}')" class="bg-white dark:bg-darkPanel p-6 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer transition-all duration-300">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
@@ -1127,11 +1219,9 @@
                 `
             }).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
             
-            // Re-render icons since we appended raw HTML strings that might have new icons
             setTimeout(() => { lucide.createIcons(); }, 10);
         }
 
-        // ========================== ARSIP E-BULETIN DENGAN 4-IN-1 ==========================
         async function simpanArsipManual() {
             const edisi = document.getElementById('arsip-in-edisi').value.trim();
             const coverFile = document.getElementById('arsip-in-cover').files[0];
@@ -1147,44 +1237,22 @@
                 const coverData = await getFileUrl(coverFile) || 'https://via.placeholder.com/300x400?text=No+Cover';
                 const pdfData = await getFileUrl(pdfFile);
 
-                state.ebulletins.push({
-                    id: 'eb' + Date.now(),
-                    edisi: edisi,
-                    cover: coverData,
-                    pdf: pdfData,
-                    date: new Date().toISOString()
-                });
-
+                state.ebulletins.push({ id: 'eb' + Date.now(), edisi: edisi, cover: coverData, pdf: pdfData, date: new Date().toISOString() });
                 state.ebulletins.sort((a,b) => b.id.localeCompare(a.id));
 
                 ['sq', 'aq', 'pq', 'iq'].forEach((k, idx) => {
                     const judul = document.getElementById(`arsip-j-${k}`).value.trim();
                     const penulis = document.getElementById(`arsip-p-${k}`).value.trim();
                     const kamar = document.getElementById(`arsip-k-${k}`).value;
-
                     if (judul && penulis && kamar) {
-                        state.tulisan.unshift({
-                            id: 't' + Date.now() + idx,
-                            judul: judul,
-                            penulis: penulis,
-                            kamar: kamar,
-                            rubrik: rubrikMap[k],
-                            edisi: edisi
-                        });
+                        state.tulisan.unshift({ id: 't' + Date.now() + idx, judul: judul, penulis: penulis, kamar: kamar, rubrik: rubrikMap[k], edisi: edisi });
                     }
                 });
 
-                saveData(); 
-                renderSemua();
+                saveData(); renderSemua();
 
-                document.getElementById('arsip-in-edisi').value = '';
-                document.getElementById('arsip-in-cover').value = '';
-                document.getElementById('arsip-in-pdf').value = '';
-                ['sq', 'aq', 'pq', 'iq'].forEach(k => {
-                    document.getElementById(`arsip-j-${k}`).value = '';
-                    document.getElementById(`arsip-p-${k}`).value = '';
-                    document.getElementById(`arsip-k-${k}`).value = '';
-                });
+                document.getElementById('arsip-in-edisi').value = ''; document.getElementById('arsip-in-cover').value = ''; document.getElementById('arsip-in-pdf').value = '';
+                ['sq', 'aq', 'pq', 'iq'].forEach(k => { document.getElementById(`arsip-j-${k}`).value = ''; document.getElementById(`arsip-p-${k}`).value = ''; document.getElementById(`arsip-k-${k}`).value = ''; });
 
                 showToast('Arsip E-Buletin & Data Penulis berhasil disimpan!');
             } catch (error) {
