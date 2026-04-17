@@ -31,7 +31,7 @@
     <!-- Loading Screen -->
     <div id="app-loading" class="fixed inset-0 z-[200] bg-white dark:bg-darkBg flex flex-col items-center justify-center transition-opacity duration-500">
         <i data-lucide="loader-2" class="w-12 h-12 text-primary animate-spin mb-4"></i>
-        <h2 class="text-xl font-black text-slate-800 dark:text-white">Menyiapkan Database (IndexedDB)...</h2>
+        <h2 class="text-xl font-black text-slate-800 dark:text-white">Memuat Data (IndexedDB)...</h2>
     </div>
 
     <!-- Sidebar -->
@@ -517,7 +517,7 @@
 
     </main>
 
-    <!-- LOGIKA LOKAL SUPER (INDEXED DB + BACKUP/RESTORE + FIX PDF) -->
+    <!-- LOGIKA LOKAL SUPER (INDEXED DB + BACKUP/RESTORE + FIX PDF + FIX AUTO-LOAD) -->
     <script>
         // GLOBAL STATE & DEFAULTS
         const baseDl = new Date(Date.now() + 14*86400000);
@@ -639,7 +639,11 @@
             document.getElementById('app-loading').style.opacity = '0';
             setTimeout(() => document.getElementById('app-loading').style.display = 'none', 500);
             
-            populateSelects(); updateDates(); setInterval(updateDates, 60000); applyTheme(true); renderSemua();
+            try { populateSelects(); } catch(e){}
+            try { updateDates(); } catch(e){}
+            setInterval(updateDates, 60000); 
+            try { applyTheme(true); } catch(e){}
+            try { renderSemua(); } catch(e){}
         }
 
         // --- UI UTILS ---
@@ -694,8 +698,11 @@
         }
 
         function checkPhaseAlert(now) {
-            const activeStep = state.proyekAktif.step || 1;
             const alertBox = document.getElementById('dash-phase-alert');
+            // FIX AUTO-LOAD: Cegah aplikasi crash jika alertBox tidak ditemukan di halaman
+            if(!alertBox) return; 
+
+            const activeStep = state.proyekAktif.step || 1;
             const alertIcon = document.getElementById('dash-phase-alert-icon');
             const alertTitle = document.getElementById('dash-phase-alert-title');
             const alertMsg = document.getElementById('dash-phase-alert-msg');
