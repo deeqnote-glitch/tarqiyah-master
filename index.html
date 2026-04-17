@@ -40,10 +40,8 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-jakarta antialiased transition-colors duration-300 overflow-hidden flex" onload="init()">
 
-    <!-- Sidebar -->
     <aside class="w-64 bg-white dark:bg-darkPanel border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shrink-0 transition-all duration-300 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div class="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center gap-4">
-            <!-- LOGO TARQIYAH (Harus se-folder dengan file ini) -->
             <div class="w-12 h-12 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/20 shrink-0 overflow-hidden">
                 <img src="logo_tarqiyah-removebg-preview.png" alt="Logo Tarqiyah" class="w-full h-full object-cover scale-110 drop-shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <i data-lucide="command" class="w-6 h-6 text-primary hidden"></i>
@@ -82,13 +80,10 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 h-full overflow-y-auto bg-slate-50 dark:bg-darkBg relative scroll-smooth">
         <div class="p-6 lg:p-10 max-w-7xl mx-auto space-y-10 pb-32">
 
-            <!-- ================= DASHBOARD TAB ================= -->
             <div id="tab-dashboard" class="tab-pane active">
-                <!-- Header with Dates -->
                 <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
                     <div>
                         <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Overview Tarqiyah</h2>
@@ -103,7 +98,6 @@
                     </div>
                 </div>
 
-                <!-- Pantauan Proyek Aktif & COUNTDOWN -->
                 <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-10 relative overflow-hidden">
                     <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
                     
@@ -112,7 +106,7 @@
                             <i data-lucide="activity" class="w-5 h-5 text-primary"></i> Manajemen Proyek Berjalan
                         </h3>
                         <div class="flex items-center gap-3">
-                            <div class="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-red-100 dark:border-red-500/20">
+                            <div class="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border border-red-100 dark:border-red-500/20 transition-colors">
                                 <i data-lucide="clock" class="w-4 h-4"></i> <span id="countdown-timer">Menghitung Waktu...</span>
                             </div>
                             <button onclick="openEditProject()" class="text-xs font-bold text-primary hover:text-teal-700 flex items-center gap-1.5 px-4 py-2 bg-primary/10 rounded-xl transition-colors">
@@ -122,7 +116,6 @@
                     </div>
                     
                     <div class="flex flex-col lg:flex-row gap-12 items-center relative z-10">
-                        <!-- Info Proyek -->
                         <div class="w-full lg:w-1/3 text-center lg:text-left bg-slate-50 dark:bg-slate-800/80 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700">
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Sedang Dikerjakan</p>
                             <h4 class="text-4xl font-black text-slate-800 dark:text-white mb-4" id="proj-edisi">Edisi 28</h4>
@@ -131,7 +124,6 @@
                             </div>
                         </div>
                         
-                        <!-- Stepper Progres -->
                         <div class="w-full lg:w-2/3">
                             <div class="relative w-full max-w-xl mx-auto lg:mx-0">
                                 <div class="absolute left-6 right-6 top-6 h-1.5 bg-slate-100 dark:bg-slate-700 -z-10 rounded-full"></div>
@@ -161,7 +153,6 @@
                                 </div>
                             </div>
                             
-                            <!-- CTA Publish -->
                             <div id="publish-prompt" class="mt-10 text-center lg:text-left hidden">
                                 <button onclick="goToPublishForm()" class="w-full lg:w-auto px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] hover:shadow-lg hover:shadow-green-500/30 transition-all flex items-center justify-center gap-3">
                                     <i data-lucide="rocket" class="w-5 h-5"></i> Lanjut Form Penerbitan Paket
@@ -171,7 +162,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                     <div class="bg-white dark:bg-darkPanel p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                         <i data-lucide="file-text" class="w-8 h-8 text-primary mb-4"></i>
@@ -196,17 +186,14 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Naskah Masuk -->
                     <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="inbox" class="w-5 h-5 text-primary"></i> 5 Naskah Terbaru</h3>
                             <button onclick="navigate('bank')" class="text-xs font-bold text-slate-400 hover:text-primary transition-colors">Lihat Bank</button>
                         </div>
                         <div id="dash-recent-naskah" class="space-y-4">
-                            <!-- Naskah diisi via JS -->
-                        </div>
+                            </div>
                     </div>
-                    <!-- Chart Rubrik -->
                     <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm">
                         <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2"><i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i> Distribusi Rubrik</h3>
                         <div class="h-64 flex justify-center items-center">
@@ -216,16 +203,14 @@
                 </div>
             </div>
 
-            <!-- ================= BANK TULISAN TAB ================= -->
             <div id="tab-bank" class="tab-pane">
                 <div class="mb-8 flex justify-between items-end">
                     <div>
                         <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Bank Tulisan</h2>
-                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Database ide dan naskah satuan maupun dari arsip E-Buletin.</p>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Database naskah (Edit, Hapus, dan Kurasi ke Buku Tahunan).</p>
                     </div>
                 </div>
 
-                <!-- Form Input Naskah Satuan -->
                 <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
                     <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700/50 pb-4">
                         <i data-lucide="plus-circle" class="w-5 h-5 text-primary"></i> Simpan Naskah / Ide Satuan
@@ -275,14 +260,12 @@
                                 </tr>
                             </thead>
                             <tbody id="bank-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
-                                <!-- Data diisi JS -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- ================= BUKU TAHUNAN TAB ================= -->
             <div id="tab-buku" class="tab-pane">
                 <div class="mb-8 flex justify-between items-end">
                     <div>
@@ -319,16 +302,13 @@
                     </div>
                 </div>
 
-                <!-- Daftar Naskah Kurasi -->
                 <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-10">
                     <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2"><i data-lucide="bookmark-check" class="w-5 h-5 text-amber-500"></i> Naskah Terpilih (Masuk Draft Buku)</h3>
                     <div id="kurasi-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Naskah kurasi diisi via JS -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
-            <!-- ================= DATA PENULIS TAB ================= -->
             <div id="tab-penulis" class="tab-pane">
                  <div class="mb-8 flex justify-between items-end">
                     <div>
@@ -338,11 +318,9 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="penulis-grid">
-                    <!-- Data penulis dari JS -->
-                </div>
+                    </div>
             </div>
 
-            <!-- ================= E-BULETIN TAB ================= -->
             <div id="tab-ebulletin" class="tab-pane">
                 <div class="mb-8 flex justify-between items-end">
                     <div>
@@ -351,13 +329,11 @@
                     </div>
                 </div>
 
-                <!-- Form Pendaftaran Paket E-Buletin -->
                 <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-10" id="form-penerbitan">
                     <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest mb-6 border-b border-slate-100 dark:border-slate-700 pb-4 flex items-center gap-2">
                         <i data-lucide="upload-cloud" class="w-5 h-5 text-primary"></i>Penerbitan 1 Edisi Sepaket
                     </h3>
 
-                    <!-- Info Edisi & File (COVER & PDF) -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/50">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Nama/Nomor Edisi</label>
@@ -373,12 +349,10 @@
                         </div>
                     </div>
 
-                    <!-- Data Naskah (4 Rubrik Otomatis) -->
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Input Penulis 4 Rubrik</h4>
                     <p class="text-xs text-slate-500 mb-6">Data ini akan otomatis disinkronkan ke Bank Tulisan dan Database Penulis untuk edisi ini.</p>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Story Qur'ani -->
                         <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700 transition-colors focus-within:border-primary/50">
                             <h5 class="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="feather" class="w-4 h-4"></i> Story Qur'ani</h5>
                             <div class="space-y-3">
@@ -390,7 +364,6 @@
                             </div>
                         </div>
 
-                        <!-- Artikel Qur'ani -->
                         <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700 transition-colors focus-within:border-blue-500/50">
                             <h5 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="align-left" class="w-4 h-4"></i> Artikel Qur'ani</h5>
                             <div class="space-y-3">
@@ -402,7 +375,6 @@
                             </div>
                         </div>
 
-                        <!-- Petuah Qur'ani -->
                         <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700 transition-colors focus-within:border-amber-500/50">
                             <h5 class="text-xs font-black text-amber-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Petuah Qur'ani</h5>
                             <div class="space-y-3">
@@ -414,7 +386,6 @@
                             </div>
                         </div>
 
-                        <!-- Inspirasi Qur'ani -->
                         <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700 transition-colors focus-within:border-purple-500/50">
                             <h5 class="text-xs font-black text-purple-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4"></i> Inspirasi Qur'ani</h5>
                             <div class="space-y-3">
@@ -432,28 +403,24 @@
                     </button>
                 </div>
 
-                <!-- Arsip Grid -->
                 <div class="bg-white dark:bg-darkPanel p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="flex justify-between items-center mb-8 border-b border-slate-100 dark:border-slate-700/50 pb-4">
                         <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="grid" class="w-5 h-5 text-primary"></i> Arsip & Galeri E-Buletin</h3>
                         <p class="text-xs font-bold text-slate-500">Klik cover untuk membaca PDF.</p>
                     </div>
                     <div id="ebulletin-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center">
-                        <!-- Generated via JS -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- Toast Notification -->
         <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
             <i data-lucide="check-circle" class="w-5 h-5 text-green-400" id="toast-icon"></i>
             <span id="toast-msg" class="font-bold text-sm">Berhasil!</span>
         </div>
     </main>
 
-    <!-- Modal Edit Info Proyek -->
     <div id="modal-project" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white dark:bg-darkPanel w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-6 border border-slate-200 dark:border-slate-700">
             <h3 class="font-black text-lg mb-6 text-slate-800 dark:text-white">Edit Target Proyek</h3>
@@ -474,7 +441,46 @@
         </div>
     </div>
 
-    <!-- PDF Viewer Modal -->
+    <div id="modal-edit-naskah" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 border border-slate-200 dark:border-slate-700">
+            <h3 class="font-black text-lg mb-6 text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-primary"></i> Edit Data Naskah</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-naskah-id">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Judul Tulisan</label>
+                    <input type="text" id="edit-naskah-judul" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-800 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Penulis</label>
+                    <input type="text" id="edit-naskah-penulis" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-800 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Kamar</label>
+                        <select id="edit-naskah-kamar" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-600 dark:text-slate-300"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Rubrik</label>
+                        <select id="edit-naskah-rubrik" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-600 dark:text-slate-300">
+                            <option value="Story Qur'ani">Story Qur'ani</option>
+                            <option value="Artikel Qur'ani">Artikel Qur'ani</option>
+                            <option value="Petuah Qur'ani">Petuah Qur'ani</option>
+                            <option value="Inspirasi Qur'ani">Inspirasi Qur'ani</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Edisi / Status</label>
+                    <input type="text" id="edit-naskah-edisi" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-none text-sm focus:ring-2 focus:ring-primary font-bold text-slate-800 dark:text-white">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="closeEditNaskah()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Batal</button>
+                <button onclick="saveEditNaskah()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-teal-700 shadow-md shadow-teal-500/20 transition-colors">Update Data</button>
+            </div>
+        </div>
+    </div>
+
     <div id="pdf-modal" class="fixed inset-0 z-[100] hidden bg-slate-900/95 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white dark:bg-darkPanel w-full max-w-5xl h-[90vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl border border-slate-200 dark:border-slate-700">
             <div class="p-5 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
@@ -525,6 +531,7 @@
                 document.getElementById(`paket-${id}-kamar`).innerHTML = kamarOptions;
             });
             document.getElementById('satuan-kamar').innerHTML = kamarOptions;
+            document.getElementById('edit-naskah-kamar').innerHTML = kamarOptions; // Kamar options untuk fitur Edit
 
             if(!state.proyekAktif.deadline) {
                 const today = new Date();
@@ -787,7 +794,7 @@
             });
         }
 
-        // ========================== TAB 2: BANK TULISAN ==========================
+        // ========================== TAB 2: BANK TULISAN (CRUD) ==========================
         function simpanNaskahSatuan() {
             const judul = document.getElementById('satuan-judul').value.trim();
             const penulis = document.getElementById('satuan-penulis').value.trim();
@@ -810,6 +817,54 @@
             renderDashboard();
             renderPenulis();
             showToast('Naskah satuan berhasil disimpan!');
+        }
+
+        function openEditTulisan(id) {
+            const t = state.tulisan.find(x => x.id === id);
+            if(!t) return;
+            
+            document.getElementById('edit-naskah-id').value = t.id;
+            document.getElementById('edit-naskah-judul').value = t.judul;
+            document.getElementById('edit-naskah-penulis').value = t.penulis;
+            document.getElementById('edit-naskah-kamar').value = t.kamar;
+            document.getElementById('edit-naskah-rubrik').value = t.rubrik;
+            document.getElementById('edit-naskah-edisi').value = t.edisi;
+            
+            document.getElementById('modal-edit-naskah').classList.remove('hidden');
+        }
+
+        function closeEditNaskah() {
+            document.getElementById('modal-edit-naskah').classList.add('hidden');
+        }
+
+        function saveEditNaskah() {
+            const id = document.getElementById('edit-naskah-id').value;
+            const index = state.tulisan.findIndex(x => x.id === id);
+            
+            if(index === -1) return;
+
+            const judul = document.getElementById('edit-naskah-judul').value.trim();
+            const penulis = document.getElementById('edit-naskah-penulis').value.trim();
+            const kamar = document.getElementById('edit-naskah-kamar').value;
+            
+            if(!judul || !penulis || !kamar) return showToast('Judul, Penulis, dan Kamar wajib diisi!', 'error');
+
+            state.tulisan[index].judul = judul;
+            state.tulisan[index].penulis = penulis;
+            state.tulisan[index].kamar = kamar;
+            state.tulisan[index].rubrik = document.getElementById('edit-naskah-rubrik').value;
+            state.tulisan[index].edisi = document.getElementById('edit-naskah-edisi').value.trim() || 'Draft';
+
+            saveData();
+            closeEditNaskah();
+            
+            // Re-render semua tab untuk sinkronisasi data terbaru
+            renderBankTulisan();
+            renderDashboard();
+            renderPenulis();
+            renderBukuTahunan();
+            
+            showToast('Data naskah berhasil diperbarui!');
         }
 
         function renderBankTulisan() {
@@ -838,8 +893,9 @@
                             <i data-lucide="star" class="w-5 h-5 ${t.isKurasiBuku ? 'fill-current' : ''}"></i>
                         </button>
                     </td>
-                    <td class="p-5 text-right">
-                        <button onclick="deleteTulisan('${t.id}')" class="text-slate-300 hover:text-red-500 p-2 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <td class="p-5 text-right whitespace-nowrap">
+                        <button onclick="openEditTulisan('${t.id}')" class="text-slate-300 hover:text-blue-500 p-2 transition-colors" title="Edit Naskah"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="deleteTulisan('${t.id}')" class="text-slate-300 hover:text-red-500 p-2 transition-colors" title="Hapus Naskah"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td>
                 </tr>
             `).join('') || `<tr><td colspan="6" class="p-10 text-center text-slate-400 font-bold">Tidak ada data naskah.</td></tr>`;
@@ -883,7 +939,7 @@
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">${t.penulis} • ${t.rubrik}</p>
                         </div>
                     </div>
-                    <button onclick="toggleKurasi('${t.id}')" class="text-slate-300 hover:text-red-500 transition-colors p-2"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    <button onclick="toggleKurasi('${t.id}')" class="text-slate-300 hover:text-red-500 transition-colors p-2" title="Keluarkan dari Buku"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
             `).join('') || `<div class="col-span-full py-8 text-center text-slate-400 font-bold text-sm">Belum ada naskah yang dikurasi. Klik ikon bintang di Bank Tulisan.</div>`;
             lucide.createIcons();
