@@ -24,8 +24,6 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        .cover-preview { background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 10px 10px; }
-        .dark .cover-preview { background-image: radial-gradient(#334155 1px, transparent 1px); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-jakarta antialiased transition-colors duration-300 overflow-hidden flex" onload="init()">
@@ -75,7 +73,6 @@
             <!-- ================= 1. DASHBOARD TAB ================= -->
             <div id="tab-dashboard" class="tab-pane active">
                 
-                <!-- Header & Tanggal -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                     <div>
                         <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Dashboard Tarqiyah</h2>
@@ -89,9 +86,7 @@
 
                 <!-- Proyek Edisi Berjalan -->
                 <div class="bg-white dark:bg-darkPanel rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 p-6 lg:p-8 mb-8 relative overflow-hidden">
-                    
                     <div class="flex flex-col lg:flex-row gap-8 relative z-10">
-                        <!-- Cover & Info Kiri -->
                         <div class="w-full lg:w-1/4 flex flex-col items-center">
                             <div class="w-40 h-56 bg-slate-100 dark:bg-slate-800 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer mb-4" onclick="document.getElementById('input-proj-cover').click()">
                                 <img id="proj-cover-img" src="" class="absolute inset-0 w-full h-full object-cover hidden z-10">
@@ -108,10 +103,7 @@
                             <button onclick="openConfigDashboard()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors">Edit Info & Deadline</button>
                         </div>
 
-                        <!-- Stepper & Form Lineup Kanan -->
                         <div class="w-full lg:w-3/4 flex flex-col justify-between">
-                            
-                            <!-- Stepper Fase -->
                             <div class="mb-8">
                                 <div class="flex justify-between items-center mb-4">
                                     <h4 class="text-xs font-black uppercase tracking-widest text-slate-500">Progres Fase Redaksi</h4>
@@ -120,22 +112,15 @@
                                 <div class="relative w-full">
                                     <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-2 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
                                     <div id="dash-progress-bar" class="absolute top-1/2 -translate-y-1/2 left-0 h-2 bg-primary rounded-full transition-all duration-500" style="width: 25%;"></div>
-                                    
-                                    <div class="flex justify-between relative z-10" id="dash-stepper">
-                                        <!-- Render via JS -->
-                                    </div>
+                                    <div class="flex justify-between relative z-10" id="dash-stepper"></div>
                                 </div>
                             </div>
 
-                            <!-- Lineup 4 Rubrik -->
                             <div>
                                 <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Line-up Naskah Edisi Ini</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dash-lineup-grid">
-                                    <!-- Render via JS (Form / Filled Data) -->
-                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dash-lineup-grid"></div>
                             </div>
 
-                            <!-- Action Siklus Baru -->
                             <div class="mt-6 flex justify-end">
                                 <button onclick="bukaModalSiklus()" class="px-6 py-3 bg-gradient-to-r from-teal-600 to-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-500/30 flex items-center gap-2 hover:scale-105 transition-transform">
                                     <i data-lucide="rocket" class="w-4 h-4"></i> Mulai Siklus Baru (Terbitkan)
@@ -145,9 +130,7 @@
                     </div>
                 </div>
 
-                <!-- Stats & Chart -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Stats Grid -->
                     <div class="lg:col-span-1 grid grid-cols-2 gap-4">
                         <div class="bg-white dark:bg-darkPanel p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center text-center">
                             <i data-lucide="file-text" class="w-6 h-6 text-primary mb-2"></i>
@@ -168,7 +151,6 @@
                         </div>
                     </div>
 
-                    <!-- Chart -->
                     <div class="lg:col-span-2 bg-white dark:bg-darkPanel p-6 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700">
                         <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-primary"></i> Analisis Rubrik & Kamar (Hover)</h4>
                         <div class="h-48 w-full">
@@ -176,7 +158,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <!-- ================= 2. BANK TULISAN TAB ================= -->
@@ -186,7 +167,6 @@
                     <p class="text-sm font-medium text-slate-500">Database lengkap seluruh naskah yang pernah masuk.</p>
                 </div>
 
-                <!-- Form Input Manual -->
                 <div class="bg-white dark:bg-darkPanel p-6 lg:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
                     <h3 class="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Naskah Manual</h3>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -206,7 +186,6 @@
                     </div>
                 </div>
 
-                <!-- Table -->
                 <div class="bg-white dark:bg-darkPanel rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div class="p-4 border-b border-slate-100 dark:border-slate-700/50 relative">
                         <i data-lucide="search" class="absolute left-8 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
@@ -236,16 +215,13 @@
                         <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Manajemen Buku</h2>
                         <p class="text-sm font-medium text-slate-500">Monitoring proyek buku & Katalog buku terbit.</p>
                     </div>
-                    <!-- Toggle Cabang -->
                     <div class="bg-slate-200 dark:bg-slate-800 p-1 rounded-xl flex gap-1 font-bold text-xs">
                         <button onclick="switchBukuTab('monitoring')" id="btn-tab-monitoring" class="px-4 py-2 rounded-lg bg-white dark:bg-slate-600 shadow-sm text-primary transition-all">Monitoring Proyek</button>
                         <button onclick="switchBukuTab('katalog')" id="btn-tab-katalog" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-all">Katalog Terbit</button>
                     </div>
                 </div>
 
-                <!-- Cabang A: Monitoring Proyek -->
                 <div id="buku-monitoring" class="sub-tab-pane active space-y-8">
-                    
                     <div class="bg-white dark:bg-darkPanel rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 p-8 flex flex-col md:flex-row gap-8">
                         <div class="w-full md:w-1/3 flex flex-col items-center border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 pb-6 md:pb-0 md:pr-8">
                             <div class="w-48 h-64 bg-slate-100 dark:bg-slate-800 rounded-lg shadow-inner flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer border border-slate-200 dark:border-slate-700 mb-4" onclick="document.getElementById('in-buku-cover').click()">
@@ -259,7 +235,6 @@
                         
                         <div class="w-full md:w-2/3 flex flex-col justify-center">
                             <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-2" id="buku-judul-display">Judul Buku Tahunan</h3>
-                            
                             <div class="grid grid-cols-2 gap-4 mb-8">
                                 <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rencana Cetak</p>
@@ -270,7 +245,6 @@
                                     <p class="text-sm font-black text-slate-700 dark:text-white mt-1"><span id="buku-hal-terkumpul" class="text-primary">0</span> / <span id="buku-hal-target">0</span> Hal</p>
                                 </div>
                             </div>
-
                             <div class="mb-2 flex justify-between items-end">
                                 <span class="text-xs font-black uppercase tracking-widest text-slate-500">Fase Penerbitan</span>
                                 <span class="text-xs font-black text-primary" id="buku-progress-text">0%</span>
@@ -282,27 +256,19 @@
                         </div>
                     </div>
 
-                    <!-- Input Naskah Buku Manual -->
                     <div class="bg-white dark:bg-darkPanel p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm">
                         <h4 class="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="list-plus" class="w-4 h-4 text-primary"></i> Daftar Naskah / Kontributor Buku</h4>
-                        
                         <div class="flex gap-2 mb-6">
                             <input type="text" id="buku-in-judul" placeholder="Judul Naskah" class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none">
                             <input type="text" id="buku-in-penulis" placeholder="Penulis" class="w-40 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none">
                             <select id="buku-in-kamar" class="w-32 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none"></select>
                             <button onclick="simpanNaskahBuku()" class="px-4 py-3 bg-primary text-white rounded-xl font-bold text-sm"><i data-lucide="plus" class="w-5 h-5"></i></button>
                         </div>
-
-                        <div class="space-y-2 max-h-64 overflow-y-auto pr-2" id="buku-naskah-list">
-                            <!-- JS render -->
-                        </div>
+                        <div class="space-y-2 max-h-64 overflow-y-auto pr-2" id="buku-naskah-list"></div>
                     </div>
-
                 </div>
 
-                <!-- Cabang B: Katalog Terbit -->
                 <div id="buku-katalog" class="sub-tab-pane">
-                    
                     <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-[2rem] p-6 lg:p-8 text-white mb-8 shadow-lg flex flex-col md:flex-row gap-6 items-center">
                         <div class="flex-1">
                             <h3 class="font-black text-xl mb-2 flex items-center gap-2"><i data-lucide="book-check" class="text-primary w-6 h-6"></i> Unggah Buku Terbit Baru</h3>
@@ -310,11 +276,7 @@
                         </div>
                         <button onclick="document.getElementById('modal-tambah-katalog').classList.remove('hidden')" class="px-6 py-3 bg-primary hover:bg-teal-600 rounded-xl text-sm font-bold shadow-md transition-colors whitespace-nowrap">Form Buku Baru</button>
                     </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="katalog-grid">
-                        <!-- JS render -->
-                    </div>
-
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="katalog-grid"></div>
                 </div>
             </div>
 
@@ -324,18 +286,48 @@
                     <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Database Penulis</h2>
                     <p class="text-sm font-medium text-slate-500">Mendata otomatis setiap penulis beserta karyanya (Edisi & Buku).</p>
                 </div>
+
+                <!-- Kolom Pencarian Cerdas -->
+                <div class="mb-8 relative max-w-xl">
+                    <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input type="text" id="search-penulis" placeholder="Cari nama penulis, karya, atau kamar..." class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-darkPanel rounded-[1rem] shadow-sm border border-slate-200 dark:border-slate-700 text-sm font-bold focus:ring-2 focus:ring-primary dark:text-white transition-all" oninput="renderPenulis()">
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="penulis-grid"></div>
             </div>
 
             <!-- ================= 5. E-BULETIN (ARSIP) TAB ================= -->
             <div id="tab-ebulletin" class="tab-pane">
-                <div class="mb-8 flex justify-between items-end">
-                    <div>
-                        <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Arsip E-Buletin</h2>
-                        <p class="text-sm font-medium text-slate-500">Kumpulan PDF E-Buletin yang terbit. Klik cover untuk baca.</p>
+                <div class="mb-8">
+                    <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Arsip E-Buletin</h2>
+                    <p class="text-sm font-medium text-slate-500">Kumpulan PDF E-Buletin yang terbit. Klik cover untuk baca.</p>
+                </div>
+
+                <!-- Form Upload Arsip Lama/Manual -->
+                <div class="bg-white dark:bg-darkPanel p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8">
+                    <h3 class="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="upload-cloud" class="w-4 h-4"></i> Pendaftaran / Unggah Arsip Lama</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Nomor/Nama Edisi</label>
+                            <input type="text" id="arsip-in-edisi" placeholder="Contoh: Edisi 27" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm font-bold border-none focus:ring-2 focus:ring-primary dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Cover (Opsional)</label>
+                            <input type="file" id="arsip-in-cover" accept="image/*" class="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">File PDF E-Buletin</label>
+                            <input type="file" id="arsip-in-pdf" accept="application/pdf" class="w-full text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        </div>
+                    </div>
+                    <div class="mt-5 flex justify-end">
+                        <button onclick="simpanArsipManual()" id="btn-arsip-simpan" class="px-6 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-colors flex items-center gap-2">
+                           <i data-lucide="save" class="w-4 h-4"></i> Tambahkan ke Arsip
+                        </button>
                     </div>
                 </div>
                 
+                <!-- Grid Arsip -->
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center" id="ebulletin-grid"></div>
             </div>
 
@@ -343,7 +335,6 @@
 
         <!-- ================= MODALS & OVERLAYS ================= -->
         
-        <!-- Universal CRUD Edit Naskah Modal -->
         <div id="modal-edit-naskah" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
             <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
                 <h3 class="font-black text-lg mb-4 text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-primary"></i> Edit Data Naskah</h3>
@@ -370,7 +361,6 @@
             </div>
         </div>
 
-        <!-- Dashboard: Siklus Baru Modal -->
         <div id="modal-siklus" class="fixed inset-0 z-[100] hidden bg-slate-900/80 flex items-center justify-center p-4 backdrop-blur-sm">
             <div class="bg-white dark:bg-darkPanel w-full max-w-sm rounded-3xl p-6 border border-slate-200 dark:border-slate-700">
                 <h3 class="font-black text-lg mb-2 text-slate-800 dark:text-white">Terbitkan Edisi Ini</h3>
@@ -392,7 +382,6 @@
             </div>
         </div>
 
-        <!-- Dashboard: Edit Info Proyek -->
         <div id="modal-config-dash" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-darkPanel w-full max-w-xs rounded-3xl p-6">
                 <h3 class="font-black mb-4 dark:text-white">Info Proyek</h3>
@@ -402,7 +391,6 @@
             </div>
         </div>
 
-        <!-- Buku Tahunan: Edit Info -->
         <div id="modal-config-buku" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-darkPanel w-full max-w-xs rounded-3xl p-6">
                 <h3 class="font-black mb-4 dark:text-white">Target Buku</h3>
@@ -413,7 +401,6 @@
             </div>
         </div>
 
-        <!-- Katalog Buku: Tambah/Edit -->
         <div id="modal-tambah-katalog" class="fixed inset-0 z-[100] hidden bg-slate-900/80 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6">
                 <h3 class="font-black mb-4 dark:text-white" id="title-modal-katalog">Upload Katalog Buku</h3>
@@ -438,18 +425,16 @@
             </div>
         </div>
 
-        <!-- PDF Viewer Modal -->
         <div id="pdf-modal" class="fixed inset-0 z-[100] hidden bg-slate-900/95 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-darkPanel w-full max-w-5xl h-[90vh] rounded-[2rem] flex flex-col overflow-hidden">
                 <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                    <h3 class="font-black text-sm" id="pdf-title">Viewer PDF</h3>
-                    <button onclick="document.getElementById('pdf-modal').classList.add('hidden'); document.getElementById('pdf-frame').src='';" class="text-red-500 font-bold text-xs bg-red-50 dark:bg-red-500/10 px-4 py-2 rounded-lg">Tutup</button>
+                    <h3 class="font-black text-sm text-slate-800 dark:text-white" id="pdf-title">Viewer PDF</h3>
+                    <button onclick="document.getElementById('pdf-modal').classList.add('hidden'); document.getElementById('pdf-frame').src='';" class="text-red-500 font-bold text-xs bg-red-50 dark:bg-red-500/10 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors">Tutup Jendela</button>
                 </div>
                 <iframe id="pdf-frame" class="flex-1 w-full border-none bg-slate-100 dark:bg-slate-900"></iframe>
             </div>
         </div>
 
-        <!-- Toast Notification -->
         <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[110] flex gap-2 items-center">
             <i data-lucide="info" class="w-4 h-4 text-primary" id="toast-icon"></i> <span id="toast-msg" class="text-sm font-bold">OK</span>
         </div>
@@ -457,11 +442,10 @@
     </main>
 
     <script>
-        // ========================== STATE MANAGEMENT ==========================
         let state = {
-            tulisan: [], // {id, judul, penulis, kamar, rubrik, edisi}
-            ebulletins: [], // {id, edisi, cover, pdf}
-            katalogBuku: [], // {id, judul, sinopsis, harga, cover, pdf}
+            tulisan: [], 
+            ebulletins: [],
+            katalogBuku: [],
             proyekAktif: { edisi: 'Edisi 28', deadline: '', step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } },
             bukuAktif: { judul: 'Antologi Karya', deadline: '', targetHal: 100, cover: null, progress: 10 },
             theme: 'light'
@@ -471,7 +455,6 @@
         const rubrikMap = { sq: "Story Qur'ani", aq: "Artikel Qur'ani", pq: "Petuah Qur'ani", iq: "Inspirasi Qur'ani" };
         let mainChartObj = null;
 
-        // ========================== INIT & UTILS ==========================
         function init() {
             const saved = localStorage.getItem('tarqiyah_master_v3');
             if(saved) state = { ...state, ...JSON.parse(saved) };
@@ -480,17 +463,12 @@
 
             populateSelects();
             updateDates();
-            setInterval(updateDates, 60000); // countdown
+            setInterval(updateDates, 60000); 
             
             applyTheme(true);
             lucide.createIcons();
 
-            renderDashboard();
-            renderBankTable();
-            renderBukuTahunan();
-            renderKatalog();
-            renderPenulis();
-            renderEbulletin();
+            renderSemua();
         }
 
         function saveData() {
@@ -519,7 +497,6 @@
                 getBase64(input.files[0]).then(res => {
                     document.getElementById(imgId).src = res;
                     document.getElementById(imgId).classList.remove('hidden');
-                    // auto save to state
                     if(imgId === 'proj-cover-img') state.proyekAktif.cover = res;
                     if(imgId === 'buku-cover-img') state.bukuAktif.cover = res;
                     saveData();
@@ -534,7 +511,6 @@
             setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
         }
 
-        // ========================== NAVIGATION & THEME ==========================
         function navigate(tab) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
@@ -565,13 +541,11 @@
             if(!initial) { lucide.createIcons(); if(mainChartObj) renderChart(); }
         }
 
-        // ========================== DATES & COUNTDOWN ==========================
         function updateDates() {
             const now = new Date();
             document.getElementById('date-masehi').textContent = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
             try { document.getElementById('date-hijri').textContent = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(now); } catch(e){}
 
-            // Countdown Proyek Aktif
             const dl = new Date(state.proyekAktif.deadline + "T23:59:59");
             const diff = dl - now;
             const el = document.getElementById('dash-countdown');
@@ -583,7 +557,7 @@
             }
         }
 
-        // ========================== TAB: DASHBOARD ==========================
+        // ========================== DASHBOARD ==========================
         function setDashStep(step) { state.proyekAktif.step = step; saveData(); renderDashboard(); }
 
         function renderDashboard() {
@@ -593,7 +567,6 @@
                 document.getElementById('proj-cover-img').classList.remove('hidden');
             }
 
-            // Stepper
             const stepNames = ['Ide', 'Naskah', 'Edit', 'Layout', 'Siap'];
             let stepHtml = '';
             stepNames.forEach((n, i) => {
@@ -610,7 +583,6 @@
             document.getElementById('dash-progress-bar').style.width = pct + '%';
             document.getElementById('dash-progress-text').textContent = pct + '%';
 
-            // Lineup Naskah
             const lineupGrid = document.getElementById('dash-lineup-grid');
             lineupGrid.innerHTML = Object.keys(rubrikMap).map(k => {
                 const id = state.proyekAktif.lineup[k];
@@ -641,13 +613,12 @@
                                     ${kamarOptions.map(km=>`<option value="${km}">${km}</option>`).join('')}
                                 </select>
                             </div>
-                            <button onclick="simpanLineup('${k}')" class="w-full bg-primary/10 text-primary text-[10px] font-bold py-1.5 rounded hover:bg-primary/20">Simpan Naskah</button>
+                            <button onclick="simpanLineup('${k}')" class="w-full bg-primary/10 text-primary text-[10px] font-bold py-1.5 rounded hover:bg-primary/20 transition-colors">Simpan Naskah</button>
                         </div>
                     </div>`;
                 }
             }).join('');
 
-            // Update Stats
             document.getElementById('stat-karya').textContent = state.tulisan.length;
             document.getElementById('stat-penulis').textContent = new Set(state.tulisan.map(t=>t.penulis)).size;
             document.getElementById('stat-buku').textContent = state.tulisan.filter(t=>t.edisi === state.bukuAktif.judul).length;
@@ -665,10 +636,8 @@
             const id = 't'+Date.now();
             state.tulisan.unshift({ id, judul:j, penulis:p, kamar:km, rubrik:rubrikMap[k], edisi: state.proyekAktif.edisi });
             state.proyekAktif.lineup[k] = id;
-            saveData();
-            
+            saveData(); renderSemua();
             showToast('Naskah dimasukkan ke Lineup & Bank');
-            renderSemua();
         }
 
         function hapusLineup(k) {
@@ -679,11 +648,7 @@
             saveData(); renderSemua();
         }
 
-        // Siklus Baru (Terbitkan)
-        function bukaModalSiklus() {
-            // Cek lineup penuh? (Opsional, tapi disarankan)
-            document.getElementById('modal-siklus').classList.remove('hidden');
-        }
+        function bukaModalSiklus() { document.getElementById('modal-siklus').classList.remove('hidden'); }
 
         async function prosesSiklusBaru() {
             const coverFile = document.getElementById('siklus-cover').files[0];
@@ -697,7 +662,6 @@
                 cover: coverData, pdf: pdfData, date: new Date().toISOString()
             });
 
-            // Reset Proyek
             let num = parseInt(state.proyekAktif.edisi.replace(/\D/g, '')) || 0;
             state.proyekAktif = { edisi: `Edisi ${num+1}`, deadline: new Date(Date.now()+14*86400000).toISOString().split('T')[0], step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } };
             
@@ -719,14 +683,10 @@
             document.getElementById('modal-config-dash').classList.add('hidden');
         }
 
-        // ========================== CHART ==========================
         function renderChart() {
             const ctx = document.getElementById('mainChart').getContext('2d');
-            
-            // Hitung data kamar
             const kamarCount = {};
             state.tulisan.forEach(t => { kamarCount[t.kamar] = (kamarCount[t.kamar] || 0) + 1; });
-            // Ambil 6 kamar teratas
             const topKamar = Object.entries(kamarCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
             
             const labels = topKamar.map(x=>x[0]);
@@ -756,8 +716,7 @@
             });
         }
 
-
-        // ========================== UNIVERSAL CRUD ==========================
+        // ========================== CRUD NASKAH UNIVERSAL ==========================
         function simpanBankManual() {
             const j = document.getElementById('bank-in-judul').value.trim();
             const p = document.getElementById('bank-in-penulis').value.trim();
@@ -803,12 +762,9 @@
         function hapusNaskah(id) {
             if(!confirm('Hapus permanen naskah ini?')) return;
             state.tulisan = state.tulisan.filter(t => t.id !== id);
-            
-            // Cek apakah ada di lineup dashboard
             Object.keys(state.proyekAktif.lineup).forEach(k => {
                 if(state.proyekAktif.lineup[k] === id) state.proyekAktif.lineup[k] = null;
             });
-            
             saveData(); renderSemua();
         }
 
@@ -832,7 +788,7 @@
             lucide.createIcons();
         }
 
-        // ========================== TAB: BUKU TAHUNAN ==========================
+        // ========================== BUKU TAHUNAN ==========================
         function switchBukuTab(t) {
             document.querySelectorAll('.sub-tab-pane').forEach(e=>e.classList.remove('active'));
             document.getElementById('buku-'+t).classList.add('active');
@@ -871,7 +827,6 @@
             const j = document.getElementById('buku-in-judul').value.trim();
             const p = document.getElementById('buku-in-penulis').value.trim();
             const k = document.getElementById('buku-in-kamar').value;
-            
             if(!j||!p||!k) return showToast('Lengkapi data form', 'error');
 
             state.tulisan.unshift({ id: 't'+Date.now(), judul:j, penulis:p, kamar:k, rubrik: '-', edisi: state.bukuAktif.judul });
@@ -894,7 +849,7 @@
             document.getElementById('buku-progress-text').textContent = state.bukuAktif.progress + '%';
 
             const naskahBuku = state.tulisan.filter(t => t.edisi === state.bukuAktif.judul);
-            document.getElementById('buku-hal-terkumpul').textContent = naskahBuku.length * 2; // asumsi 1 naskah 2 hal
+            document.getElementById('buku-hal-terkumpul').textContent = naskahBuku.length * 2;
 
             document.getElementById('buku-naskah-list').innerHTML = naskahBuku.map(t => `
                 <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
@@ -911,12 +866,10 @@
             lucide.createIcons();
         }
 
-        // KATALOG BUKU
         async function saveKatalogBuku() {
             const j = document.getElementById('katalog-judul').value;
             const s = document.getElementById('katalog-sinopsis').value;
             const h = document.getElementById('katalog-harga').value;
-            
             const coverFile = document.getElementById('katalog-cover').files[0];
             const pdfFile = document.getElementById('katalog-pdf').files[0];
             
@@ -958,34 +911,97 @@
             saveData(); renderKatalog();
         }
 
-        // ========================== TAB: DATA PENULIS ==========================
+        // ========================== DATABASE PENULIS (DENGAN SEARCH) ==========================
         function renderPenulis() {
+            const query = (document.getElementById('search-penulis')?.value || '').toLowerCase();
             const pMap = {};
+            
             state.tulisan.forEach(t => {
                 if(!pMap[t.penulis]) pMap[t.penulis] = { nama: t.penulis, kamar: t.kamar, karya: [] };
                 pMap[t.penulis].karya.push(t);
             });
-            const pArr = Object.values(pMap).sort((a,b) => b.karya.length - a.karya.length);
+            
+            let pArr = Object.values(pMap);
+
+            // Filter Search Berdasarkan Nama, Kamar, atau Judul Karya
+            if (query) {
+                pArr = pArr.filter(p => {
+                    const matchNama = p.nama.toLowerCase().includes(query);
+                    const matchKamar = p.kamar.toLowerCase().includes(query);
+                    const matchKarya = p.karya.some(k => k.judul.toLowerCase().includes(query));
+                    return matchNama || matchKamar || matchKarya;
+                });
+            }
+
+            pArr.sort((a,b) => b.karya.length - a.karya.length);
 
             document.getElementById('penulis-grid').innerHTML = pArr.map(p => `
-                <div class="bg-white dark:bg-darkPanel p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full -z-10"></div>
+                <div class="bg-white dark:bg-darkPanel p-6 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-primary/30 transition-colors">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
                     <div class="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
-                        <div>
-                            <h3 class="font-black text-lg text-slate-800 dark:text-white">${p.nama}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Kamar ${p.kamar}</p>
+                        <div class="pr-2">
+                            <h3 class="font-black text-lg text-slate-800 dark:text-white leading-tight break-words">${p.nama}</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kamar ${p.kamar}</p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-primary text-white flex flex-col items-center justify-center font-black text-sm shadow-md">${p.karya.length}</div>
+                        <div class="w-10 h-10 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center font-black text-sm shadow-md">${p.karya.length}</div>
                     </div>
                     <div class="space-y-2">
-                        ${p.karya.slice(0,3).map(k=>`<div class="flex justify-between text-[11px]"><span class="font-bold text-slate-600 dark:text-slate-300 truncate pr-2">${k.judul}</span><span class="text-primary font-black uppercase shrink-0">${k.edisi}</span></div>`).join('')}
-                        ${p.karya.length>3 ? `<p class="text-[10px] text-center text-slate-400 mt-2">+ ${p.karya.length-3} lainnya</p>`:''}
+                        ${p.karya.slice(0,3).map(k=>`
+                            <div class="flex justify-between items-center text-[11px] bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                                <span class="font-bold text-slate-600 dark:text-slate-300 truncate pr-2">${k.judul}</span>
+                                <span class="text-primary font-black uppercase text-[9px] shrink-0 bg-primary/10 px-1.5 py-0.5 rounded">${k.edisi}</span>
+                            </div>
+                        `).join('')}
+                        ${p.karya.length>3 ? `<p class="text-[10px] text-center text-primary font-bold mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">+ ${p.karya.length-3} karya lainnya</p>`:''}
                     </div>
                 </div>
-            `).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Data kosong.</p>';
+            `).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
         }
 
-        // ========================== TAB: E-BULETIN (ARSIP) ==========================
+        // ========================== ARSIP E-BULETIN ==========================
+        async function simpanArsipManual() {
+            const edisi = document.getElementById('arsip-in-edisi').value.trim();
+            const coverFile = document.getElementById('arsip-in-cover').files[0];
+            const pdfFile = document.getElementById('arsip-in-pdf').files[0];
+
+            if(!edisi || !pdfFile) return showToast('Nama Edisi dan File PDF wajib diisi!', 'error');
+
+            const btn = document.getElementById('btn-arsip-simpan');
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...';
+            lucide.createIcons();
+
+            try {
+                const coverData = await getBase64(coverFile) || 'https://via.placeholder.com/300x400?text=No+Cover';
+                const pdfData = await getBase64(pdfFile);
+
+                state.ebulletins.push({
+                    id: 'eb' + Date.now(),
+                    edisi: edisi,
+                    cover: coverData,
+                    pdf: pdfData,
+                    date: new Date().toISOString()
+                });
+
+                // Urutkan supaya yang terbaru (atau edisi angka terbesar) bisa di atas, 
+                // tapi sementara disortir berdasarkan waktu input jika id pakai Date.now()
+                state.ebulletins.sort((a,b) => b.id.localeCompare(a.id));
+
+                saveData(); 
+                renderEbulletin();
+
+                document.getElementById('arsip-in-edisi').value = '';
+                document.getElementById('arsip-in-cover').value = '';
+                document.getElementById('arsip-in-pdf').value = '';
+
+                showToast('Arsip E-Buletin berhasil ditambahkan!');
+            } catch (error) {
+                showToast('Gagal memproses file.', 'error');
+            } finally {
+                btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Tambahkan ke Arsip';
+                lucide.createIcons();
+            }
+        }
+
         function renderEbulletin() {
             document.getElementById('ebulletin-grid').innerHTML = state.ebulletins.map(e => `
                 <div class="relative group w-full max-w-[160px]">
@@ -998,10 +1014,10 @@
                     </div>
                     <div class="mt-3 text-center">
                         <h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4>
-                        <button onclick="hapusEbulletin('${e.id}')" class="mt-1 text-[10px] font-bold text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus</button>
+                        <button onclick="hapusEbulletin('${e.id}')" class="mt-1 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus</button>
                     </div>
                 </div>
-            `).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Belum ada arsip buletin.</p>';
+            `).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>';
             lucide.createIcons();
         }
 
@@ -1017,7 +1033,6 @@
             document.getElementById('pdf-modal').classList.remove('hidden');
         }
 
-        // Sinkronisasi render semua tab
         function renderSemua() {
             renderDashboard(); renderBankTable(); renderBukuTahunan(); renderPenulis(); renderEbulletin(); renderKatalog();
         }
