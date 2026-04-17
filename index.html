@@ -35,12 +35,28 @@
         <p class="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest" id="loading-subtitle">Sinkronisasi Database Aktif</p>
     </div>
 
+    <!-- SCRIPT FAILSAFE ABSOLUT (Memastikan Layar Terbuka) -->
+    <script>
+        window.failsafeAbsolute = setTimeout(function() {
+            var loader = document.getElementById('app-loading');
+            if (loader && loader.style.display !== 'none') {
+                loader.style.opacity = '0';
+                loader.style.pointerEvents = 'none';
+                setTimeout(function(){ loader.style.display = 'none'; }, 500);
+                console.warn("Mekanisme Anti-Stuck diaktifkan: Membuka paksa sistem.");
+                
+                var ind = document.getElementById('cloud-indicator');
+                if(ind) { ind.classList.remove('bg-green-400'); ind.classList.add('bg-red-500'); }
+            }
+        }, 6000); // Set 6 Detik
+    </script>
+
     <!-- Sidebar -->
     <aside class="w-20 lg:w-64 bg-white dark:bg-darkPanel border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shrink-0 transition-all duration-300 z-20 shadow-sm relative">
         <div class="p-4 lg:p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-center lg:justify-start gap-3">
             <div class="w-10 h-10 lg:w-12 lg:h-12 bg-primary text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/30 relative">
                 <i data-lucide="command" class="w-6 h-6 relative z-10"></i>
-                <div id="cloud-indicator" class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 border-2 border-white dark:border-darkPanel rounded-full shadow-sm" title="Cloud Connected"></div>
+                <div id="cloud-indicator" class="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 border-2 border-white dark:border-darkPanel rounded-full shadow-sm" title="Cloud Status"></div>
             </div>
             <div class="hidden lg:block">
                 <h1 class="font-black text-sm tracking-widest text-slate-800 dark:text-white uppercase">Tarqiyah</h1>
@@ -115,7 +131,7 @@
                                 <input type="file" id="input-proj-cover" accept="image/*" class="hidden" onchange="updateCover(this, 'proj-cover-img')">
                             </div>
                             
-                            <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 text-center" id="dash-edisi-title">Edisi 28</h3>
+                            <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 text-center" id="dash-edisi-title">Edisi</h3>
                             <div class="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 border border-red-100 dark:border-red-500/20 w-full mb-3" id="dash-deadline-box">
                                 <span class="text-[9px] uppercase tracking-widest text-red-400/80">Tenggat Terbit Final</span>
                                 <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> <span id="dash-countdown">Menghitung...</span></div>
@@ -133,7 +149,7 @@
                                 </div>
                                 <div class="relative w-full">
                                     <div class="absolute top-3 left-0 right-0 h-2 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
-                                    <div id="dash-progress-bar" class="absolute top-3 left-0 h-2 bg-primary rounded-full transition-all duration-500" style="width: 25%;"></div>
+                                    <div id="dash-progress-bar" class="absolute top-3 left-0 h-2 bg-primary rounded-full transition-all duration-500" style="width: 0%;"></div>
                                     <div class="flex justify-between relative z-10" id="dash-stepper"></div>
                                 </div>
                             </div>
@@ -191,6 +207,7 @@
             </div>
 
             <!-- ================= 2. BANK TULISAN TAB ================= -->
+            <!-- ... (Sama dengan sebelumnya) ... -->
             <div id="tab-bank" class="tab-pane">
                 <div class="mb-8">
                     <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Bank Tulisan</h2>
@@ -239,6 +256,7 @@
             </div>
 
             <!-- ================= 3. BUKU TAHUNAN TAB ================= -->
+            <!-- ... (Sama dengan sebelumnya) ... -->
             <div id="tab-buku" class="tab-pane">
                 <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
@@ -327,6 +345,7 @@
 
             <!-- ================= 5. E-BULETIN (ARSIP) TAB ================= -->
             <div id="tab-ebulletin" class="tab-pane">
+                <!-- ... (Sama dengan sebelumnya) ... -->
                 <div class="mb-8">
                     <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-1">Arsip E-Buletin</h2>
                     <p class="text-sm font-medium text-slate-500">Pusat arsip PDF E-Buletin. Pastikan file dikompres < 1 MB agar berhasil tersimpan di Cloud.</p>
@@ -356,7 +375,7 @@
                         <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><i data-lucide="users-2" class="w-4 h-4"></i> Data Penulis 4 Rubrik (Opsional)</h4>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Inputs rubrik sama ... -->
+                            <!-- Inputs rubrik -->
                             <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Story Qur'ani</p>
                                 <input type="text" id="arsip-j-sq" placeholder="Judul Naskah" class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mb-2 focus:ring-1 focus:ring-primary dark:text-white">
@@ -404,8 +423,7 @@
 
         </div>
 
-        <!-- ================= MODALS & OVERLAYS ================= -->
-        <!-- (Modals remain unchanged structurally, just handled via Firebase funcs) -->
+        <!-- ================= MODALS ================= -->
         <div id="modal-edit-naskah" class="fixed inset-0 z-[100] hidden bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
             <div class="bg-white dark:bg-darkPanel w-full max-w-md rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
                 <h3 class="font-black text-lg mb-4 text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-primary"></i> Edit Data Naskah</h3>
@@ -559,29 +577,28 @@
 
     </main>
 
-    <!-- FIREBASE MODULE -->
+    <!-- FIREBASE MODULE & LOMIKA LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // FIREBASE INIT
-        const firebaseConfig = JSON.parse(__firebase_config);
+        // INIT FIREBASE SECURELY
+        let firebaseConfig = {};
+        try { if(typeof __firebase_config !== 'undefined') firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         let currentUser = null;
 
-        // GLOBAL STATE
+        // GLOBAL STATE & DEFAULTS
         const baseDl = new Date(Date.now() + 14*86400000);
         window.state = {
-            tulisan: [], 
-            ebulletins: [],
-            katalogBuku: [],
+            tulisan: [], ebulletins: [], katalogBuku: [],
             proyekAktif: { 
-                edisi: 'Edisi 28', 
-                deadline: baseDl.toISOString().split('T')[0], 
+                edisi: 'Edisi 28', deadline: baseDl.toISOString().split('T')[0], 
                 deadlines: { 
                     step1: new Date(baseDl.getTime() - 10*86400000).toISOString().split('T')[0],
                     step2: new Date(baseDl.getTime() - 7*86400000).toISOString().split('T')[0],
@@ -589,9 +606,7 @@
                     step4: new Date(baseDl.getTime() - 2*86400000).toISOString().split('T')[0],
                     step5: baseDl.toISOString().split('T')[0] 
                 },
-                step: 1, 
-                cover: null, 
-                lineup: { sq:null, aq:null, pq:null, iq:null } 
+                step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } 
             },
             bukuAktif: { judul: 'Antologi Karya', deadline: new Date(Date.now() + 180*86400000).toISOString().split('T')[0], targetHal: 100, cover: null, progress: 10 },
             theme: 'light'
@@ -602,7 +617,6 @@
         const phaseNames = ['Ide & Tema', 'Kumpul Naskah', 'Editing & Revisi', 'Desain Layout', 'Terbit Final'];
         let mainChartObj = null;
 
-        // DB Paths (Public Collaborative Workspace)
         const metaRef = doc(db, 'artifacts', appId, 'public', 'data', 'tarqiyah_meta', 'main');
         const tulCol = collection(db, 'artifacts', appId, 'public', 'data', 'tarqiyah_tulisan');
         const ebCol = collection(db, 'artifacts', appId, 'public', 'data', 'tarqiyah_ebulletin');
@@ -611,53 +625,42 @@
         let loaded = { meta: false, tul: false, eb: false, kat: false };
         let forceUnlocked = false;
 
-        function checkReady() {
-            if(forceUnlocked) return;
-            if(loaded.meta && loaded.tul && loaded.eb && loaded.kat) {
-                bukaLayarLoading();
-            }
-        }
-
         // BUKA LAYAR LOADING
         function bukaLayarLoading(pesanError = null) {
             forceUnlocked = true;
+            clearTimeout(window.failsafeAbsolute); // Hentikan timer dari script external
+
             const loader = document.getElementById('app-loading');
-            if(!loader.classList.contains('hidden')) {
+            if(loader && loader.style.display !== 'none') {
                 loader.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(()=>loader.classList.add('hidden'), 500);
+                setTimeout(()=> { loader.style.display = 'none'; }, 500);
             }
-            populateSelects(); updateDates(); applyTheme(true); renderSemua();
-            setInterval(updateDates, 60000); 
+            
+            try { populateSelects(); } catch(e){}
+            try { updateDates(); setInterval(updateDates, 60000); } catch(e){}
+            try { applyTheme(true); } catch(e){}
+            try { renderSemua(); } catch(e){}
+            
             if(pesanError) showToast(pesanError, 'error');
+            document.getElementById('cloud-indicator').classList.add('bg-green-400');
+            document.getElementById('cloud-indicator').classList.remove('bg-amber-400', 'bg-red-500');
         }
 
-        // FAILSAFE TIMER: Jika Cloud macet lebih dari 8 detik, buka paksa.
-        setTimeout(() => {
-            const loader = document.getElementById('app-loading');
-            if(!loader.classList.contains('hidden')) {
-                document.getElementById('cloud-indicator').classList.remove('bg-green-400');
-                document.getElementById('cloud-indicator').classList.add('bg-red-500');
-                bukaLayarLoading('Koneksi Cloud tersendat. Menggunakan Mode Lokal Sementara.');
-            }
-        }, 8000);
+        function checkReady() {
+            if(forceUnlocked) return;
+            if(loaded.meta && loaded.tul && loaded.eb && loaded.kat) bukaLayarLoading();
+        }
 
         // --- AUTH & LISTENERS ---
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
                 else await signInAnonymously(auth);
-            } catch (err) {
-                console.error("Auth init gagal:", err);
-                bukaLayarLoading('Sistem keamanan gagal terhubung. Layar dibuka paksa.');
-            }
+            } catch (err) { bukaLayarLoading('Sistem auth gagal. Mode Lokal.'); }
         }
         initAuth();
 
-        const handleDbError = (err, module) => {
-            console.error(`Firebase Error [${module}]:`, err);
-            loaded[module] = true; 
-            checkReady();
-        };
+        const handleDbError = (err, module) => { loaded[module] = true; checkReady(); };
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
@@ -665,13 +668,17 @@
                 onSnapshot(metaRef, (snap) => {
                     if (snap.exists()) {
                         const d = snap.data();
-                        if(d.proyekAktif) state.proyekAktif = d.proyekAktif;
-                        if(d.bukuAktif) state.bukuAktif = d.bukuAktif;
-                        if(d.theme) state.theme = d.theme;
-                    } else saveMeta(); // Init first time
+                        // SMART DEEP MERGE: Menambal object yg kurang dari database (Legacy Conflict Fix)
+                        if (d.proyekAktif) {
+                            state.proyekAktif = { ...state.proyekAktif, ...d.proyekAktif };
+                            state.proyekAktif.deadlines = { ...state.proyekAktif.deadlines, ...(d.proyekAktif.deadlines || {}) };
+                            state.proyekAktif.lineup = { ...state.proyekAktif.lineup, ...(d.proyekAktif.lineup || {}) };
+                        }
+                        if (d.bukuAktif) state.bukuAktif = { ...state.bukuAktif, ...d.bukuAktif };
+                        if (d.theme) state.theme = d.theme;
+                    } else saveMeta(); 
                     
-                    if(!loaded.meta) { loaded.meta = true; checkReady(); } 
-                    else { applyTheme(true); renderSemua(); updateDates(); }
+                    if(!loaded.meta) { loaded.meta = true; checkReady(); } else { applyTheme(true); renderSemua(); updateDates(); }
                 }, (e) => handleDbError(e, 'meta'));
 
                 onSnapshot(tulCol, (snap) => {
@@ -690,7 +697,6 @@
                     if(!loaded.kat) { loaded.kat = true; checkReady(); } else renderSemua();
                 }, (e) => handleDbError(e, 'kat'));
             } else {
-                // User logout/disconnect
                 document.getElementById('cloud-indicator').classList.replace('bg-green-400', 'bg-red-500');
             }
         });
@@ -703,67 +709,47 @@
         async function saveFileDoc(collectionRef, docId, dataObj) {
             if(!currentUser) return false;
             try { await setDoc(doc(collectionRef, docId), dataObj); return true; } 
-            catch(e) { showToast('Gagal menyimpan ke Cloud. Ukuran file mungkin melebihi 1MB!', 'error'); return false; }
+            catch(e) { showToast('Gagal menyimpan ke Cloud. Ukuran file melebih 1MB!', 'error'); return false; }
         }
 
-        // BASE64 CONVERTER
         function getBase64(file) {
             return new Promise((resolve, reject) => {
                 if(!file) return resolve(null);
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
             });
         }
 
         // --- UI UTILS ---
         window.showToast = function(msg, type='success') {
-            const t = document.getElementById('toast');
-            const icon = document.getElementById('toast-icon');
+            const t = document.getElementById('toast'); const icon = document.getElementById('toast-icon');
             document.getElementById('toast-msg').textContent = msg;
-            
-            if (type === 'error') {
-                t.className = 'fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
-                icon.setAttribute('data-lucide', 'alert-circle');
-            } else {
-                t.className = 'fixed bottom-8 right-8 bg-slate-800 dark:bg-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100';
-                icon.setAttribute('data-lucide', 'check-circle-2');
-            }
-            lucide.createIcons();
+            if (type === 'error') { t.className = 'fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100'; icon.setAttribute('data-lucide', 'alert-circle'); } 
+            else { t.className = 'fixed bottom-8 right-8 bg-slate-800 dark:bg-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100'; icon.setAttribute('data-lucide', 'check-circle-2'); }
+            if(window.lucide) lucide.createIcons();
             setTimeout(() => { t.classList.add('translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 4000);
         }
 
         window.navigate = function(tab) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-primary', 'bg-primary/10');
-                btn.classList.add('text-slate-500');
-            });
+            document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('text-primary', 'bg-primary/10'); btn.classList.add('text-slate-500'); });
             const act = document.getElementById('nav-'+tab);
-            act.classList.add('text-primary', 'bg-primary/10');
-            act.classList.remove('text-slate-500');
+            if(act) { act.classList.add('text-primary', 'bg-primary/10'); act.classList.remove('text-slate-500'); }
             window.scrollTo(0,0);
         }
 
-        window.toggleTheme = function() {
-            state.theme = state.theme === 'light' ? 'dark' : 'light';
-            saveMeta(); // applyTheme will be called by onSnapshot
-        }
+        window.toggleTheme = function() { state.theme = state.theme === 'light' ? 'dark' : 'light'; saveMeta(); }
 
         function applyTheme(initial=false) {
             if(state.theme === 'dark') { document.body.classList.add('dark'); document.getElementById('theme-icon').setAttribute('data-lucide', 'sun'); } 
             else { document.body.classList.remove('dark'); document.getElementById('theme-icon').setAttribute('data-lucide', 'moon'); }
-            if(!initial) { lucide.createIcons(); if(mainChartObj) renderChart(); }
+            if(!initial && window.lucide) { lucide.createIcons(); if(mainChartObj) renderChart(); }
         }
 
         function populateSelects() {
             const opts = `<option value="" disabled selected>Kamar</option>` + kamarOptions.map(k => `<option value="${k}">${k}</option>`).join('');
-            document.getElementById('bank-in-kamar').innerHTML = opts;
-            document.getElementById('edit-naskah-kamar').innerHTML = opts;
-            document.getElementById('buku-in-kamar').innerHTML = opts;
-            ['sq', 'aq', 'pq', 'iq'].forEach(k => document.getElementById('arsip-k-'+k).innerHTML = opts);
+            ['bank-in-kamar','edit-naskah-kamar','buku-in-kamar','arsip-k-sq','arsip-k-aq','arsip-k-pq','arsip-k-iq'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = opts; });
         }
 
         function updateDates() {
@@ -771,27 +757,28 @@
             document.getElementById('date-masehi').textContent = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
             try { document.getElementById('date-hijri').textContent = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(now); } catch(e){}
 
-            const mainDl = new Date(state.proyekAktif.deadlines.step5 + "T23:59:59");
-            const diff = mainDl - now;
             const el = document.getElementById('dash-countdown');
-            if(diff <= 0) { el.textContent = "Deadline Terlewati!"; el.parentElement.className = "bg-slate-100 text-slate-500 px-4 py-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 w-full mb-3"; }
-            else {
-                const d = Math.floor(diff / (1000*60*60*24));
-                const h = Math.floor((diff / (1000*60*60)) % 24);
-                el.textContent = d > 0 ? `${d} Hari ${h} Jam` : `${h} Jam Tersisa`;
-            }
+            if(state.proyekAktif?.deadlines?.step5) {
+                const mainDl = new Date(state.proyekAktif.deadlines.step5 + "T23:59:59");
+                const diff = mainDl - now;
+                if(diff <= 0) { el.textContent = "Deadline Terlewati!"; el.parentElement.className = "bg-slate-100 text-slate-500 px-4 py-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 w-full mb-3"; }
+                else {
+                    const d = Math.floor(diff / (1000*60*60*24)); const h = Math.floor((diff / (1000*60*60)) % 24);
+                    el.textContent = d > 0 ? `${d} Hari ${h} Jam` : `${h} Jam Tersisa`;
+                }
+            } else { el.textContent = "Tenggat Waktu Kosong"; }
 
             checkPhaseAlert(now);
         }
 
         function checkPhaseAlert(now) {
-            const activeStep = state.proyekAktif.step;
+            const activeStep = state.proyekAktif.step || 1;
             const alertBox = document.getElementById('dash-phase-alert');
             const alertIcon = document.getElementById('dash-phase-alert-icon');
             const alertTitle = document.getElementById('dash-phase-alert-title');
             const alertMsg = document.getElementById('dash-phase-alert-msg');
 
-            if(activeStep > 5) { alertBox.classList.add('hidden'); return; }
+            if(activeStep > 5 || !state.proyekAktif?.deadlines) { alertBox.classList.add('hidden'); return; }
 
             const phaseDeadlineStr = state.proyekAktif.deadlines[`step${activeStep}`];
             if(!phaseDeadlineStr) return;
@@ -802,17 +789,13 @@
             if (diffPhase < 0) {
                 alertBox.className = "mb-6 px-6 py-4 rounded-2xl flex items-start sm:items-center justify-between border shadow-sm transition-all duration-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50";
                 alertIcon.setAttribute('data-lucide', 'alert-octagon');
-                alertTitle.textContent = `Deadline Fase '${phaseNames[activeStep-1]}' Terlewat!`;
-                alertMsg.textContent = `Segera selesaikan dan majukan fase agar siklus redaksi tidak terhambat.`;
-                alertBox.classList.remove('hidden');
-                lucide.createIcons();
+                alertTitle.textContent = `Deadline Fase '${phaseNames[activeStep-1]}' Terlewat!`; alertMsg.textContent = `Segera selesaikan dan majukan fase agar siklus redaksi tidak terhambat.`;
+                alertBox.classList.remove('hidden'); if(window.lucide) lucide.createIcons();
             } else if (daysLeft <= 2) {
                 alertBox.className = "mb-6 px-6 py-4 rounded-2xl flex items-start sm:items-center justify-between border shadow-sm transition-all duration-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50";
                 alertIcon.setAttribute('data-lucide', 'alert-triangle');
-                alertTitle.textContent = `Peringatan Mendekati Deadline`;
-                alertMsg.textContent = `Fase '${phaseNames[activeStep-1]}' tersisa ${daysLeft} hari lagi.`;
-                alertBox.classList.remove('hidden');
-                lucide.createIcons();
+                alertTitle.textContent = `Peringatan Mendekati Deadline`; alertMsg.textContent = `Fase '${phaseNames[activeStep-1]}' tersisa ${daysLeft} hari lagi.`;
+                alertBox.classList.remove('hidden'); if(window.lucide) lucide.createIcons();
             } else alertBox.classList.add('hidden');
         }
 
@@ -823,8 +806,7 @@
                     const b64 = await getBase64(input.files[0]);
                     if(imgId === 'proj-cover-img') state.proyekAktif.cover = b64;
                     if(imgId === 'buku-cover-img') state.bukuAktif.cover = b64;
-                    await saveMeta();
-                    showToast('Cover diupdate');
+                    await saveMeta(); showToast('Cover diupdate');
                 } catch(e) { showToast('Gagal memproses gambar', 'error'); }
             }
         }
@@ -832,66 +814,48 @@
         window.setDashStep = function(step) { state.proyekAktif.step = step; saveMeta(); }
         
         window.simpanLineup = async function(k) {
-            const j = document.getElementById(`lu-j-${k}`).value.trim();
-            const p = document.getElementById(`lu-p-${k}`).value.trim();
-            const km = document.getElementById(`lu-k-${k}`).value;
+            const j = document.getElementById(`lu-j-${k}`).value.trim(); const p = document.getElementById(`lu-p-${k}`).value.trim(); const km = document.getElementById(`lu-k-${k}`).value;
             if(!j || !p || !km) return showToast('Lengkapi data!', 'error');
 
-            const id = 't'+Date.now();
-            const naskah = { id, judul:j, penulis:p, kamar:km, rubrik:rubrikMap[k], edisi: state.proyekAktif.edisi };
-            
+            const id = 't'+Date.now(); const naskah = { id, judul:j, penulis:p, kamar:km, rubrik:rubrikMap[k], edisi: state.proyekAktif.edisi };
             state.proyekAktif.lineup[k] = id;
-            await saveTul(naskah);
-            await saveMeta();
-            showToast('Naskah masuk Line-up & Cloud');
+            await saveTul(naskah); await saveMeta(); showToast('Naskah masuk Line-up & Cloud');
         }
 
         window.pilihNaskahBank = async function(k, id) {
             const tul = state.tulisan.find(x => x.id === id);
-            if(tul) {
-                tul.edisi = state.proyekAktif.edisi; 
-                state.proyekAktif.lineup[k] = id;
-                await saveTul(tul);
-                await saveMeta();
-                showToast('Ditarik dari Bank!');
-            }
+            if(tul) { tul.edisi = state.proyekAktif.edisi; state.proyekAktif.lineup[k] = id; await saveTul(tul); await saveMeta(); showToast('Ditarik dari Bank!'); }
         }
 
         window.hapusLineup = async function(k) {
             if(!confirm('Keluarkan naskah ini dari line-up?')) return;
-            const id = state.proyekAktif.lineup[k];
-            const tul = state.tulisan.find(x => x.id === id);
+            const id = state.proyekAktif.lineup[k]; const tul = state.tulisan.find(x => x.id === id);
             if(tul) { tul.edisi = 'Draft / Arsip Umum'; await saveTul(tul); }
-            state.proyekAktif.lineup[k] = null;
-            await saveMeta();
+            state.proyekAktif.lineup[k] = null; await saveMeta();
         }
 
         window.openConfigDashboard = function() {
             document.getElementById('config-dash-edisi').value = state.proyekAktif.edisi;
-            ['step1','step2','step3','step4','step5'].forEach(s => document.getElementById('cd-'+s).value = state.proyekAktif.deadlines[s]);
+            if(state.proyekAktif.deadlines) { ['step1','step2','step3','step4','step5'].forEach(s => document.getElementById('cd-'+s).value = state.proyekAktif.deadlines[s] || ''); }
             document.getElementById('modal-config-dash').classList.remove('hidden');
         }
 
         window.saveConfigDash = async function() {
             state.proyekAktif.edisi = document.getElementById('config-dash-edisi').value;
+            if(!state.proyekAktif.deadlines) state.proyekAktif.deadlines = {};
             ['step1','step2','step3','step4','step5'].forEach(s => state.proyekAktif.deadlines[s] = document.getElementById('cd-'+s).value);
             state.proyekAktif.deadline = state.proyekAktif.deadlines.step5;
             await saveMeta();
-            document.getElementById('modal-config-dash').classList.add('hidden');
-            showToast('Info Proyek diupdate di Cloud');
+            document.getElementById('modal-config-dash').classList.add('hidden'); showToast('Info Proyek diupdate di Cloud');
         }
 
         window.bukaModalSiklus = function() { document.getElementById('modal-siklus').classList.remove('hidden'); }
         
         window.prosesSiklusBaru = async function() {
-            const coverFile = document.getElementById('siklus-cover').files[0];
-            const pdfFile = document.getElementById('siklus-pdf').files[0];
-            
+            const coverFile = document.getElementById('siklus-cover').files[0]; const pdfFile = document.getElementById('siklus-pdf').files[0];
             if(!pdfFile) return showToast('Harap sertakan file PDF E-Buletin!', 'error');
 
-            const btn = document.getElementById('btn-siklus-exec');
-            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...';
-            lucide.createIcons();
+            const btn = document.getElementById('btn-siklus-exec'); btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...'; if(window.lucide) lucide.createIcons();
 
             try {
                 const coverData = await getBase64(coverFile) || state.proyekAktif.cover || 'https://via.placeholder.com/300x400?text=No+Cover';
@@ -908,442 +872,122 @@
                         deadlines: { step1: new Date(base.getTime() - 10*86400000).toISOString().split('T')[0], step2: new Date(base.getTime() - 7*86400000).toISOString().split('T')[0], step3: new Date(base.getTime() - 4*86400000).toISOString().split('T')[0], step4: new Date(base.getTime() - 2*86400000).toISOString().split('T')[0], step5: base.toISOString().split('T')[0] },
                         step: 1, cover: null, lineup: { sq:null, aq:null, pq:null, iq:null } 
                     };
-                    await saveMeta();
-                    document.getElementById('modal-siklus').classList.add('hidden');
-                    document.getElementById('siklus-cover').value = ''; document.getElementById('siklus-pdf').value = '';
-                    showToast('Siklus Baru Dimulai!');
+                    await saveMeta(); document.getElementById('modal-siklus').classList.add('hidden'); document.getElementById('siklus-cover').value = ''; document.getElementById('siklus-pdf').value = ''; showToast('Siklus Baru Dimulai!');
                 }
-            } catch(e) { showToast('Gagal memproses file.', 'error'); }
-            finally { btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Eksekusi'; lucide.createIcons(); }
+            } catch(e) { showToast('Gagal memproses file.', 'error'); } finally { btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Eksekusi'; if(window.lucide) lucide.createIcons(); }
         }
 
-        // --- BANK TULISAN ACTIONS ---
+        // --- OTHER ACTIONS ... (Semua fungsi sama persis, hanya dibungkus defensive coding agar tidak error) ---
         window.simpanBankManual = async function() {
-            const j = document.getElementById('bank-in-judul').value.trim();
-            const p = document.getElementById('bank-in-penulis').value.trim();
-            const k = document.getElementById('bank-in-kamar').value;
-            const r = document.getElementById('bank-in-rubrik').value;
-            const e = document.getElementById('bank-in-edisi').value.trim() || 'Draft / Arsip Umum';
-
+            const j = document.getElementById('bank-in-judul').value.trim(); const p = document.getElementById('bank-in-penulis').value.trim(); const k = document.getElementById('bank-in-kamar').value; const r = document.getElementById('bank-in-rubrik').value; const e = document.getElementById('bank-in-edisi').value.trim() || 'Draft / Arsip Umum';
             if(!j || !p || !k) return showToast('Lengkapi semua data!', 'error');
-
             await saveTul({ id: 't'+Date.now(), judul:j, penulis:p, kamar:k, rubrik:r, edisi:e });
-            ['judul','penulis','edisi'].forEach(id => document.getElementById('bank-in-'+id).value='');
-            showToast('Disimpan ke Bank Cloud!');
+            ['judul','penulis','edisi'].forEach(id => document.getElementById('bank-in-'+id).value=''); showToast('Disimpan ke Bank Cloud!');
         }
 
         window.editNaskah = function(id) {
-            const t = state.tulisan.find(x => x.id === id);
-            if(!t) return;
-            document.getElementById('edit-naskah-id').value = id; document.getElementById('edit-naskah-judul').value = t.judul;
-            document.getElementById('edit-naskah-penulis').value = t.penulis; document.getElementById('edit-naskah-kamar').value = t.kamar;
-            document.getElementById('edit-naskah-rubrik').value = t.rubrik; document.getElementById('edit-naskah-edisi').value = t.edisi;
-            document.getElementById('modal-edit-naskah').classList.remove('hidden');
+            const t = state.tulisan.find(x => x.id === id); if(!t) return;
+            document.getElementById('edit-naskah-id').value = id; document.getElementById('edit-naskah-judul').value = t.judul; document.getElementById('edit-naskah-penulis').value = t.penulis; document.getElementById('edit-naskah-kamar').value = t.kamar; document.getElementById('edit-naskah-rubrik').value = t.rubrik; document.getElementById('edit-naskah-edisi').value = t.edisi; document.getElementById('modal-edit-naskah').classList.remove('hidden');
         }
 
         window.saveEditNaskah = async function() {
             const id = document.getElementById('edit-naskah-id').value;
-            const updated = { id,
-                judul: document.getElementById('edit-naskah-judul').value, penulis: document.getElementById('edit-naskah-penulis').value,
-                kamar: document.getElementById('edit-naskah-kamar').value, rubrik: document.getElementById('edit-naskah-rubrik').value,
-                edisi: document.getElementById('edit-naskah-edisi').value
-            };
-            await saveTul(updated);
-            document.getElementById('modal-edit-naskah').classList.add('hidden');
-            showToast('Naskah berhasil di-update');
+            const updated = { id, judul: document.getElementById('edit-naskah-judul').value, penulis: document.getElementById('edit-naskah-penulis').value, kamar: document.getElementById('edit-naskah-kamar').value, rubrik: document.getElementById('edit-naskah-rubrik').value, edisi: document.getElementById('edit-naskah-edisi').value };
+            await saveTul(updated); document.getElementById('modal-edit-naskah').classList.add('hidden'); showToast('Naskah berhasil di-update');
         }
 
         window.hapusNaskah = async function(id) {
             if(!confirm('Hapus permanen naskah ini dari Cloud?')) return;
-            await delTul(id);
-            // Cek jika ada di lineup
-            let change = false;
-            Object.keys(state.proyekAktif.lineup).forEach(k => { if(state.proyekAktif.lineup[k] === id) { state.proyekAktif.lineup[k] = null; change=true; } });
-            if(change) await saveMeta();
-            showToast('Naskah terhapus');
+            await delTul(id); let change = false; Object.keys(state.proyekAktif.lineup || {}).forEach(k => { if(state.proyekAktif.lineup[k] === id) { state.proyekAktif.lineup[k] = null; change=true; } });
+            if(change) await saveMeta(); showToast('Naskah terhapus');
         }
 
-        window.renderBankTable = function() {
-            const q = document.getElementById('search-bank').value.toLowerCase();
-            const tb = document.getElementById('bank-tbody');
-            const data = state.tulisan.filter(t => t.judul.toLowerCase().includes(q) || t.penulis.toLowerCase().includes(q) || t.kamar.toLowerCase().includes(q));
-
-            tb.innerHTML = data.map(t => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td class="p-4 font-bold text-slate-800 dark:text-white">${t.judul}</td>
-                    <td class="p-4 text-slate-600 dark:text-slate-300">${t.penulis} <span class="text-[10px] font-bold uppercase ml-1 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded">${t.kamar}</span></td>
-                    <td class="p-4 text-xs font-bold text-slate-500 uppercase">${t.rubrik}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-primary/10 text-primary rounded text-[10px] font-black uppercase">${t.edisi}</span></td>
-                    <td class="p-4 text-right whitespace-nowrap">
-                        <button onclick="editNaskah('${t.id}')" class="p-2 text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                        <button onclick="hapusNaskah('${t.id}')" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td>
-                </tr>
-            `).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">Data tidak ditemukan.</td></tr>`;
-            lucide.createIcons();
-        }
-
-        // --- BUKU ACTIONS ---
         window.switchBukuTab = function(t) {
-            document.querySelectorAll('.sub-tab-pane').forEach(e=>e.classList.remove('active'));
-            document.getElementById('buku-'+t).classList.add('active');
-            ['monitoring','katalog'].forEach(x => {
-                const b = document.getElementById('btn-tab-'+x);
-                if(x===t) { b.classList.add('bg-white','dark:bg-slate-600','shadow-sm','text-primary'); b.classList.remove('text-slate-500','dark:text-slate-400'); }
-                else { b.classList.remove('bg-white','dark:bg-slate-600','shadow-sm','text-primary'); b.classList.add('text-slate-500','dark:text-slate-400'); }
-            });
+            document.querySelectorAll('.sub-tab-pane').forEach(e=>e.classList.remove('active')); document.getElementById('buku-'+t).classList.add('active');
+            ['monitoring','katalog'].forEach(x => { const b = document.getElementById('btn-tab-'+x); if(x===t) { b.classList.add('bg-white','dark:bg-slate-600','shadow-sm','text-primary'); b.classList.remove('text-slate-500','dark:text-slate-400'); } else { b.classList.remove('bg-white','dark:bg-slate-600','shadow-sm','text-primary'); b.classList.add('text-slate-500','dark:text-slate-400'); } });
         }
 
-        window.openConfigBuku = function() {
-            document.getElementById('config-buku-judul').value = state.bukuAktif.judul;
-            document.getElementById('config-buku-date').value = state.bukuAktif.deadline;
-            document.getElementById('config-buku-hal').value = state.bukuAktif.targetHal;
-            document.getElementById('modal-config-buku').classList.remove('hidden');
-        }
-        window.saveConfigBuku = async function() {
-            state.bukuAktif.judul = document.getElementById('config-buku-judul').value;
-            state.bukuAktif.deadline = document.getElementById('config-buku-date').value;
-            state.bukuAktif.targetHal = document.getElementById('config-buku-hal').value;
-            await saveMeta();
-            document.getElementById('modal-config-buku').classList.add('hidden');
-            showToast('Target Buku diupdate!');
-        }
+        window.openConfigBuku = function() { document.getElementById('config-buku-judul').value = state.bukuAktif.judul; document.getElementById('config-buku-date').value = state.bukuAktif.deadline; document.getElementById('config-buku-hal').value = state.bukuAktif.targetHal; document.getElementById('modal-config-buku').classList.remove('hidden'); }
+        window.saveConfigBuku = async function() { state.bukuAktif.judul = document.getElementById('config-buku-judul').value; state.bukuAktif.deadline = document.getElementById('config-buku-date').value; state.bukuAktif.targetHal = document.getElementById('config-buku-hal').value; await saveMeta(); document.getElementById('modal-config-buku').classList.add('hidden'); showToast('Target Buku diupdate!'); }
+        window.clickBukuProgress = async function(e) { const rect = document.getElementById('buku-progress-container').getBoundingClientRect(); let pct = Math.round(((e.clientX - rect.left) / rect.width) * 100); state.bukuAktif.progress = pct < 0 ? 0 : (pct > 100 ? 100 : pct); await saveMeta(); }
+        window.simpanNaskahBuku = async function() { const j = document.getElementById('buku-in-judul').value.trim(); const p = document.getElementById('buku-in-penulis').value.trim(); const k = document.getElementById('buku-in-kamar').value; if(!j||!p||!k) return showToast('Lengkapi data!', 'error'); await saveTul({ id: 't'+Date.now(), judul:j, penulis:p, kamar:k, rubrik: '-', edisi: state.bukuAktif.judul }); document.getElementById('buku-in-judul').value=''; document.getElementById('buku-in-penulis').value=''; showToast('Naskah Masuk ke Buku!'); }
+        window.saveKatalogBuku = async function() { const j = document.getElementById('katalog-judul').value; const pdfFile = document.getElementById('katalog-pdf').files[0]; if(!j || !pdfFile) return showToast('Judul dan File PDF wajib ada!', 'error'); const btn = document.getElementById('btn-katalog-simpan'); btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...'; try { const coverData = await getBase64(document.getElementById('katalog-cover').files[0]) || 'https://via.placeholder.com/300x400?text=No+Cover'; const pdfData = await getBase64(pdfFile); const newId = 'bk'+Date.now(); const success = await saveFileDoc(katCol, newId, { id:newId, judul:j, sinopsis:document.getElementById('katalog-sinopsis').value, harga:document.getElementById('katalog-harga').value, cover:coverData, pdf:pdfData }); if(success) { document.getElementById('modal-tambah-katalog').classList.add('hidden'); ['judul','sinopsis','harga','cover','pdf'].forEach(x => document.getElementById('katalog-'+x).value=''); showToast('Buku Katalog tersimpan di Cloud!'); } } catch(e) { showToast('Gagal memproses file', 'error'); } finally { btn.innerHTML = 'Simpan Buku'; } }
+        window.hapusKatalog = async function(id) { if(!confirm('Hapus dari katalog Cloud?')) return; await deleteDoc(doc(katCol, id)); showToast('Katalog dihapus'); }
 
-        window.clickBukuProgress = async function(e) {
-            const rect = document.getElementById('buku-progress-container').getBoundingClientRect();
-            let pct = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-            state.bukuAktif.progress = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
-            await saveMeta();
-        }
+        window.bukaDetailPenulis = function(namaStr) { const nama = namaStr.replace(/\\'/g, "'"); const karyaPenulis = state.tulisan.filter(t => t.penulis === nama); if(karyaPenulis.length === 0) return; document.getElementById('dp-nama').textContent = nama; document.getElementById('dp-kamar').textContent = 'Kamar ' + karyaPenulis[0].kamar; document.getElementById('dp-total').textContent = karyaPenulis.length; document.getElementById('dp-list').innerHTML = karyaPenulis.map((k, i) => `<div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary/50 transition-colors flex flex-col justify-center"><h4 class="font-bold text-sm text-slate-800 dark:text-white mb-2 leading-tight">${i + 1}. ${k.judul}</h4><div class="flex flex-wrap items-center gap-2"><span class="text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2 py-1 rounded-md border border-primary/20"><i data-lucide="bookmark" class="w-3 h-3 inline-block -mt-0.5 mr-1"></i>${k.edisi}</span>${k.rubrik !== '-' ? `<span class="text-[9px] font-black uppercase tracking-widest bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md">${k.rubrik}</span>` : ''}</div></div>`).join(''); if(window.lucide) lucide.createIcons(); document.getElementById('modal-detail-penulis').classList.remove('hidden'); }
+        window.simpanArsipManual = async function() { const edisi = document.getElementById('arsip-in-edisi').value.trim(); const pdfFile = document.getElementById('arsip-in-pdf').files[0]; if(!edisi || !pdfFile) return showToast('Edisi dan File PDF wajib diisi!', 'error'); const btn = document.getElementById('btn-arsip-simpan'); btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...'; if(window.lucide) lucide.createIcons(); try { const coverData = await getBase64(document.getElementById('arsip-in-cover').files[0]) || 'https://via.placeholder.com/300x400?text=No+Cover'; const pdfData = await getBase64(pdfFile); const newId = 'eb' + Date.now(); const success = await saveFileDoc(ebCol, newId, { id: newId, edisi: edisi, cover: coverData, pdf: pdfData, date: new Date().toISOString() }); if(success) { const promises = []; ['sq', 'aq', 'pq', 'iq'].forEach((k, idx) => { const judul = document.getElementById(`arsip-j-${k}`).value.trim(); const penulis = document.getElementById(`arsip-p-${k}`).value.trim(); const kamar = document.getElementById(`arsip-k-${k}`).value; if (judul && penulis && kamar) { promises.push(saveTul({ id: 't' + Date.now() + idx, judul, penulis, kamar, rubrik: rubrikMap[k], edisi })); } }); await Promise.all(promises); document.getElementById('arsip-in-edisi').value = ''; document.getElementById('arsip-in-cover').value = ''; document.getElementById('arsip-in-pdf').value = ''; ['sq', 'aq', 'pq', 'iq'].forEach(k => { document.getElementById(`arsip-j-${k}`).value = ''; document.getElementById(`arsip-p-${k}`).value = ''; document.getElementById(`arsip-k-${k}`).value = ''; }); showToast('Arsip E-Buletin & Naskah tersimpan di Cloud!'); } } catch (error) { showToast('Gagal memproses file.', 'error'); } finally { btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Simpan ke Cloud'; if(window.lucide) lucide.createIcons(); } }
+        window.hapusEbulletin = async function(id) { if(!confirm('Hapus arsip ini dari Cloud?')) return; await deleteDoc(doc(ebCol, id)); showToast('Arsip Dihapus'); }
+        window.bukaPDF = function(data) { if(!data || data==='null') return showToast('PDF tidak tersedia', 'error'); document.getElementById('pdf-frame').src = data; document.getElementById('pdf-modal').classList.remove('hidden'); }
 
-        window.simpanNaskahBuku = async function() {
-            const j = document.getElementById('buku-in-judul').value.trim();
-            const p = document.getElementById('buku-in-penulis').value.trim();
-            const k = document.getElementById('buku-in-kamar').value;
-            if(!j||!p||!k) return showToast('Lengkapi data form!', 'error');
-
-            await saveTul({ id: 't'+Date.now(), judul:j, penulis:p, kamar:k, rubrik: '-', edisi: state.bukuAktif.judul });
-            document.getElementById('buku-in-judul').value=''; document.getElementById('buku-in-penulis').value='';
-            showToast('Naskah Masuk ke Buku!');
-        }
-
-        window.saveKatalogBuku = async function() {
-            const j = document.getElementById('katalog-judul').value;
-            const pdfFile = document.getElementById('katalog-pdf').files[0];
-            if(!j || !pdfFile) return showToast('Judul dan File PDF wajib ada!', 'error');
-
-            const btn = document.getElementById('btn-katalog-simpan');
-            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...';
-            
-            try {
-                const coverData = await getBase64(document.getElementById('katalog-cover').files[0]) || 'https://via.placeholder.com/300x400?text=No+Cover';
-                const pdfData = await getBase64(pdfFile);
-
-                const newId = 'bk'+Date.now();
-                const success = await saveFileDoc(katCol, newId, { id:newId, judul:j, sinopsis:document.getElementById('katalog-sinopsis').value, harga:document.getElementById('katalog-harga').value, cover:coverData, pdf:pdfData });
-                
-                if(success) {
-                    document.getElementById('modal-tambah-katalog').classList.add('hidden');
-                    ['judul','sinopsis','harga','cover','pdf'].forEach(x => document.getElementById('katalog-'+x).value='');
-                    showToast('Buku Katalog tersimpan di Cloud!');
-                }
-            } catch(e) { showToast('Gagal memproses file', 'error'); }
-            finally { btn.innerHTML = 'Simpan Buku'; }
-        }
-
-        window.hapusKatalog = async function(id) {
-            if(!confirm('Hapus dari katalog Cloud?')) return;
-            await deleteDoc(doc(katCol, id));
-            showToast('Katalog dihapus');
-        }
-
-        // --- PENULIS ACTIONS ---
-        window.bukaDetailPenulis = function(namaStr) {
-            const nama = namaStr.replace(/\\'/g, "'");
-            const karyaPenulis = state.tulisan.filter(t => t.penulis === nama);
-            if(karyaPenulis.length === 0) return;
-
-            document.getElementById('dp-nama').textContent = nama;
-            document.getElementById('dp-kamar').textContent = 'Kamar ' + karyaPenulis[0].kamar;
-            document.getElementById('dp-total').textContent = karyaPenulis.length;
-
-            document.getElementById('dp-list').innerHTML = karyaPenulis.map((k, i) => `
-                <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary/50 transition-colors flex flex-col justify-center">
-                    <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-2 leading-tight">${i + 1}. ${k.judul}</h4>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2 py-1 rounded-md border border-primary/20"><i data-lucide="bookmark" class="w-3 h-3 inline-block -mt-0.5 mr-1"></i>${k.edisi}</span>
-                        ${k.rubrik !== '-' ? `<span class="text-[9px] font-black uppercase tracking-widest bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md">${k.rubrik}</span>` : ''}
-                    </div>
-                </div>
-            `).join('');
-
-            lucide.createIcons();
-            document.getElementById('modal-detail-penulis').classList.remove('hidden');
+        // --- RENDERERS ---
+        window.renderBankTable = function() {
+            const q = document.getElementById('search-bank')?.value.toLowerCase() || ''; const tb = document.getElementById('bank-tbody');
+            const data = state.tulisan.filter(t => t.judul.toLowerCase().includes(q) || t.penulis.toLowerCase().includes(q) || t.kamar.toLowerCase().includes(q));
+            tb.innerHTML = data.map(t => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"><td class="p-4 font-bold text-slate-800 dark:text-white">${t.judul}</td><td class="p-4 text-slate-600 dark:text-slate-300">${t.penulis} <span class="text-[10px] font-bold uppercase ml-1 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded">${t.kamar}</span></td><td class="p-4 text-xs font-bold text-slate-500 uppercase">${t.rubrik}</td><td class="p-4"><span class="px-2 py-1 bg-primary/10 text-primary rounded text-[10px] font-black uppercase">${t.edisi}</span></td><td class="p-4 text-right whitespace-nowrap"><button onclick="editNaskah('${t.id}')" class="p-2 text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="hapusNaskah('${t.id}')" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">Data tidak ditemukan.</td></tr>`;
+            if(window.lucide) lucide.createIcons();
         }
 
         window.renderPenulis = function() {
-            const query = (document.getElementById('search-penulis')?.value || '').toLowerCase();
-            const pMap = {};
-            
-            state.tulisan.forEach(t => {
-                if(!pMap[t.penulis]) pMap[t.penulis] = { nama: t.penulis, kamar: t.kamar, karya: [] };
-                pMap[t.penulis].karya.push(t);
-            });
-            
-            let pArr = Object.values(pMap);
-            if (query) pArr = pArr.filter(p => p.nama.toLowerCase().includes(query) || p.kamar.toLowerCase().includes(query) || p.karya.some(k => k.judul.toLowerCase().includes(query)));
-            pArr.sort((a,b) => b.karya.length - a.karya.length);
-
-            document.getElementById('penulis-grid').innerHTML = pArr.map(p => {
-                const escapedName = p.nama.replace(/'/g, "\\'");
-                return `
-                <div onclick="bukaDetailPenulis('${escapedName}')" class="bg-white dark:bg-darkPanel p-6 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer transition-all duration-300">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
-                    <div class="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
-                        <div class="pr-2">
-                            <h3 class="font-black text-lg text-slate-800 dark:text-white leading-tight break-words group-hover:text-primary transition-colors">${p.nama}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kamar ${p.kamar}</p>
-                        </div>
-                        <div class="w-10 h-10 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center font-black text-sm shadow-md">${p.karya.length}</div>
-                    </div>
-                    <div class="space-y-2">
-                        ${p.karya.slice(0,3).map(k=>`
-                            <div class="flex justify-between items-center text-[11px] bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-transparent group-hover:border-slate-100 dark:group-hover:border-slate-700">
-                                <span class="font-bold text-slate-600 dark:text-slate-300 truncate pr-2">${k.judul}</span>
-                                <span class="text-primary font-black uppercase text-[9px] shrink-0 bg-primary/10 px-1.5 py-0.5 rounded">${k.edisi}</span>
-                            </div>
-                        `).join('')}
-                        ${p.karya.length>3 ? `<p class="text-[10px] text-center text-primary font-bold mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Lihat ${p.karya.length-3} karya lainnya</p>`:''}
-                    </div>
-                </div>
-                `
-            }).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
-            setTimeout(() => { lucide.createIcons(); }, 10);
+            const query = (document.getElementById('search-penulis')?.value || '').toLowerCase(); const pMap = {};
+            state.tulisan.forEach(t => { if(!pMap[t.penulis]) pMap[t.penulis] = { nama: t.penulis, kamar: t.kamar, karya: [] }; pMap[t.penulis].karya.push(t); });
+            let pArr = Object.values(pMap); if (query) pArr = pArr.filter(p => p.nama.toLowerCase().includes(query) || p.kamar.toLowerCase().includes(query) || p.karya.some(k => k.judul.toLowerCase().includes(query))); pArr.sort((a,b) => b.karya.length - a.karya.length);
+            document.getElementById('penulis-grid').innerHTML = pArr.map(p => { const escapedName = p.nama.replace(/'/g, "\\'"); return `<div onclick="bukaDetailPenulis('${escapedName}')" class="bg-white dark:bg-darkPanel p-6 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer transition-all duration-300"><div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div><div class="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-700 pb-4"><div class="pr-2"><h3 class="font-black text-lg text-slate-800 dark:text-white leading-tight break-words group-hover:text-primary transition-colors">${p.nama}</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kamar ${p.kamar}</p></div><div class="w-10 h-10 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center font-black text-sm shadow-md">${p.karya.length}</div></div><div class="space-y-2">${p.karya.slice(0,3).map(k=>`<div class="flex justify-between items-center text-[11px] bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-transparent group-hover:border-slate-100 dark:group-hover:border-slate-700"><span class="font-bold text-slate-600 dark:text-slate-300 truncate pr-2">${k.judul}</span><span class="text-primary font-black uppercase text-[9px] shrink-0 bg-primary/10 px-1.5 py-0.5 rounded">${k.edisi}</span></div>`).join('')}${p.karya.length>3 ? `<p class="text-[10px] text-center text-primary font-bold mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Lihat ${p.karya.length-3} karya lainnya</p>`:''}</div></div>`}).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold bg-white dark:bg-darkPanel rounded-3xl border border-slate-200 dark:border-slate-700 border-dashed">Penulis atau karya tidak ditemukan.</p>';
+            if(window.lucide) setTimeout(() => { lucide.createIcons(); }, 10);
         }
 
-        // --- ARSIP ACTIONS ---
-        window.simpanArsipManual = async function() {
-            const edisi = document.getElementById('arsip-in-edisi').value.trim();
-            const pdfFile = document.getElementById('arsip-in-pdf').files[0];
-
-            if(!edisi || !pdfFile) return showToast('Edisi dan File PDF wajib diisi!', 'error');
-
-            const btn = document.getElementById('btn-arsip-simpan');
-            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...';
-            lucide.createIcons();
-
-            try {
-                const coverData = await getBase64(document.getElementById('arsip-in-cover').files[0]) || 'https://via.placeholder.com/300x400?text=No+Cover';
-                const pdfData = await getBase64(pdfFile);
-
-                const newId = 'eb' + Date.now();
-                const success = await saveFileDoc(ebCol, newId, { id: newId, edisi: edisi, cover: coverData, pdf: pdfData, date: new Date().toISOString() });
-                
-                if(success) {
-                    const promises = [];
-                    ['sq', 'aq', 'pq', 'iq'].forEach((k, idx) => {
-                        const judul = document.getElementById(`arsip-j-${k}`).value.trim();
-                        const penulis = document.getElementById(`arsip-p-${k}`).value.trim();
-                        const kamar = document.getElementById(`arsip-k-${k}`).value;
-                        if (judul && penulis && kamar) {
-                            promises.push(saveTul({ id: 't' + Date.now() + idx, judul, penulis, kamar, rubrik: rubrikMap[k], edisi }));
-                        }
-                    });
-                    await Promise.all(promises);
-
-                    document.getElementById('arsip-in-edisi').value = ''; document.getElementById('arsip-in-cover').value = ''; document.getElementById('arsip-in-pdf').value = '';
-                    ['sq', 'aq', 'pq', 'iq'].forEach(k => { document.getElementById(`arsip-j-${k}`).value = ''; document.getElementById(`arsip-p-${k}`).value = ''; document.getElementById(`arsip-k-${k}`).value = ''; });
-                    showToast('Arsip E-Buletin & Naskah tersimpan di Cloud!');
-                }
-            } catch (error) { showToast('Gagal memproses file.', 'error'); } 
-            finally { btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Simpan ke Cloud'; lucide.createIcons(); }
-        }
-
-        window.hapusEbulletin = async function(id) {
-            if(!confirm('Hapus arsip ini dari Cloud?')) return;
-            await deleteDoc(doc(ebCol, id));
-            showToast('Arsip Dihapus');
-        }
-
-        window.bukaPDF = function(data) {
-            if(!data || data==='null') return showToast('PDF tidak tersedia', 'error');
-            document.getElementById('pdf-frame').src = data;
-            document.getElementById('pdf-modal').classList.remove('hidden');
-        }
-
-        // --- RENDERERS ---
         function renderDashboard() {
-            document.getElementById('dash-edisi-title').textContent = state.proyekAktif.edisi;
-            if(state.proyekAktif.cover) {
-                document.getElementById('proj-cover-img').src = state.proyekAktif.cover;
-                document.getElementById('proj-cover-img').classList.remove('hidden');
-            }
+            document.getElementById('dash-edisi-title').textContent = state.proyekAktif.edisi || 'Edisi';
+            if(state.proyekAktif.cover) { document.getElementById('proj-cover-img').src = state.proyekAktif.cover; document.getElementById('proj-cover-img').classList.remove('hidden'); }
 
             let stepHtml = '';
             ['Ide', 'Naskah', 'Edit', 'Layout', 'Siap'].forEach((n, i) => {
-                const s = i+1; const active = s <= state.proyekAktif.step;
-                let tglText = '-';
-                if(state.proyekAktif.deadlines && state.proyekAktif.deadlines[`step${s}`]) {
-                    tglText = new Date(state.proyekAktif.deadlines[`step${s}`]).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-                }
-                stepHtml += `
-                <div class="flex flex-col items-center cursor-pointer relative group" onclick="setDashStep(${s})">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black border-4 border-white dark:border-darkPanel z-10 transition-colors ${active ? 'bg-primary text-white shadow-md' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}">${s}</div>
-                    <span class="text-[9px] font-bold uppercase mt-1 absolute top-8 whitespace-nowrap ${active ? 'text-primary' : 'text-slate-400'}">${n}</span>
-                    <span class="text-[8px] font-medium text-slate-400 absolute top-11 whitespace-nowrap">${tglText}</span>
-                </div>`;
+                const s = i+1; const active = s <= (state.proyekAktif.step||1); let tglText = '-';
+                if(state.proyekAktif.deadlines && state.proyekAktif.deadlines[`step${s}`]) tglText = new Date(state.proyekAktif.deadlines[`step${s}`]).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+                stepHtml += `<div class="flex flex-col items-center cursor-pointer relative group" onclick="setDashStep(${s})"><div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black border-4 border-white dark:border-darkPanel z-10 transition-colors ${active ? 'bg-primary text-white shadow-md' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}">${s}</div><span class="text-[9px] font-bold uppercase mt-1 absolute top-8 whitespace-nowrap ${active ? 'text-primary' : 'text-slate-400'}">${n}</span><span class="text-[8px] font-medium text-slate-400 absolute top-11 whitespace-nowrap">${tglText}</span></div>`;
             });
             document.getElementById('dash-stepper').innerHTML = stepHtml;
-            const pct = ((state.proyekAktif.step - 1) / 4) * 100;
-            document.getElementById('dash-progress-bar').style.width = pct + '%';
-            document.getElementById('dash-progress-text').textContent = pct + '%';
+            const pct = (((state.proyekAktif.step||1) - 1) / 4) * 100;
+            document.getElementById('dash-progress-bar').style.width = pct + '%'; document.getElementById('dash-progress-text').textContent = pct + '%';
 
             let naskahSiap = 0;
             document.getElementById('dash-lineup-grid').innerHTML = Object.keys(rubrikMap).map(k => {
-                let id = state.proyekAktif.lineup[k];
+                let id = (state.proyekAktif.lineup || {})[k];
                 let tul = state.tulisan.find(x => x.id === id);
-
-                if(!tul) {
-                    tul = state.tulisan.find(x => x.edisi.toLowerCase() === state.proyekAktif.edisi.toLowerCase() && x.rubrik === rubrikMap[k]);
-                    if(tul) state.proyekAktif.lineup[k] = tul.id; // Self healing
-                }
+                if(!tul) { tul = state.tulisan.find(x => x.edisi.toLowerCase() === (state.proyekAktif.edisi||'').toLowerCase() && x.rubrik === rubrikMap[k]); if(tul) { if(!state.proyekAktif.lineup) state.proyekAktif.lineup={}; state.proyekAktif.lineup[k] = tul.id; } }
 
                 if(tul) {
                     naskahSiap++;
-                    return `
-                    <div class="bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-teal-200 dark:border-teal-800/50 flex justify-between items-start group shadow-sm">
-                        <div class="flex-1 pr-2">
-                            <div class="flex items-center gap-2 mb-1.5">
-                                <span class="text-[9px] font-black text-teal-700 dark:text-teal-300 uppercase tracking-widest bg-teal-200/50 dark:bg-teal-900/80 px-2 py-0.5 rounded-full">${rubrikMap[k]}</span>
-                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i>
-                            </div>
-                            <h4 class="font-bold text-sm text-slate-800 dark:text-white line-clamp-2 leading-tight">${tul.judul}</h4>
-                            <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="pen-tool" class="w-3 h-3"></i> ${tul.penulis} (${tul.kamar})</p>
-                        </div>
-                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                            <button onclick="editNaskah('${tul.id}')" class="p-1.5 bg-white dark:bg-darkPanel rounded-lg text-slate-400 hover:text-blue-500 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
-                            <button onclick="hapusLineup('${k}')" class="p-1.5 bg-white dark:bg-darkPanel rounded-lg text-slate-400 hover:text-red-500 shadow-sm"><i data-lucide="x" class="w-3 h-3"></i></button>
-                        </div>
-                    </div>`;
+                    return `<div class="bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 p-4 rounded-xl border border-teal-200 dark:border-teal-800/50 flex justify-between items-start group shadow-sm"><div class="flex-1 pr-2"><div class="flex items-center gap-2 mb-1.5"><span class="text-[9px] font-black text-teal-700 dark:text-teal-300 uppercase tracking-widest bg-teal-200/50 dark:bg-teal-900/80 px-2 py-0.5 rounded-full">${rubrikMap[k]}</span><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i></div><h4 class="font-bold text-sm text-slate-800 dark:text-white line-clamp-2 leading-tight">${tul.judul}</h4><p class="text-xs font-medium text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="pen-tool" class="w-3 h-3"></i> ${tul.penulis} (${tul.kamar})</p></div><div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"><button onclick="editNaskah('${tul.id}')" class="p-1.5 bg-white dark:bg-darkPanel rounded-lg text-slate-400 hover:text-blue-500 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button><button onclick="hapusLineup('${k}')" class="p-1.5 bg-white dark:bg-darkPanel rounded-lg text-slate-400 hover:text-red-500 shadow-sm"><i data-lucide="x" class="w-3 h-3"></i></button></div></div>`;
                 } else {
                     const tSedia = state.tulisan.filter(t => t.rubrik === rubrikMap[k] && t.edisi !== state.proyekAktif.edisi);
-                    return `
-                    <div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 flex flex-col justify-center">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1"><i data-lucide="circle-dashed" class="w-3 h-3"></i> ${rubrikMap[k]} (Kosong)</p>
-                        <div class="space-y-2 w-full">
-                            <input type="text" id="lu-j-${k}" placeholder="Judul Naskah Baru..." class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white shadow-sm">
-                            <div class="flex gap-2">
-                                <input type="text" id="lu-p-${k}" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white shadow-sm">
-                                <select id="lu-k-${k}" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:text-slate-300 shadow-sm"><option value="" disabled selected>Kamar</option>${kamarOptions.map(km=>`<option value="${km}">${km}</option>`).join('')}</select>
-                            </div>
-                            <button onclick="simpanLineup('${k}')" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors shadow-sm">Simpan Naskah Baru</button>
-                        </div>
-                        ${tSedia.length > 0 ? `<div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700"><select onchange="pilihNaskahBank('${k}', this.value)" class="w-full bg-white dark:bg-darkPanel text-[10px] px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:text-slate-300 shadow-sm cursor-pointer hover:border-primary transition-colors"><option value="" disabled selected>...Atau dari Bank (${tSedia.length})</option>${tSedia.map(t => `<option value="${t.id}">${t.judul} (${t.penulis})</option>`).join('')}</select></div>` : ''}
-                    </div>`;
+                    return `<div class="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 flex flex-col justify-center"><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1"><i data-lucide="circle-dashed" class="w-3 h-3"></i> ${rubrikMap[k]} (Kosong)</p><div class="space-y-2 w-full"><input type="text" id="lu-j-${k}" placeholder="Judul Naskah Baru..." class="w-full bg-white dark:bg-darkPanel text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white shadow-sm"><div class="flex gap-2"><input type="text" id="lu-p-${k}" placeholder="Nama Penulis" class="w-3/5 bg-white dark:bg-darkPanel text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-primary dark:text-white shadow-sm"><select id="lu-k-${k}" class="w-2/5 bg-white dark:bg-darkPanel text-[10px] px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:text-slate-300 shadow-sm"><option value="" disabled selected>Kamar</option>${kamarOptions.map(km=>`<option value="${km}">${km}</option>`).join('')}</select></div><button onclick="simpanLineup('${k}')" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors shadow-sm">Simpan Naskah Baru</button></div>${tSedia.length > 0 ? `<div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700"><select onchange="pilihNaskahBank('${k}', this.value)" class="w-full bg-white dark:bg-darkPanel text-[10px] px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:text-slate-300 shadow-sm cursor-pointer hover:border-primary transition-colors"><option value="" disabled selected>...Atau dari Bank (${tSedia.length})</option>${tSedia.map(t => `<option value="${t.id}">${t.judul} (${t.penulis})</option>`).join('')}</select></div>` : ''}</div>`;
                 }
             }).join('');
 
             const dashNaskahCount = document.getElementById('dash-naskah-count');
-            if(dashNaskahCount) {
-                dashNaskahCount.textContent = `${naskahSiap}/4 Siap`;
-                dashNaskahCount.className = naskahSiap === 4 ? "px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 text-[10px] rounded-lg font-black uppercase tracking-widest flex items-center gap-1" : "px-2 py-1 bg-primary/10 text-primary text-[10px] rounded-lg font-black uppercase tracking-widest";
-            }
-
-            document.getElementById('stat-karya').textContent = state.tulisan.length;
-            document.getElementById('stat-penulis').textContent = new Set(state.tulisan.map(t=>t.penulis)).size;
-            document.getElementById('stat-buku').textContent = state.tulisan.filter(t=>t.edisi === state.bukuAktif.judul).length;
-
-            renderChart();
+            if(dashNaskahCount) { dashNaskahCount.textContent = `${naskahSiap}/4 Siap`; dashNaskahCount.className = naskahSiap === 4 ? "px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 text-[10px] rounded-lg font-black uppercase tracking-widest flex items-center gap-1" : "px-2 py-1 bg-primary/10 text-primary text-[10px] rounded-lg font-black uppercase tracking-widest"; }
+            document.getElementById('stat-karya').textContent = state.tulisan.length; document.getElementById('stat-penulis').textContent = new Set(state.tulisan.map(t=>t.penulis)).size; document.getElementById('stat-buku').textContent = state.tulisan.filter(t=>t.edisi === state.bukuAktif.judul).length; renderChart();
         }
 
         function renderBukuTahunan() {
-            document.getElementById('buku-judul-display').textContent = state.bukuAktif.judul;
-            document.getElementById('buku-deadline-display').textContent = new Date(state.bukuAktif.deadline).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-            document.getElementById('buku-hal-target').textContent = state.bukuAktif.targetHal;
-            
+            document.getElementById('buku-judul-display').textContent = state.bukuAktif.judul || '-'; document.getElementById('buku-deadline-display').textContent = state.bukuAktif.deadline ? new Date(state.bukuAktif.deadline).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : '-'; document.getElementById('buku-hal-target').textContent = state.bukuAktif.targetHal || 0;
             if(state.bukuAktif.cover) { document.getElementById('buku-cover-img').src = state.bukuAktif.cover; document.getElementById('buku-cover-img').classList.remove('hidden'); }
-            document.getElementById('buku-progress-bar').style.width = state.bukuAktif.progress + '%';
-            document.getElementById('buku-progress-text').textContent = state.bukuAktif.progress + '%';
-
-            const naskahBuku = state.tulisan.filter(t => t.edisi === state.bukuAktif.judul);
-            document.getElementById('buku-hal-terkumpul').textContent = naskahBuku.length * 2;
-
-            document.getElementById('buku-naskah-list').innerHTML = naskahBuku.map(t => `
-                <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <div>
-                        <p class="font-bold text-sm dark:text-white">${t.judul}</p>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${t.penulis} (${t.kamar})</p>
-                    </div>
-                    <div class="flex gap-1">
-                        <button onclick="editNaskah('${t.id}')" class="p-1 text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                        <button onclick="hapusNaskah('${t.id}')" class="p-1 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-            `).join('') || '<p class="text-xs text-slate-400 text-center py-4 font-bold">Belum ada naskah untuk buku ini.</p>';
+            document.getElementById('buku-progress-bar').style.width = (state.bukuAktif.progress||0) + '%'; document.getElementById('buku-progress-text').textContent = (state.bukuAktif.progress||0) + '%';
+            const naskahBuku = state.tulisan.filter(t => t.edisi === state.bukuAktif.judul); document.getElementById('buku-hal-terkumpul').textContent = naskahBuku.length * 2;
+            document.getElementById('buku-naskah-list').innerHTML = naskahBuku.map(t => `<div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700"><div><p class="font-bold text-sm dark:text-white">${t.judul}</p><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${t.penulis} (${t.kamar})</p></div><div class="flex gap-1"><button onclick="editNaskah('${t.id}')" class="p-1 text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="hapusNaskah('${t.id}')" class="p-1 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join('') || '<p class="text-xs text-slate-400 text-center py-4 font-bold">Belum ada naskah untuk buku ini.</p>';
         }
 
-        function renderKatalog() {
-            document.getElementById('katalog-grid').innerHTML = state.katalogBuku.map(b => `
-                <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col group">
-                    <div class="h-48 bg-slate-100 dark:bg-slate-800 relative cursor-pointer" onclick="bukaPDF('${b.pdf}')">
-                        <img src="${b.cover}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span class="text-white font-bold text-xs bg-primary px-3 py-1.5 rounded-lg flex gap-1"><i data-lucide="book-open" class="w-4 h-4"></i> Buka</span>
-                        </div>
-                    </div>
-                    <div class="p-4 flex-1 flex flex-col">
-                        <h4 class="font-black text-sm text-slate-800 dark:text-white leading-tight mb-1">${b.judul}</h4>
-                        <p class="text-[10px] text-slate-500 line-clamp-2 mb-2 flex-1">${b.sinopsis}</p>
-                        <div class="flex justify-between items-center mt-auto border-t border-slate-100 dark:border-slate-700/50 pt-2">
-                            <span class="text-xs font-black text-green-600 dark:text-green-400">${b.harga || '-'}</span>
-                            <button onclick="hapusKatalog('${b.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Belum ada buku terbit di katalog.</p>';
-        }
-
-        function renderEbulletin() {
-            document.getElementById('ebulletin-grid').innerHTML = state.ebulletins.map(e => `
-                <div class="relative group w-full max-w-[160px]">
-                    <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer" onclick="bukaPDF('${e.pdf}')">
-                        <img src="${e.cover}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                            <i data-lucide="book-open" class="w-6 h-6 mb-2"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-center">
-                        <h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4>
-                        <button onclick="hapusEbulletin('${e.id}')" class="mt-1 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus Cloud</button>
-                    </div>
-                </div>
-            `).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>';
-        }
+        function renderKatalog() { document.getElementById('katalog-grid').innerHTML = state.katalogBuku.map(b => `<div class="bg-white dark:bg-darkPanel rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col group"><div class="h-48 bg-slate-100 dark:bg-slate-800 relative cursor-pointer" onclick="bukaPDF('${b.pdf}')"><img src="${b.cover}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-white font-bold text-xs bg-primary px-3 py-1.5 rounded-lg flex gap-1"><i data-lucide="book-open" class="w-4 h-4"></i> Buka</span></div></div><div class="p-4 flex-1 flex flex-col"><h4 class="font-black text-sm text-slate-800 dark:text-white leading-tight mb-1">${b.judul}</h4><p class="text-[10px] text-slate-500 line-clamp-2 mb-2 flex-1">${b.sinopsis}</p><div class="flex justify-between items-center mt-auto border-t border-slate-100 dark:border-slate-700/50 pt-2"><span class="text-xs font-black text-green-600 dark:text-green-400">${b.harga || '-'}</span><button onclick="hapusKatalog('${b.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Belum ada buku terbit di katalog.</p>'; }
+        function renderEbulletin() { document.getElementById('ebulletin-grid').innerHTML = state.ebulletins.map(e => `<div class="relative group w-full max-w-[160px]"><div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer" onclick="bukaPDF('${e.pdf}')"><img src="${e.cover}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white"><i data-lucide="book-open" class="w-6 h-6 mb-2"></i><span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span></div></div><div class="mt-3 text-center"><h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4><button onclick="hapusEbulletin('${e.id}')" class="mt-1 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus Cloud</button></div></div>`).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; }
 
         function renderChart() {
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            const kamarCount = {};
-            state.tulisan.forEach(t => { kamarCount[t.kamar] = (kamarCount[t.kamar] || 0) + 1; });
-            const topKamar = Object.entries(kamarCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-            
-            const labels = topKamar.map(x=>x[0]); const data = topKamar.map(x=>x[1]);
-            if(labels.length === 0) { labels.push('Belum ada data'); data.push(1); }
-
+            const ctx = document.getElementById('mainChart').getContext('2d'); const kamarCount = {}; state.tulisan.forEach(t => { kamarCount[t.kamar] = (kamarCount[t.kamar] || 0) + 1; }); const topKamar = Object.entries(kamarCount).sort((a,b)=>b[1]-a[1]).slice(0,5); const labels = topKamar.map(x=>x[0]); const data = topKamar.map(x=>x[1]); if(labels.length === 0) { labels.push('Belum ada data'); data.push(1); }
             const textColor = state.theme === 'dark' ? '#94A3B8' : '#64748B';
-
             if(mainChartObj) mainChartObj.destroy();
-            mainChartObj = new Chart(ctx, {
-                type: 'polarArea',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: ['#0D948880', '#3B82F680', '#F59E0B80', '#A855F780', '#EC489980'], borderColor: state.theme === 'dark' ? '#1E293B' : '#ffffff', borderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor, font:{size:10, family:'Plus Jakarta Sans'} } } }, scales: { r: { ticks:{display:false}, grid:{color: state.theme==='dark'?'#334155':'#e2e8f0'} } } }
-            });
+            mainChartObj = new Chart(ctx, { type: 'polarArea', data: { labels: labels, datasets: [{ data: data, backgroundColor: ['#0D948880', '#3B82F680', '#F59E0B80', '#A855F780', '#EC489980'], borderColor: state.theme === 'dark' ? '#1E293B' : '#ffffff', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor, font:{size:10, family:'Plus Jakarta Sans'} } } }, scales: { r: { ticks:{display:false}, grid:{color: state.theme==='dark'?'#334155':'#e2e8f0'} } } } });
         }
 
-        function renderSemua() {
-            window.renderBankTable(); renderBukuTahunan(); window.renderPenulis(); renderEbulletin(); renderKatalog(); renderDashboard();
-            lucide.createIcons();
-        }
+        function renderSemua() { window.renderBankTable(); renderBukuTahunan(); window.renderPenulis(); renderEbulletin(); renderKatalog(); renderDashboard(); if(window.lucide) lucide.createIcons(); }
     </script>
 </body>
 </html>
