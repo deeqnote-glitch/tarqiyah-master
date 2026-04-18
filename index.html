@@ -31,7 +31,8 @@
     <!-- Loading Screen -->
     <div id="app-loading" class="fixed inset-0 z-[200] bg-white dark:bg-darkBg flex flex-col items-center justify-center transition-opacity duration-500">
         <i data-lucide="loader-2" class="w-12 h-12 text-primary animate-spin mb-4"></i>
-        <h2 class="text-xl font-black text-slate-800 dark:text-white">Memuat Data (IndexedDB)...</h2>
+        <h2 class="text-xl font-black text-slate-800 dark:text-white">Memuat Data...</h2>
+        <p class="text-sm text-slate-500 mt-2 font-bold animate-pulse">Menghubungkan ke IndexedDB Lokal</p>
     </div>
 
     <!-- Sidebar -->
@@ -65,7 +66,7 @@
             </button>
         </nav>
 
-        <!-- Sidebar Footer (Theme + Backup System) -->
+        <!-- Sidebar Footer -->
         <div class="p-3 lg:p-4 border-t border-slate-100 dark:border-slate-700/50 space-y-2">
             <!-- BACKUP & RESTORE -->
             <div class="grid grid-cols-2 gap-2 mb-2 lg:mb-4">
@@ -617,7 +618,6 @@
                         <button onclick="tutupPDF()" class="text-red-500 font-bold text-xs bg-red-50 dark:bg-red-500/10 px-4 py-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors shadow-sm">Tutup</button>
                     </div>
                 </div>
-                <!-- Tempat Tampil PDF -->
                 <iframe id="pdf-frame" class="flex-1 w-full border-none bg-slate-100 dark:bg-slate-900"></iframe>
             </div>
         </div>
@@ -628,7 +628,7 @@
 
     </main>
 
-    <!-- LOGIKA LOKAL SUPER (INDEXED DB + BACKUP/RESTORE + FIX PDF + FIX AUTO-LOAD) -->
+    <!-- LOGIKA LOKAL SUPER (INDEXED DB V3 - FULL REWRITE) -->
     <script>
         // GLOBAL STATE & DEFAULTS
         const baseDl = new Date(Date.now() + 14*86400000);
@@ -649,14 +649,14 @@
         const phaseNames = ['Ide & Tema', 'Kumpul Naskah', 'Editing & Revisi', 'Desain Layout', 'Terbit Final'];
         let mainChartObj = null;
 
-        // --- INDEXED DB ENGINE (V2: RAW FILE STORAGE) ---
+        // --- INDEXED DB ENGINE (V2.1: RAW FILE STORAGE & ANTI-LAG) ---
         function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('TarqiyahSuperDB', 2); // Naik versi ke 2
+                const request = indexedDB.open('TarqiyahSuperDB', 2); 
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains('appData')) { db.createObjectStore('appData'); }
-                    if (!db.objectStoreNames.contains('fileStore')) { db.createObjectStore('fileStore'); } // Laci khusus file mentah
+                    if (!db.objectStoreNames.contains('fileStore')) { db.createObjectStore('fileStore'); } 
                 };
                 request.onsuccess = (event) => resolve(event.target.result);
                 request.onerror = (event) => reject(event.target.error);
@@ -677,7 +677,7 @@
         }
 
         async function getFileFromDB(fileId) {
-            if(!fileId || fileId.startsWith('data:')) return fileId; // Handle old Base64 data & placeholders
+            if(!fileId || fileId.startsWith('data:') || fileId.startsWith('http')) return fileId;
             const db = await initDB();
             return new Promise((resolve, reject) => {
                 const tx = db.transaction('fileStore', 'readonly');
@@ -697,50 +697,154 @@
             });
         }
 
+        // --- ANTI-LAG SAVE SYSTEM (DEBOUNCING) ---
+        let saveTimeout = null;
+        window.saveToDB = function() {
+            return new Promise((resolve) => {
+                if(saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(async () => {
+                    try {
+                        const db = await initDB();
+                        const tx = db.transaction('appData', 'readwrite');
+                        tx.objectStore('appData').put(window.state, 'tarqiyah_state');
+                        tx.oncomplete = () => {
+                            renderSemua();
+                            resolve();
+                        };
+                    } catch(e) {
+                        localStorage.setItem('tarqiyah_state', JSON.stringify(window.state));
+                        renderSemua();
+                        resolve();
+                    }
+                }, 800); 
+            });
+        }
+
+        // --- LOAD DATA SUPER CEPAT ---
         async function loadFromDB() {
             try {
                 const db = await initDB();
                 const tx = db.transaction('appData', 'readonly');
-                const store = tx.objectStore('appData');
-                const request = store.get('tarqiyah_state');
+                const req = tx.objectStore('appData').get('tarqiyah_state');
                 
-                request.onsuccess = () => {
-                    if (request.result) {
-                        window.state = request.result;
-                        window.state.proyekAktif = { ...defaultState.proyekAktif, ...(window.state.proyekAktif || {}) };
-                        window.state.proyekAktif.deadlines = { ...defaultState.proyekAktif.deadlines, ...(window.state.proyekAktif.deadlines || {}) };
-                        window.state.proyekAktif.lineup = { ...defaultState.proyekAktif.lineup, ...(window.state.proyekAktif.lineup || {}) };
-                        window.state.bukuAktif = { ...defaultState.bukuAktif, ...(window.state.bukuAktif || {}) };
-                        if(!window.state.tulisan) window.state.tulisan = [];
-                        if(!window.state.ebulletins) window.state.ebulletins = [];
-                        if(!window.state.katalogBuku) window.state.katalogBuku = [];
-                        if(!window.state.penulisData) window.state.penulisData = {};
+                req.onsuccess = async () => {
+                    if (req.result) {
+                        window.state = typeof req.result === 'string' ? JSON.parse(req.result) : req.result;
                     } else {
-                        window.state = defaultState;
+                        // Fallback ke LocalStorage jika ada
+                        const localData = localStorage.getItem('tarqiyah_state');
+                        if (localData) {
+                            window.state = JSON.parse(localData);
+                            saveToDB(); // Pindahkan ke IndexedDB
+                        } else {
+                            window.state = defaultState;
+                        }
                     }
-                    finishInit();
+                    
+                    // Pastikan struktur state aman
+                    if(!window.state) window.state = defaultState;
+                    if(!window.state.proyekAktif) window.state.proyekAktif = defaultState.proyekAktif;
+                    if(!window.state.tulisan) window.state.tulisan = [];
+                    if(!window.state.ebulletins) window.state.ebulletins = [];
+                    if(!window.state.katalogBuku) window.state.katalogBuku = [];
+                    if(!window.state.penulisData) window.state.penulisData = {};
+                    
+                    mulaiAplikasi();
                 };
-            } catch(e) { window.state = defaultState; finishInit(); }
+
+                req.onerror = () => {
+                    window.state = defaultState;
+                    mulaiAplikasi();
+                }
+            } catch(e) {
+                console.error("Gagal memuat DB", e);
+                window.state = defaultState;
+                mulaiAplikasi();
+            }
         }
 
-        async function saveToDB() {
+        function mulaiAplikasi() {
+            renderSemua();
+            
+            // Tutup Layar Loading
+            const loader = document.getElementById('app-loading');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        // --- INIT APP ---
+        window.onload = function() { 
+            document.querySelectorAll('.tab-pane').forEach(e => e.classList.remove('active'));
+            document.getElementById('tab-dashboard').classList.add('active');
+            
+            loadFromDB(); 
+            
+            // Jam Hijriah
+            setInterval(updateJam, 60000);
+            updateJam();
+        };
+
+        function updateJam() {
+            const date = new Date();
+            const optionsMasehi = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const masehiStr = new Intl.DateTimeFormat('id-ID', optionsMasehi).format(date);
+            const elMasehi = document.getElementById('date-masehi');
+            if(elMasehi) elMasehi.textContent = masehiStr;
+
             try {
-                const db = await initDB();
-                const tx = db.transaction('appData', 'readwrite');
-                const store = tx.objectStore('appData');
-                store.put(window.state, 'tarqiyah_state');
-                
-                tx.oncomplete = () => renderSemua();
-                tx.onerror = () => showToast('Gagal menyimpan ke Database Browser.', 'error');
-            } catch (e) { console.error(e); showToast('Sistem Penyimpanan Error.', 'error'); }
+                const optionsHijri = { day: 'numeric', month: 'long', year: 'numeric' };
+                const hijriStr = new Intl.DateTimeFormat('id-u-ca-islamic-uma-nu-latn', optionsHijri).format(date);
+                const elHijri = document.getElementById('date-hijri');
+                if(elHijri) elHijri.textContent = hijriStr;
+            } catch(e) {}
         }
 
-        function getBase64(file) {
-            return new Promise((resolve, reject) => {
-                if(!file) return resolve(null);
-                const reader = new FileReader(); reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
+        // --- HELPERS (TOAST, NAV, THEME) ---
+        window.showToast = function(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            document.getElementById('toast-icon').setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'check-circle');
+            toast.className = `fixed bottom-8 right-8 px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 z-[110] flex gap-2 items-center ${type === 'error' ? 'bg-red-500 text-white' : 'bg-slate-800 text-white'}`;
+            if(window.lucide) lucide.createIcons();
+            
+            setTimeout(() => { toast.classList.remove('translate-y-24', 'opacity-0'); }, 10);
+            setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3000);
+        }
+
+        window.navigate = function(tab) {
+            document.querySelectorAll('.tab-pane').forEach(e => e.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-primary', 'bg-primary/10');
+                btn.classList.add('text-slate-500');
             });
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-primary', 'bg-primary/10');
+                activeBtn.classList.remove('text-slate-500');
+            }
+        }
+
+        window.toggleTheme = function() {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+            saveToDB();
+        }
+
+        function applyTheme() {
+            if(state.theme === 'dark') {
+                document.body.classList.add('dark');
+                document.getElementById('theme-icon').setAttribute('data-lucide', 'sun');
+            } else {
+                document.body.classList.remove('dark');
+                document.getElementById('theme-icon').setAttribute('data-lucide', 'moon');
+            }
+            if(window.lucide) lucide.createIcons();
+            if(mainChartObj) renderChart();
         }
 
         // --- BACKUP & RESTORE ---
@@ -753,7 +857,7 @@
             a.download = `Tarqiyah_Backup_${new Date().toISOString().split('T')[0]}.txt`;
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Backup berhasil diunduh! (Format .txt untuk HP)');
+            showToast('Backup berhasil diunduh!');
         }
 
         window.importData = function(input) {
@@ -778,217 +882,50 @@
             reader.readAsText(file);
         }
 
-
-        // --- INIT APP ---
-        window.onload = function() { loadFromDB(); };
-
-        // --- INDEXED DB ENGINE (V2.1: RAW FILE STORAGE & ANTI-LAG) ---
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('TarqiyahSuperDB', 2); 
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('appData')) { db.createObjectStore('appData'); }
-                    if (!db.objectStoreNames.contains('fileStore')) { db.createObjectStore('fileStore'); } 
-                };
-                request.onsuccess = (event) => resolve(event.target.result);
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        // --- ANTI-LAG SAVE SYSTEM (DEBOUNCING) ---
-        let saveTimeout = null;
-        window.saveToDB = function() {
-            return new Promise((resolve) => {
-                if(saveTimeout) clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(async () => {
-                    try {
-                        const db = await initDB();
-                        const tx = db.transaction('appData', 'readwrite');
-                        tx.objectStore('appData').put(window.state, 'mainState');
-                        tx.oncomplete = () => resolve();
-                    } catch(e) {
-                        localStorage.setItem('tarqiyah_state', JSON.stringify(window.state));
-                        resolve();
-                    }
-                }, 1000); // Perpanjang delay menjadi 1 detik agar tidak bentrok dengan Cloud Sync
-            });
-        }
-
-        // HAPUS FUNGSI migrasiDataLama() SEPENUHNYA!
-        // Kita tidak akan memaksa browser memproses file raksasa secara massal lagi.
-
-        // --- LOAD DATA SUPER CEPAT ---
-        async function loadFromDB() {
-            try {
-                const db = await initDB();
-                const tx = db.transaction('appData', 'readonly');
-                const req = tx.objectStore('appData').get('mainState');
-                
-                req.onsuccess = async () => {
-                    if (req.result) {
-                        window.state = typeof req.result === 'string' ? JSON.parse(req.result) : req.result;
-                    } else {
-                        const localData = localStorage.getItem('tarqiyah_state');
-                        if (localData) {
-                            window.state = JSON.parse(localData);
-                            // Pindahkan perlahan ke IndexedDB untuk meringankan LocalStorage, tanpa mengubah file
-                            saveToDB(); 
-                        } else {
-                            window.state = defaultState;
-                        }
-                    }
-                    
-                    if(!window.state || !window.state.proyekAktif) window.state = defaultState;
-                    
-                    // Langsung jalankan aplikasi tanpa menunggu apapun!
-                    initializeApp();
-                    tutupLoadingScreen(); // Pastikan ada fungsi untuk menutup layar loading
-                };
-
-                req.onerror = () => {
-                    throw new Error("IndexedDB Error");
-                }
-            } catch(e) {
-                console.error("Gagal memuat DB, menggunakan data default.", e);
-                window.state = defaultState;
-                initializeApp();
-                tutupLoadingScreen();
-            }
-        }
-
-        // Pastikan kita memaksa layar loading hilang jika terjadi error
-        function tutupLoadingScreen() {
-            const loadingElements = document.querySelectorAll('.loading-screen, #loading-overlay, [class*="sinkronisasi"]');
-            loadingElements.forEach(el => {
-                if(el) el.style.display = 'none';
-            });
-        }
-
-        // --- BACKGROUND MIGRATION ENGINE (Pembersih File Lama) ---
-        function base64ToBlob(dataURI) {
-            if (!dataURI) return null;
-            try {
-                const byteString = atob(dataURI.split(',')[1]);
-                const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
-                return new Blob([ab], { type: mimeString });
-            } catch(e) { return null; }
-        }
-
-        async function migrasiDataLama() {
-            let hasChanges = false;
-            const migrasiBenda = async (item, target) => {
-                if (item[target] && item[target].startsWith('data:')) {
-                    const blob = base64ToBlob(item[target]);
-                    if (blob) {
-                        item[target] = await saveFileToDB(blob);
-                        hasChanges = true;
-                    }
-                }
-            };
-
-            // Menyisir diam-diam di latar belakang
-            if (state.ebulletins) {
-                for(let e of state.ebulletins) { await migrasiBenda(e, 'pdf'); await migrasiBenda(e, 'cover'); }
-            }
-            if (state.katalogBuku) {
-                for(let b of state.katalogBuku) { await migrasiBenda(b, 'pdf'); await migrasiBenda(b, 'cover'); }
-            }
-
-            if (hasChanges) {
-                await saveToDB();
-                showToast('🚀 Pembersihan file lama selesai! Aplikasi kini anti-lag.');
-            }
-        }
-
-        async function loadFromDB() {
-            try {
-                const db = await initDB();
-                const tx = db.transaction('appData', 'readonly');
-                const req = tx.objectStore('appData').get('mainState');
-                req.onsuccess = async () => {
-                    if (req.result) {
-                        // Dukungan kompabilitas backward (jika data sebelumnya terlanjur string)
-                        window.state = typeof req.result === 'string' ? JSON.parse(req.result) : req.result;
-                    } else {
-                        const localData = localStorage.getItem('tarqiyah_state');
-                        if (localData) window.state = JSON.parse(localData);
-                        else window.state = defaultState;
-                    }
-                    
-                    if(!window.state.proyekAktif) window.state = defaultState;
-                    
-                    // JALANKAN PEMBESIH DI LATAR BELAKANG (Delay 3 detik agar tidak ganggu loading awal)
-                    setTimeout(migrasiDataLama, 3000); 
-
-                    initializeApp();
-                };
-            } catch(e) {
-                window.state = defaultState;
-                initializeApp();
-            }
-        }
-
+        // --- DASHBOARD ACTIONS ---
         window.setDashStep = function(step) { state.proyekAktif.step = step; saveToDB(); }
-        // --- OPTIMASI RENDER GAMBAR (ASYNC) ---
-        // Membuat UI tidak menunggu gambar dimuat untuk menampilkan layout
-        window.renderEbulletin = function() { 
-            const container = document.getElementById('ebulletin-grid');
-            if(!state.ebulletins || state.ebulletins.length === 0) {
-                container.innerHTML = '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; 
-                return;
-            }
-
-            // Render HTML Kerangka dulu (Sangat Cepat)
-            container.innerHTML = state.ebulletins.map(e => `
-                <div class="relative group w-full max-w-[160px]">
-                    <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer bg-slate-100 dark:bg-slate-800" onclick="bukaPDF('${e.pdf}')">
-                        <img id="cover-img-${e.id}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" class="w-full h-full object-cover transition-opacity duration-300 opacity-0" onload="this.classList.remove('opacity-0')">
-                        <div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                            <i data-lucide="book-open" class="w-6 h-6 mb-2"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-center">
-                        <h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4>
-                        <div class="flex justify-center gap-3 mt-1.5">
-                            <button onclick="editEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-blue-500 transition-colors"><i data-lucide="edit-3" class="w-3 h-3 inline"></i> Edit</button>
-                            <button onclick="hapusEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus</button>
-                        </div>
-                    </div>
-                </div>`).join(''); 
-            
-            if(window.lucide) lucide.createIcons();
-
-            // Kemudian isi gambarnya satu-per-satu di latar belakang
-            state.ebulletins.forEach(async (e) => {
-                const imgEl = document.getElementById(`cover-img-${e.id}`);
-                if(!imgEl) return;
-                
-                if(e.cover && e.cover.startsWith('file_')) {
-                    const blob = await getFileFromDB(e.cover);
-                    if(blob) imgEl.src = URL.createObjectURL(blob);
-                } else if(e.cover) {
-                    imgEl.src = e.cover; // Format Base64 lama atau URL web
-                } else {
-                    imgEl.src = 'https://via.placeholder.com/300x400?text=No+Cover';
-                }
-            });
-        }
-
+        
+        // Pilih naskah untuk ditaruh di Dashboard (Rubrik)
         window.pilihNaskahBank = function(k, id) {
             const tulIdx = state.tulisan.findIndex(x => x.id === id);
             if(tulIdx > -1) { state.tulisan[tulIdx].edisi = state.proyekAktif.edisi; state.proyekAktif.lineup[k] = id; saveToDB(); showToast('Ditarik dari Bank!'); }
         }
 
+        window.simpanLineup = function(k) {
+            const judul = document.getElementById(`lu-j-${k}`).value.trim();
+            const penulis = document.getElementById(`lu-p-${k}`).value.trim();
+            const kamar = document.getElementById(`lu-k-${k}`).value;
+            if(!judul || !penulis || !kamar) return showToast('Lengkapi Judul, Penulis & Kamar!', 'error');
+
+            const id = 't' + Date.now();
+            state.tulisan.push({ id, judul, penulis, kamar, rubrik: rubrikMap[k], edisi: state.proyekAktif.edisi });
+            if(!state.proyekAktif.lineup) state.proyekAktif.lineup = {};
+            state.proyekAktif.lineup[k] = id;
+            saveToDB(); showToast('Naskah Line-up Disimpan!');
+        }
+
         window.hapusLineup = function(k) {
             if(!confirm('Keluarkan naskah ini dari line-up?')) return;
-            const id = state.proyekAktif.lineup[k]; const tulIdx = state.tulisan.findIndex(x => x.id === id);
+            const id = state.proyekAktif.lineup[k]; 
+            const tulIdx = state.tulisan.findIndex(x => x.id === id);
             if(tulIdx > -1) { state.tulisan[tulIdx].edisi = 'Draft / Arsip Umum'; }
-            state.proyekAktif.lineup[k] = null; saveToDB();
+            state.proyekAktif.lineup[k] = null; 
+            saveToDB();
+        }
+
+        window.updateCover = async function(input, imgId) {
+            const file = input.files[0]; if(!file) return;
+            if(file.size > 5000000) return showToast('Ukuran gambar maksimal 5MB!', 'error');
+            const fileId = await saveFileToDB(file);
+            
+            if(imgId === 'proj-cover-img') {
+                if(state.proyekAktif.cover && state.proyekAktif.cover.startsWith('file_')) await deleteFileFromDB(state.proyekAktif.cover);
+                state.proyekAktif.cover = fileId;
+            } else if(imgId === 'buku-cover-img') {
+                if(state.bukuAktif.cover && state.bukuAktif.cover.startsWith('file_')) await deleteFileFromDB(state.bukuAktif.cover);
+                state.bukuAktif.cover = fileId;
+            }
+            saveToDB(); showToast('Cover berhasil diupdate!');
         }
 
         window.openConfigDashboard = function() {
@@ -1008,16 +945,18 @@
         window.bukaModalSiklus = function() { document.getElementById('modal-siklus').classList.remove('hidden'); }
         
         window.prosesSiklusBaru = async function() {
-            const coverFile = document.getElementById('siklus-cover').files[0]; const pdfFile = document.getElementById('siklus-pdf').files[0];
+            const coverFile = document.getElementById('siklus-cover').files[0]; 
+            const pdfFile = document.getElementById('siklus-pdf').files[0];
             if(!pdfFile) return showToast('Harap sertakan file PDF E-Buletin!', 'error');
 
-            const btn = document.getElementById('btn-siklus-exec'); btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...'; if(window.lucide) lucide.createIcons();
+            const btn = document.getElementById('btn-siklus-exec'); 
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...'; 
+            if(window.lucide) lucide.createIcons();
 
             try {
-                // Gunakan saveFileToDB (Raw Blob) alih-alih getBase64
                 let coverId = 'https://via.placeholder.com/300x400?text=No+Cover';
                 if(coverFile) coverId = await saveFileToDB(coverFile);
-                else if (state.proyekAktif.cover) coverId = state.proyekAktif.cover; // Keep old
+                else if (state.proyekAktif.cover) coverId = state.proyekAktif.cover; 
                 
                 const pdfId = await saveFileToDB(pdfFile);
 
@@ -1133,7 +1072,6 @@
             state.penulisData[nama].status = state.penulisData[nama].status === 'Aktif' ? 'Tidak Aktif' : 'Aktif';
             saveToDB();
             
-            renderPenulis();
             bukaDetailPenulis(namaStr);
             showToast(`Status penulis berhasil diperbarui!`);
         }
@@ -1167,8 +1105,8 @@
             if(!eb) return;
             document.getElementById('edit-eb-id').value = id;
             document.getElementById('edit-eb-edisi').value = eb.edisi;
-            document.getElementById('edit-eb-cover').value = ''; // Reset input file
-            document.getElementById('edit-eb-pdf').value = '';   // Reset input file
+            document.getElementById('edit-eb-cover').value = ''; 
+            document.getElementById('edit-eb-pdf').value = '';   
             document.getElementById('modal-edit-ebulletin').classList.remove('hidden');
         }
 
@@ -1192,11 +1130,11 @@
                 let newPdf = state.ebulletins[idx].pdf;
 
                 if(coverInput.files && coverInput.files[0]) {
-                    if(newCover) await deleteFileFromDB(newCover); // Hapus file lama
+                    if(newCover) await deleteFileFromDB(newCover);
                     newCover = await saveFileToDB(coverInput.files[0]);
                 }
                 if(pdfInput.files && pdfInput.files[0]) {
-                    if(newPdf) await deleteFileFromDB(newPdf); // Hapus file lama
+                    if(newPdf) await deleteFileFromDB(newPdf); 
                     newPdf = await saveFileToDB(pdfInput.files[0]);
                 }
 
@@ -1208,7 +1146,7 @@
                 document.getElementById('modal-edit-ebulletin').classList.add('hidden');
                 showToast('Arsip E-Buletin berhasil diupdate!');
             } catch (error) {
-                showToast('Gagal memproses file yang baru.', 'error');
+                showToast('Gagal memproses file.', 'error');
             } finally {
                 btn.innerHTML = 'Update Arsip';
             }
@@ -1223,31 +1161,12 @@
         }
 
 
-        // --- PDF ENGINE (BLOB CONVERSION & DIRECT FILE FETCH) ---
-        // Fungsi untuk mengubah Base64 text kembali menjadi file Virtual (Blob) untuk Iframe
-        function dataURItoBlobUrl(dataURI) {
-            try {
-                const byteString = atob(dataURI.split(',')[1]);
-                const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                const blob = new Blob([ab], {type: mimeString});
-                return URL.createObjectURL(blob);
-            } catch(e) {
-                console.error('Error konversi Base64 ke Blob:', e);
-                return null;
-            }
-        }
-
+        // --- PDF ENGINE ---
         window.currentPdfBlobUrl = null;
 
         window.bukaPDF = async function(dataId) { 
             if(!dataId || dataId === 'null') return showToast('File PDF tidak tersedia', 'error'); 
             
-            // Hapus Virtual File yang lama dari memori untuk mencegah bocor memori (Memory Leak)
             if(window.currentPdfBlobUrl) {
                 URL.revokeObjectURL(window.currentPdfBlobUrl);
             }
@@ -1256,10 +1175,15 @@
                 let blobUrl = null;
                 
                 if(dataId.startsWith('data:')) {
-                    // Cekatan lama: Konversi dari Base64
-                    blobUrl = dataURItoBlobUrl(dataId);
+                    // Logika lama (kalau masih ada yg tersisa)
+                    const byteString = atob(dataId.split(',')[1]);
+                    const mimeString = dataId.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+                    const blob = new Blob([ab], {type: mimeString});
+                    blobUrl = URL.createObjectURL(blob);
                 } else {
-                    // Cekatan baru: Ambil langsung File Mentah (Blob) dari Database
                     const fileBlob = await getFileFromDB(dataId);
                     if(fileBlob) blobUrl = URL.createObjectURL(fileBlob);
                 }
@@ -1267,10 +1191,7 @@
                 if(blobUrl) {
                     window.currentPdfBlobUrl = blobUrl;
                     document.getElementById('pdf-frame').src = blobUrl; 
-                    
-                    // Set tombol download sekalian
                     document.getElementById('btn-download-pdf').href = blobUrl;
-
                     document.getElementById('pdf-modal').classList.remove('hidden'); 
                 } else {
                     showToast('Format PDF tidak valid atau rusak', 'error');
@@ -1302,6 +1223,7 @@
             const query = (document.getElementById('search-penulis')?.value || '').toLowerCase(); const pMap = {};
             state.tulisan.forEach(t => { if(!pMap[t.penulis]) pMap[t.penulis] = { nama: t.penulis, kamar: t.kamar, karya: [] }; pMap[t.penulis].karya.push(t); });
             let pArr = Object.values(pMap); if (query) pArr = pArr.filter(p => p.nama.toLowerCase().includes(query) || p.kamar.toLowerCase().includes(query) || p.karya.some(k => k.judul.toLowerCase().includes(query))); pArr.sort((a,b) => b.karya.length - a.karya.length);
+            
             document.getElementById('penulis-grid').innerHTML = pArr.map(p => { 
                 const escapedName = p.nama.replace(/'/g, "\\'"); 
                 const isInactive = state.penulisData && state.penulisData[p.nama] && state.penulisData[p.nama].status === 'Tidak Aktif';
@@ -1314,8 +1236,7 @@
 
         function renderDashboard() {
             document.getElementById('dash-edisi-title').textContent = state.proyekAktif.edisi || 'Edisi';
-            if(state.proyekAktif.cover) { document.getElementById('proj-cover-img').src = state.proyekAktif.cover; document.getElementById('proj-cover-img').classList.remove('hidden'); }
-
+            
             let stepHtml = '';
             ['Ide', 'Naskah', 'Edit', 'Layout', 'Siap'].forEach((n, i) => {
                 const s = i+1; const active = s <= (state.proyekAktif.step||1); let tglText = '-';
@@ -1341,32 +1262,114 @@
 
             const dashNaskahCount = document.getElementById('dash-naskah-count');
             if(dashNaskahCount) { dashNaskahCount.textContent = `${naskahSiap}/4 Siap`; dashNaskahCount.className = naskahSiap === 4 ? "px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 text-[10px] rounded-lg font-black uppercase tracking-widest flex items-center gap-1" : "px-2 py-1 bg-primary/10 text-primary text-[10px] rounded-lg font-black uppercase tracking-widest"; }
-            document.getElementById('stat-karya').textContent = state.tulisan.length; document.getElementById('stat-penulis').textContent = new Set(state.tulisan.map(t=>t.penulis)).size; document.getElementById('stat-buku').textContent = state.tulisan.filter(t=>t.edisi === state.bukuAktif.judul).length; renderChart();
+            
+            document.getElementById('stat-karya').textContent = state.tulisan.length; 
+            document.getElementById('stat-penulis').textContent = new Set(state.tulisan.map(t=>t.penulis)).size; 
+            document.getElementById('stat-buku').textContent = state.tulisan.filter(t=>t.edisi === state.bukuAktif.judul).length; 
+            
+            renderChart();
+        }
+
+        // Tampilkan cover project di background
+        async function loadProjectCover() {
+            if(state.proyekAktif.cover) { 
+                const imgEl = document.getElementById('proj-cover-img');
+                if(state.proyekAktif.cover.startsWith('file_')) {
+                    const blob = await getFileFromDB(state.proyekAktif.cover);
+                    if(blob) {
+                        imgEl.src = URL.createObjectURL(blob);
+                        imgEl.classList.remove('hidden');
+                    }
+                } else {
+                    imgEl.src = state.proyekAktif.cover;
+                    imgEl.classList.remove('hidden');
+                }
+            }
         }
 
         function renderBukuTahunan() {
-            document.getElementById('buku-judul-display').textContent = state.bukuAktif.judul || '-'; document.getElementById('buku-deadline-display').textContent = state.bukuAktif.deadline ? new Date(state.bukuAktif.deadline).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : '-'; document.getElementById('buku-hal-target').textContent = state.bukuAktif.targetHal || 0;
-            if(state.bukuAktif.cover) { document.getElementById('buku-cover-img').src = state.bukuAktif.cover; document.getElementById('buku-cover-img').classList.remove('hidden'); }
-            document.getElementById('buku-progress-bar').style.width = (state.bukuAktif.progress||0) + '%'; document.getElementById('buku-progress-text').textContent = (state.bukuAktif.progress||0) + '%';
-            const naskahBuku = state.tulisan.filter(t => t.edisi === state.bukuAktif.judul); document.getElementById('buku-hal-terkumpul').textContent = naskahBuku.length * 2;
+            document.getElementById('buku-judul-display').textContent = state.bukuAktif.judul || '-'; 
+            document.getElementById('buku-deadline-display').textContent = state.bukuAktif.deadline ? new Date(state.bukuAktif.deadline).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : '-'; 
+            document.getElementById('buku-hal-target').textContent = state.bukuAktif.targetHal || 0;
+            
+            if(state.bukuAktif.cover) { 
+                loadBukuCover();
+            }
+            
+            document.getElementById('buku-progress-bar').style.width = (state.bukuAktif.progress||0) + '%'; 
+            document.getElementById('buku-progress-text').textContent = (state.bukuAktif.progress||0) + '%';
+            
+            const naskahBuku = state.tulisan.filter(t => t.edisi === state.bukuAktif.judul); 
+            document.getElementById('buku-hal-terkumpul').textContent = naskahBuku.length * 2;
+            
             document.getElementById('buku-naskah-list').innerHTML = naskahBuku.map(t => `<div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700"><div><p class="font-bold text-sm dark:text-white">${t.judul}</p><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${t.penulis} (${t.kamar})</p></div><div class="flex gap-1"><button onclick="editNaskah('${t.id}')" class="p-1 text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="hapusNaskah('${t.id}')" class="p-1 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join('') || '<p class="text-xs text-slate-400 text-center py-4 font-bold">Belum ada naskah untuk buku ini.</p>';
             
             const tTarik = state.tulisan.filter(t => t.edisi !== state.bukuAktif.judul);
             const dropTarik = document.getElementById('buku-tarik-bank');
-            if(dropTarik) dropTarik.innerHTML = `<option value="" disabled selected>Pilih dari ${tTarik.length} naskah tersedia di Bank Tulisan...</option>` + tTarik.map(t => `<option value="${t.id}">${t.judul} - ${t.penulis} (${t.edisi})</option>`).join('');
+            if(dropTarik) {
+                dropTarik.innerHTML = `<option value="" disabled selected>Pilih dari ${tTarik.length} naskah tersedia di Bank Tulisan...</option>` + tTarik.map(t => `<option value="${t.id}">${t.judul} - ${t.penulis} (${t.edisi})</option>`).join('');
+            }
         }
 
-        function renderKatalog() { document.getElementById('katalog-grid').innerHTML = state.katalogBuku.map(b => `<div class="bg-white dark:bg-darkPanel rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col group"><div class="h-48 bg-slate-100 dark:bg-slate-800 relative cursor-pointer" onclick="bukaPDF('${b.pdf}')"><img src="${b.cover}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-white font-bold text-xs bg-primary px-3 py-1.5 rounded-lg flex gap-1"><i data-lucide="book-open" class="w-4 h-4"></i> Buka</span></div></div><div class="p-4 flex-1 flex flex-col"><h4 class="font-black text-sm text-slate-800 dark:text-white leading-tight mb-1">${b.judul}</h4><p class="text-[10px] text-slate-500 line-clamp-2 mb-2 flex-1">${b.sinopsis}</p><div class="flex justify-between items-center mt-auto border-t border-slate-100 dark:border-slate-700/50 pt-2"><span class="text-xs font-black text-green-600 dark:text-green-400">${b.harga || '-'}</span><button onclick="hapusKatalog('${b.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Belum ada buku terbit di katalog.</p>'; }
+        async function loadBukuCover() {
+            const imgEl = document.getElementById('buku-cover-img');
+            if(state.bukuAktif.cover.startsWith('file_')) {
+                const blob = await getFileFromDB(state.bukuAktif.cover);
+                if(blob) {
+                    imgEl.src = URL.createObjectURL(blob);
+                    imgEl.classList.remove('hidden');
+                }
+            } else {
+                imgEl.src = state.bukuAktif.cover;
+                imgEl.classList.remove('hidden');
+            }
+        }
+
+        function renderKatalog() { 
+            document.getElementById('katalog-grid').innerHTML = state.katalogBuku.map(b => `
+                <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col group">
+                    <div class="h-48 bg-slate-100 dark:bg-slate-800 relative cursor-pointer" onclick="bukaPDF('${b.pdf}')">
+                        <img id="kat-img-${b.id}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="text-white font-bold text-xs bg-primary px-3 py-1.5 rounded-lg flex gap-1"><i data-lucide="book-open" class="w-4 h-4"></i> Buka</span>
+                        </div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h4 class="font-black text-sm text-slate-800 dark:text-white leading-tight mb-1">${b.judul}</h4>
+                        <p class="text-[10px] text-slate-500 line-clamp-2 mb-2 flex-1">${b.sinopsis}</p>
+                        <div class="flex justify-between items-center mt-auto border-t border-slate-100 dark:border-slate-700/50 pt-2">
+                            <span class="text-xs font-black text-green-600 dark:text-green-400">${b.harga || '-'}</span>
+                            <button onclick="hapusKatalog('${b.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<p class="col-span-full py-8 text-center text-slate-400 text-sm font-bold">Belum ada buku terbit di katalog.</p>'; 
+            
+            // Async load cover
+            state.katalogBuku.forEach(async (b) => {
+                const img = document.getElementById(`kat-img-${b.id}`);
+                if(img && b.cover) {
+                    if(b.cover.startsWith('file_')) {
+                        const blob = await getFileFromDB(b.cover);
+                        if(blob) img.src = URL.createObjectURL(blob);
+                    } else {
+                        img.src = b.cover;
+                    }
+                }
+            });
+        }
         
-        function renderEbulletin() { 
-            document.getElementById('ebulletin-grid').innerHTML = state.ebulletins.map(e => {
-                // Untuk thumbnail cover, jika itu ID file mentah (bukan link/base64), kita beri placeholder sementara. 
-                // Di aplikasi nyata, kita akan buat fungsi async terpisah untuk merender gambar mentah.
-                const coverSrc = (e.cover && !e.cover.startsWith('file_')) ? e.cover : 'https://via.placeholder.com/300x400?text=Cover+Tersimpan';
-                return `
+        window.renderEbulletin = function() { 
+            const container = document.getElementById('ebulletin-grid');
+            if(!state.ebulletins || state.ebulletins.length === 0) {
+                container.innerHTML = '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; 
+                return;
+            }
+
+            container.innerHTML = state.ebulletins.map(e => `
                 <div class="relative group w-full max-w-[160px]">
-                    <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer" onclick="bukaPDF('${e.pdf}')">
-                        <img src="${coverSrc}" class="w-full h-full object-cover">
+                    <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer bg-slate-100 dark:bg-slate-800" onclick="bukaPDF('${e.pdf}')">
+                        <img id="cover-img-${e.id}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" class="w-full h-full object-cover transition-opacity duration-300 opacity-0" onload="this.classList.remove('opacity-0')">
                         <div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
                             <i data-lucide="book-open" class="w-6 h-6 mb-2"></i>
                             <span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span>
@@ -1379,17 +1382,79 @@
                             <button onclick="hapusEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus</button>
                         </div>
                     </div>
-                </div>`}).join('') || '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; 
+                </div>`).join(''); 
+            
+            if(window.lucide) lucide.createIcons();
+
+            // Kemudian isi gambarnya satu-per-satu di latar belakang
+            state.ebulletins.forEach(async (e) => {
+                const imgEl = document.getElementById(`cover-img-${e.id}`);
+                if(!imgEl) return;
+                
+                if(e.cover && e.cover.startsWith('file_')) {
+                    const blob = await getFileFromDB(e.cover);
+                    if(blob) imgEl.src = URL.createObjectURL(blob);
+                } else if(e.cover) {
+                    imgEl.src = e.cover;
+                } else {
+                    imgEl.src = 'https://via.placeholder.com/300x400?text=No+Cover';
+                }
+            });
         }
 
         function renderChart() {
-            const ctx = document.getElementById('mainChart').getContext('2d'); const kamarCount = {}; state.tulisan.forEach(t => { kamarCount[t.kamar] = (kamarCount[t.kamar] || 0) + 1; }); const topKamar = Object.entries(kamarCount).sort((a,b)=>b[1]-a[1]).slice(0,5); const labels = topKamar.map(x=>x[0]); const data = topKamar.map(x=>x[1]); if(labels.length === 0) { labels.push('Belum ada data'); data.push(1); }
+            const ctx = document.getElementById('mainChart').getContext('2d'); 
+            const kamarCount = {}; 
+            state.tulisan.forEach(t => { kamarCount[t.kamar] = (kamarCount[t.kamar] || 0) + 1; }); 
+            const topKamar = Object.entries(kamarCount).sort((a,b)=>b[1]-a[1]).slice(0,5); 
+            const labels = topKamar.map(x=>x[0]); 
+            const data = topKamar.map(x=>x[1]); 
+            if(labels.length === 0) { labels.push('Belum ada data'); data.push(1); }
+            
             const textColor = state.theme === 'dark' ? '#94A3B8' : '#64748B';
+            
             if(mainChartObj) mainChartObj.destroy();
-            mainChartObj = new Chart(ctx, { type: 'polarArea', data: { labels: labels, datasets: [{ data: data, backgroundColor: ['#0D948880', '#3B82F680', '#F59E0B80', '#A855F780', '#EC489980'], borderColor: state.theme === 'dark' ? '#1E293B' : '#ffffff', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor, font:{size:10, family:'Plus Jakarta Sans'} } } }, scales: { r: { ticks:{display:false}, grid:{color: state.theme==='dark'?'#334155':'#e2e8f0'} } } } });
+            mainChartObj = new Chart(ctx, { 
+                type: 'polarArea', 
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        data: data, 
+                        backgroundColor: ['#0D948880', '#3B82F680', '#F59E0B80', '#A855F780', '#EC489980'], 
+                        borderColor: state.theme === 'dark' ? '#1E293B' : '#ffffff', 
+                        borderWidth: 2 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'right', labels: { color: textColor, font:{size:10, family:'Plus Jakarta Sans'} } } }, 
+                    scales: { r: { ticks:{display:false}, grid:{color: state.theme==='dark'?'#334155':'#e2e8f0'} } } 
+                } 
+            });
         }
 
-        function renderSemua() { window.renderBankTable(); renderBukuTahunan(); window.renderPenulis(); renderEbulletin(); renderKatalog(); renderDashboard(); if(window.lucide) lucide.createIcons(); }
+        // PENGISIAN DROPDOWN KAMAR (Dilakukan sekali saat awal)
+        function initKamarDropdown() {
+            const str = kamarOptions.map(km=>`<option value="${km}">${km}</option>`).join('');
+            ['bank-in-kamar', 'edit-naskah-kamar', 'buku-in-kamar', 'arsip-k-sq', 'arsip-k-aq', 'arsip-k-pq', 'arsip-k-iq'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.innerHTML = str;
+            });
+        }
+
+        window.renderSemua = function() { 
+            initKamarDropdown();
+            window.renderBankTable(); 
+            renderBukuTahunan(); 
+            window.renderPenulis(); 
+            renderEbulletin(); 
+            renderKatalog(); 
+            renderDashboard(); 
+            loadProjectCover();
+            if(window.lucide) setTimeout(() => { lucide.createIcons(); }, 10);
+            applyTheme();
+        }
     </script>
 </body>
 </html>
