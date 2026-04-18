@@ -797,8 +797,6 @@
         }
 
         // --- ANTI-LAG SAVE SYSTEM (DEBOUNCING) ---
-        // Sistem ini menahan tombol "Save" agar tidak ditekan beribu kali per detik oleh komputer,
-        // melainkan menunggu 500ms setelah aktivitas selesai, agar browser bisa "bernapas".
         let saveTimeout = null;
         window.saveToDB = function() {
             return new Promise((resolve) => {
@@ -807,16 +805,63 @@
                     try {
                         const db = await initDB();
                         const tx = db.transaction('appData', 'readwrite');
-                        // IndexedDB V2: Kita TIDAK LAGI mengubah ke JSON.stringify!
-                        // Menyimpan objek mentah jauh lebih ringan dan anti-freeze.
                         tx.objectStore('appData').put(window.state, 'mainState');
                         tx.oncomplete = () => resolve();
                     } catch(e) {
-                        // Fallback darurat
                         localStorage.setItem('tarqiyah_state', JSON.stringify(window.state));
                         resolve();
                     }
-                }, 500); 
+                }, 1000); // Perpanjang delay menjadi 1 detik agar tidak bentrok dengan Cloud Sync
+            });
+        }
+
+        // HAPUS FUNGSI migrasiDataLama() SEPENUHNYA!
+        // Kita tidak akan memaksa browser memproses file raksasa secara massal lagi.
+
+        // --- LOAD DATA SUPER CEPAT ---
+        async function loadFromDB() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction('appData', 'readonly');
+                const req = tx.objectStore('appData').get('mainState');
+                
+                req.onsuccess = async () => {
+                    if (req.result) {
+                        window.state = typeof req.result === 'string' ? JSON.parse(req.result) : req.result;
+                    } else {
+                        const localData = localStorage.getItem('tarqiyah_state');
+                        if (localData) {
+                            window.state = JSON.parse(localData);
+                            // Pindahkan perlahan ke IndexedDB untuk meringankan LocalStorage, tanpa mengubah file
+                            saveToDB(); 
+                        } else {
+                            window.state = defaultState;
+                        }
+                    }
+                    
+                    if(!window.state || !window.state.proyekAktif) window.state = defaultState;
+                    
+                    // Langsung jalankan aplikasi tanpa menunggu apapun!
+                    initializeApp();
+                    tutupLoadingScreen(); // Pastikan ada fungsi untuk menutup layar loading
+                };
+
+                req.onerror = () => {
+                    throw new Error("IndexedDB Error");
+                }
+            } catch(e) {
+                console.error("Gagal memuat DB, menggunakan data default.", e);
+                window.state = defaultState;
+                initializeApp();
+                tutupLoadingScreen();
+            }
+        }
+
+        // Pastikan kita memaksa layar loading hilang jika terjadi error
+        function tutupLoadingScreen() {
+            const loadingElements = document.querySelectorAll('.loading-screen, #loading-overlay, [class*="sinkronisasi"]');
+            loadingElements.forEach(el => {
+                if(el) el.style.display = 'none';
             });
         }
 
