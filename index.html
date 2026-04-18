@@ -782,121 +782,156 @@
         // --- INIT APP ---
         window.onload = function() { loadFromDB(); };
 
-        function finishInit() {
-            document.getElementById('app-loading').style.opacity = '0';
-            setTimeout(() => document.getElementById('app-loading').style.display = 'none', 500);
-            
-            try { populateSelects(); } catch(e){}
-            try { updateDates(); } catch(e){}
-            setInterval(updateDates, 60000); 
-            try { applyTheme(true); } catch(e){}
-            try { renderSemua(); } catch(e){}
+        // --- INDEXED DB ENGINE (V2.1: RAW FILE STORAGE & ANTI-LAG) ---
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('TarqiyahSuperDB', 2); 
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('appData')) { db.createObjectStore('appData'); }
+                    if (!db.objectStoreNames.contains('fileStore')) { db.createObjectStore('fileStore'); } 
+                };
+                request.onsuccess = (event) => resolve(event.target.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
         }
 
-        // --- UI UTILS ---
-        window.showToast = function(msg, type='success') {
-            const t = document.getElementById('toast'); const icon = document.getElementById('toast-icon');
-            document.getElementById('toast-msg').textContent = msg;
-            if (type === 'error') { t.className = 'fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100'; icon.setAttribute('data-lucide', 'alert-circle'); } 
-            else { t.className = 'fixed bottom-8 right-8 bg-slate-800 dark:bg-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-[110] flex gap-2 items-center transition-all duration-300 transform translate-y-0 opacity-100'; icon.setAttribute('data-lucide', 'check-circle-2'); }
-            if(window.lucide) lucide.createIcons();
-            setTimeout(() => { t.classList.add('translate-y-24', 'opacity-0'); t.classList.remove('translate-y-0', 'opacity-100'); }, 4000);
+        // --- ANTI-LAG SAVE SYSTEM (DEBOUNCING) ---
+        // Sistem ini menahan tombol "Save" agar tidak ditekan beribu kali per detik oleh komputer,
+        // melainkan menunggu 500ms setelah aktivitas selesai, agar browser bisa "bernapas".
+        let saveTimeout = null;
+        window.saveToDB = function() {
+            return new Promise((resolve) => {
+                if(saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(async () => {
+                    try {
+                        const db = await initDB();
+                        const tx = db.transaction('appData', 'readwrite');
+                        // IndexedDB V2: Kita TIDAK LAGI mengubah ke JSON.stringify!
+                        // Menyimpan objek mentah jauh lebih ringan dan anti-freeze.
+                        tx.objectStore('appData').put(window.state, 'mainState');
+                        tx.oncomplete = () => resolve();
+                    } catch(e) {
+                        // Fallback darurat
+                        localStorage.setItem('tarqiyah_state', JSON.stringify(window.state));
+                        resolve();
+                    }
+                }, 500); 
+            });
         }
 
-        window.navigate = function(tab) {
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-'+tab).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('text-primary', 'bg-primary/10'); btn.classList.add('text-slate-500'); });
-            const act = document.getElementById('nav-'+tab);
-            if(act) { act.classList.add('text-primary', 'bg-primary/10'); act.classList.remove('text-slate-500'); }
-            window.scrollTo(0,0);
+        // --- BACKGROUND MIGRATION ENGINE (Pembersih File Lama) ---
+        function base64ToBlob(dataURI) {
+            if (!dataURI) return null;
+            try {
+                const byteString = atob(dataURI.split(',')[1]);
+                const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+                return new Blob([ab], { type: mimeString });
+            } catch(e) { return null; }
         }
 
-        window.toggleTheme = function() { state.theme = state.theme === 'light' ? 'dark' : 'light'; saveToDB(); applyTheme(); }
-
-        function applyTheme(initial=false) {
-            if(state.theme === 'dark') { document.body.classList.add('dark'); document.getElementById('theme-icon').setAttribute('data-lucide', 'sun'); } 
-            else { document.body.classList.remove('dark'); document.getElementById('theme-icon').setAttribute('data-lucide', 'moon'); }
-            if(!initial && window.lucide) { lucide.createIcons(); if(mainChartObj) renderChart(); }
-        }
-
-        function populateSelects() {
-            const opts = `<option value="" disabled selected>Kamar</option>` + kamarOptions.map(k => `<option value="${k}">${k}</option>`).join('');
-            ['bank-in-kamar','edit-naskah-kamar','buku-in-kamar','arsip-k-sq','arsip-k-aq','arsip-k-pq','arsip-k-iq'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = opts; });
-        }
-
-        function updateDates() {
-            const now = new Date();
-            document.getElementById('date-masehi').textContent = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-            try { document.getElementById('date-hijri').textContent = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(now); } catch(e){}
-
-            const el = document.getElementById('dash-countdown');
-            if(state.proyekAktif?.deadlines?.step5) {
-                const mainDl = new Date(state.proyekAktif.deadlines.step5 + "T23:59:59");
-                const diff = mainDl - now;
-                if(diff <= 0) { el.textContent = "Deadline Terlewati!"; el.parentElement.className = "bg-slate-100 text-slate-500 px-4 py-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 w-full mb-3"; }
-                else {
-                    const d = Math.floor(diff / (1000*60*60*24)); const h = Math.floor((diff / (1000*60*60)) % 24);
-                    el.textContent = d > 0 ? `${d} Hari ${h} Jam` : `${h} Jam Tersisa`;
+        async function migrasiDataLama() {
+            let hasChanges = false;
+            const migrasiBenda = async (item, target) => {
+                if (item[target] && item[target].startsWith('data:')) {
+                    const blob = base64ToBlob(item[target]);
+                    if (blob) {
+                        item[target] = await saveFileToDB(blob);
+                        hasChanges = true;
+                    }
                 }
-            } else { el.textContent = "Tenggat Waktu Kosong"; }
+            };
 
-            checkPhaseAlert(now);
+            // Menyisir diam-diam di latar belakang
+            if (state.ebulletins) {
+                for(let e of state.ebulletins) { await migrasiBenda(e, 'pdf'); await migrasiBenda(e, 'cover'); }
+            }
+            if (state.katalogBuku) {
+                for(let b of state.katalogBuku) { await migrasiBenda(b, 'pdf'); await migrasiBenda(b, 'cover'); }
+            }
+
+            if (hasChanges) {
+                await saveToDB();
+                showToast('🚀 Pembersihan file lama selesai! Aplikasi kini anti-lag.');
+            }
         }
 
-        function checkPhaseAlert(now) {
-            const alertBox = document.getElementById('dash-phase-alert');
-            // FIX AUTO-LOAD: Cegah aplikasi crash jika alertBox tidak ditemukan di halaman
-            if(!alertBox) return; 
+        async function loadFromDB() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction('appData', 'readonly');
+                const req = tx.objectStore('appData').get('mainState');
+                req.onsuccess = async () => {
+                    if (req.result) {
+                        // Dukungan kompabilitas backward (jika data sebelumnya terlanjur string)
+                        window.state = typeof req.result === 'string' ? JSON.parse(req.result) : req.result;
+                    } else {
+                        const localData = localStorage.getItem('tarqiyah_state');
+                        if (localData) window.state = JSON.parse(localData);
+                        else window.state = defaultState;
+                    }
+                    
+                    if(!window.state.proyekAktif) window.state = defaultState;
+                    
+                    // JALANKAN PEMBESIH DI LATAR BELAKANG (Delay 3 detik agar tidak ganggu loading awal)
+                    setTimeout(migrasiDataLama, 3000); 
 
-            const activeStep = state.proyekAktif.step || 1;
-            const alertIcon = document.getElementById('dash-phase-alert-icon');
-            const alertTitle = document.getElementById('dash-phase-alert-title');
-            const alertMsg = document.getElementById('dash-phase-alert-msg');
-
-            if(activeStep > 5 || !state.proyekAktif?.deadlines) { alertBox.classList.add('hidden'); return; }
-
-            const phaseDeadlineStr = state.proyekAktif.deadlines[`step${activeStep}`];
-            if(!phaseDeadlineStr) return;
-
-            const diffPhase = new Date(phaseDeadlineStr + "T23:59:59") - now;
-            const daysLeft = Math.floor(diffPhase / (1000*60*60*24));
-
-            if (diffPhase < 0) {
-                alertBox.className = "mb-6 px-6 py-4 rounded-2xl flex items-start sm:items-center justify-between border shadow-sm transition-all duration-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50";
-                alertIcon.setAttribute('data-lucide', 'alert-octagon');
-                alertTitle.textContent = `Deadline Fase '${phaseNames[activeStep-1]}' Terlewat!`; alertMsg.textContent = `Segera selesaikan dan majukan fase agar siklus redaksi tidak terhambat.`;
-                alertBox.classList.remove('hidden'); if(window.lucide) lucide.createIcons();
-            } else if (daysLeft <= 2) {
-                alertBox.className = "mb-6 px-6 py-4 rounded-2xl flex items-start sm:items-center justify-between border shadow-sm transition-all duration-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50";
-                alertIcon.setAttribute('data-lucide', 'alert-triangle');
-                alertTitle.textContent = `Peringatan Mendekati Deadline`; alertMsg.textContent = `Fase '${phaseNames[activeStep-1]}' tersisa ${daysLeft} hari lagi.`;
-                alertBox.classList.remove('hidden'); if(window.lucide) lucide.createIcons();
-            } else alertBox.classList.add('hidden');
-        }
-
-        // --- DASHBOARD ACTIONS ---
-        window.updateCover = async function(input, imgId) {
-            if(input.files && input.files[0]) {
-                try {
-                    const b64 = await getBase64(input.files[0]);
-                    if(imgId === 'proj-cover-img') state.proyekAktif.cover = b64;
-                    if(imgId === 'buku-cover-img') state.bukuAktif.cover = b64;
-                    saveToDB(); showToast('Cover diupdate');
-                } catch(e) { showToast('Gagal memproses gambar', 'error'); }
+                    initializeApp();
+                };
+            } catch(e) {
+                window.state = defaultState;
+                initializeApp();
             }
         }
 
         window.setDashStep = function(step) { state.proyekAktif.step = step; saveToDB(); }
-        
-        window.simpanLineup = function(k) {
-            const j = document.getElementById(`lu-j-${k}`).value.trim(); const p = document.getElementById(`lu-p-${k}`).value.trim(); const km = document.getElementById(`lu-k-${k}`).value;
-            if(!j || !p || !km) return showToast('Lengkapi data!', 'error');
+        // --- OPTIMASI RENDER GAMBAR (ASYNC) ---
+        // Membuat UI tidak menunggu gambar dimuat untuk menampilkan layout
+        window.renderEbulletin = function() { 
+            const container = document.getElementById('ebulletin-grid');
+            if(!state.ebulletins || state.ebulletins.length === 0) {
+                container.innerHTML = '<p class="col-span-full py-12 text-center text-slate-400 text-sm font-bold w-full border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">Belum ada arsip buletin. Silakan unggah PDF.</p>'; 
+                return;
+            }
 
-            const id = 't'+Date.now(); 
-            const naskah = { id, judul:j, penulis:p, kamar:km, rubrik:rubrikMap[k], edisi: state.proyekAktif.edisi };
-            state.tulisan.push(naskah); state.proyekAktif.lineup[k] = id;
-            saveToDB(); showToast('Naskah masuk Line-up!');
+            // Render HTML Kerangka dulu (Sangat Cepat)
+            container.innerHTML = state.ebulletins.map(e => `
+                <div class="relative group w-full max-w-[160px]">
+                    <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 relative cursor-pointer bg-slate-100 dark:bg-slate-800" onclick="bukaPDF('${e.pdf}')">
+                        <img id="cover-img-${e.id}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" class="w-full h-full object-cover transition-opacity duration-300 opacity-0" onload="this.classList.remove('opacity-0')">
+                        <div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                            <i data-lucide="book-open" class="w-6 h-6 mb-2"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-center px-2">Buka PDF</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <h4 class="font-black text-xs text-slate-800 dark:text-white">${e.edisi}</h4>
+                        <div class="flex justify-center gap-3 mt-1.5">
+                            <button onclick="editEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-blue-500 transition-colors"><i data-lucide="edit-3" class="w-3 h-3 inline"></i> Edit</button>
+                            <button onclick="hapusEbulletin('${e.id}')" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline"></i> Hapus</button>
+                        </div>
+                    </div>
+                </div>`).join(''); 
+            
+            if(window.lucide) lucide.createIcons();
+
+            // Kemudian isi gambarnya satu-per-satu di latar belakang
+            state.ebulletins.forEach(async (e) => {
+                const imgEl = document.getElementById(`cover-img-${e.id}`);
+                if(!imgEl) return;
+                
+                if(e.cover && e.cover.startsWith('file_')) {
+                    const blob = await getFileFromDB(e.cover);
+                    if(blob) imgEl.src = URL.createObjectURL(blob);
+                } else if(e.cover) {
+                    imgEl.src = e.cover; // Format Base64 lama atau URL web
+                } else {
+                    imgEl.src = 'https://via.placeholder.com/300x400?text=No+Cover';
+                }
+            });
         }
 
         window.pilihNaskahBank = function(k, id) {
